@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-export const dynamic = "force-dynamic"
 
 type ApplicationRow = {
   id: string

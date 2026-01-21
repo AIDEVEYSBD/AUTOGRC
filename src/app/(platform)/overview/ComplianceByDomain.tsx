@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-export const dynamic = "force-dynamic"
 
 type SecurityDomain = {
   id: string

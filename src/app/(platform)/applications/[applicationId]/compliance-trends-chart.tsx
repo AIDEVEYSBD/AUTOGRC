@@ -1,7 +1,6 @@
 'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
-export const dynamic = "force-dynamic"
 
 interface ComplianceTrendsChartProps {
   data: Array<{ 

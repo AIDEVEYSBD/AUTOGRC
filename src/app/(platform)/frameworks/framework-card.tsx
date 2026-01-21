@@ -4,7 +4,6 @@ import { useDeactivatedFrameworks } from "./deactivated-context"
 import { useState, useTransition } from "react"
 import { FrameworkDetailsModal } from "./framework-details-modal"
 import { fetchFrameworkDetails } from "./framework-actions"
-export const dynamic = "force-dynamic"
 
 type Framework = {
   id: string
