@@ -8,7 +8,6 @@ import {
 import { DeactivatedFrameworksProvider } from "./deactivated-context"
 import { FrameworkCard } from "./framework-card"
 import { ComparisonTable, UnmappedControlsTable } from "./frameworks-tables"
-export const dynamic = "force-dynamic"
 
 export default async function FrameworksPage({
   searchParams,

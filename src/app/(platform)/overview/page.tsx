@@ -12,7 +12,6 @@ import {
 } from "@/lib/overview.queries"
 import { ComplianceByDomain } from "./ComplianceByDomain"
 import { fetchControlsByDomain } from "./actions"
-export const dynamic = "force-dynamic"
 
 export const runtime = "nodejs"
 

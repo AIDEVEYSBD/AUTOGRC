@@ -106,7 +106,6 @@ export async function getOverviewKPIs(
     failingMasterResult,
     totalAppsResult,
     appsCoveredResult,
-    avgScoreResult,
     criticalAppsResult,
   ] = await Promise.all([
     // Total master controls
@@ -123,14 +122,14 @@ export async function getOverviewKPIs(
         SELECT id FROM controls WHERE framework_id = ${masterFrameworkId}
       )
     `,
-    // Failing master controls
+    // Failing master controls (score <= 50)
     db<{ c: string }[]>`
       SELECT COUNT(DISTINCT control_id) AS c
       FROM control_assessments
       WHERE control_id IN (
         SELECT id FROM controls WHERE framework_id = ${masterFrameworkId}
       )
-      AND final_status IN ('Not Compliant', 'Partial Gap')
+      AND final_score <= 50
     `,
     // Total applications
     db<{ c: string }[]>`
@@ -141,27 +140,18 @@ export async function getOverviewKPIs(
       SELECT COUNT(DISTINCT application_id) AS c
       FROM control_assessments
     `,
-    // Average compliance score
-    db<{ avg_score: number }[]>`
-      WITH app_scores AS (
-        SELECT 
-          ca.application_id,
-          AVG(ca.final_score) as avg_score
-        FROM control_assessments ca
-        JOIN controls c ON c.id = ca.control_id
-        WHERE c.framework_id = ${masterFrameworkId}
-        GROUP BY ca.application_id
-      )
-      SELECT COALESCE(AVG(avg_score), 0) as avg_score
-      FROM app_scores
-    `,
-    // Critical apps at risk
+    // Critical apps at risk (C1/C2 with score < 70)
     db<{ c: string }[]>`
-      WITH app_scores AS (
+      WITH master_controls AS (
+        SELECT COUNT(*) as total
+        FROM controls
+        WHERE framework_id = ${masterFrameworkId}
+      ),
+      app_scores AS (
         SELECT 
           ca.application_id,
           a.criticality,
-          AVG(ca.final_score) as avg_score
+          COUNT(*) FILTER (WHERE ca.final_score > 80) as compliant_controls
         FROM control_assessments ca
         JOIN applications a ON a.id = ca.application_id
         JOIN controls c ON c.id = ca.control_id
@@ -170,8 +160,8 @@ export async function getOverviewKPIs(
         GROUP BY ca.application_id, a.criticality
       )
       SELECT COUNT(*) as c
-      FROM app_scores
-      WHERE avg_score < 70
+      FROM app_scores, master_controls
+      WHERE (compliant_controls * 100.0 / master_controls.total) < 70
     `,
   ])
 
@@ -179,6 +169,31 @@ export async function getOverviewKPIs(
   const assessedMaster = Number(assessedMasterResult[0]?.c ?? 0)
   const masterCoveragePercent =
     totalMaster > 0 ? Math.round((assessedMaster / totalMaster) * 100) : 0
+
+  // Calculate average compliance score across all apps
+  // Score = (compliant controls per app / total master controls) * 100
+  const avgScoreResult = await db<{ avg_score: number }[]>`
+    WITH master_controls AS (
+      SELECT COUNT(*) as total
+      FROM controls
+      WHERE framework_id = ${masterFrameworkId}
+    ),
+    app_scores AS (
+      SELECT 
+        ca.application_id,
+        COUNT(*) FILTER (WHERE ca.final_score > 80) as compliant_controls
+      FROM control_assessments ca
+      JOIN controls c ON c.id = ca.control_id
+      WHERE c.framework_id = ${masterFrameworkId}
+      GROUP BY ca.application_id
+    )
+    SELECT COALESCE(
+      AVG(compliant_controls * 100.0 / NULLIF(master_controls.total, 0)),
+      0
+    ) as avg_score
+    FROM app_scores, master_controls
+    WHERE master_controls.total > 0
+  `
 
   return {
     masterCoveragePercent,
@@ -263,6 +278,14 @@ export async function getFrameworkRings(
 export async function getApplicationsMatrix(
   masterFrameworkId: string
 ): Promise<ApplicationsMatrix> {
+  // Get total master controls once
+  const totalMasterControlsResult = await db<{ c: string }[]>`
+    SELECT COUNT(*) AS c
+    FROM controls
+    WHERE framework_id = ${masterFrameworkId}
+  `
+  const totalMasterControls = Number(totalMasterControlsResult[0]?.c ?? 0)
+
   // Get all frameworks INCLUDING the master framework
   const allFrameworks = await db<{ id: string; name: string; is_master: boolean }[]>`
     SELECT id, name, is_master
@@ -299,20 +322,21 @@ export async function getApplicationsMatrix(
           FROM controls
           WHERE framework_id = ${fw.id}
         `
-        const total = Number(totalResult[0]?.c ?? 0)
+        const totalControlsInFramework = Number(totalResult[0]?.c ?? 0)
 
         let assessed = 0
-        let avgScore = 0
+        let compliantControls = 0
+        let score = 0
 
         if (fw.is_master) {
-          // For MASTER framework: Direct compliance scores from assessments
+          // For MASTER framework: Direct compliance from assessments
           const statsResult = await db<{
             assessed: string
-            avg_score: number
+            compliant_controls: string
           }[]>`
             SELECT 
               COUNT(DISTINCT ca.control_id) as assessed,
-              COALESCE(AVG(ca.final_score), 0) as avg_score
+              COUNT(*) FILTER (WHERE ca.final_score > 80) as compliant_controls
             FROM control_assessments ca
             JOIN controls c ON c.id = ca.control_id
             WHERE ca.application_id = ${app.id}
@@ -320,10 +344,14 @@ export async function getApplicationsMatrix(
           `
 
           assessed = Number(statsResult[0]?.assessed ?? 0)
-          avgScore = Math.round(statsResult[0]?.avg_score ?? 0)
+          compliantControls = Number(statsResult[0]?.compliant_controls ?? 0)
+          
+          // Score = (compliant controls / total controls in master) * 100
+          score = totalControlsInFramework > 0 
+            ? Math.round((compliantControls / totalControlsInFramework) * 100)
+            : 0
         } else {
-          // For OTHER frameworks: Propagate scores through mappings
-          // Find the latest completed mapping run between this framework and master
+          // For OTHER frameworks: Map compliance through framework mappings
           const runResult = await db<{ id: string }[]>`
             SELECT id
             FROM framework_map_runs
@@ -338,13 +366,20 @@ export async function getApplicationsMatrix(
           `
 
           if (runResult[0]) {
-            // Propagate compliance scores through the mapping
+            // For each control in THIS framework, check if its mapped master controls are compliant
+            // A control is compliant if ANY of its mapped master controls have score > 80
             const propagatedResult = await db<{
-              controls_with_scores: string
-              avg_propagated_score: number
+              total_fw_controls: string
+              compliant_fw_controls: string
             }[]>`
-              WITH fw_control_mappings AS (
-                -- Get all controls in this framework and their mapped master controls
+              WITH fw_controls AS (
+                -- All controls in this framework
+                SELECT id as control_id
+                FROM controls
+                WHERE framework_id = ${fw.id}
+              ),
+              fw_control_mappings AS (
+                -- Map each framework control to its master control(s)
                 SELECT DISTINCT
                   CASE
                     WHEN r.source_framework_id = ${fw.id} THEN fm.source_control_id
@@ -359,41 +394,43 @@ export async function getApplicationsMatrix(
                 JOIN framework_map_runs r ON r.id = fm.map_run_id
                 WHERE fm.map_run_id = ${runResult[0].id}
               ),
-              control_scores AS (
-                -- For each framework control, get the weighted average of mapped master control scores
+              control_compliance AS (
+                -- For each framework control, check if mapped master controls are compliant
                 SELECT 
-                  fcm.fw_control_id,
-                  -- Weight by overlap_score and average
-                  COALESCE(
-                    SUM(ca.final_score * (fcm.overlap_score / 100.0)) / 
-                    NULLIF(SUM(fcm.overlap_score / 100.0), 0),
-                    0
-                  ) as propagated_score
-                FROM fw_control_mappings fcm
+                  fc.control_id as fw_control_id,
+                  BOOL_OR(ca.final_score > 80) as is_compliant,
+                  COUNT(ca.id) > 0 as has_assessment
+                FROM fw_controls fc
+                LEFT JOIN fw_control_mappings fcm ON fcm.fw_control_id = fc.control_id
                 LEFT JOIN control_assessments ca 
                   ON ca.control_id = fcm.master_control_id
                   AND ca.application_id = ${app.id}
-                GROUP BY fcm.fw_control_id
-                HAVING COUNT(ca.id) > 0  -- Only count controls that have assessments
+                GROUP BY fc.control_id
               )
               SELECT 
-                COUNT(*) as controls_with_scores,
-                COALESCE(AVG(propagated_score), 0) as avg_propagated_score
-              FROM control_scores
+                COUNT(*) as total_fw_controls,
+                COUNT(*) FILTER (WHERE is_compliant = true) as compliant_fw_controls
+              FROM control_compliance
             `
 
-            assessed = Number(propagatedResult[0]?.controls_with_scores ?? 0)
-            avgScore = Math.round(propagatedResult[0]?.avg_propagated_score ?? 0)
+            const totalFwControls = Number(propagatedResult[0]?.total_fw_controls ?? 0)
+            compliantControls = Number(propagatedResult[0]?.compliant_fw_controls ?? 0)
+            assessed = compliantControls // For display purposes
+            
+            // Score = (compliant controls / total controls in this framework) * 100
+            score = totalFwControls > 0 
+              ? Math.round((compliantControls / totalFwControls) * 100)
+              : 0
           }
         }
 
         byFramework[fw.id] = {
           done: assessed,
-          total: total,
-          percent: avgScore,
+          total: totalControlsInFramework,
+          percent: score,
         }
 
-        sum += avgScore
+        sum += score
         count++
       }
 
@@ -417,6 +454,14 @@ export async function getApplicationsMatrix(
 export async function getSecurityDomains(
   masterFrameworkId: string
 ): Promise<SecurityDomain[]> {
+  // Get total master controls
+  const totalMasterControlsResult = await db<{ c: string }[]>`
+    SELECT COUNT(*) AS c
+    FROM controls
+    WHERE framework_id = ${masterFrameworkId}
+  `
+  const totalMasterControls = Number(totalMasterControlsResult[0]?.c ?? 0)
+
   const domains = await db<{
     domain: string
     controls: string
@@ -428,7 +473,12 @@ export async function getSecurityDomains(
         COUNT(*) as controls,
         AVG(
           (
-            SELECT AVG(ca.final_score)
+            SELECT 
+              CASE 
+                WHEN COUNT(*) FILTER (WHERE ca.final_score > 80) > 0 AND ${totalMasterControls} > 0
+                THEN (COUNT(*) FILTER (WHERE ca.final_score > 80) * 100.0 / ${totalMasterControls})
+                ELSE 0
+              END
             FROM control_assessments ca
             WHERE ca.control_id = c.id
           )
@@ -463,6 +513,18 @@ export async function getSecurityDomains(
 }
 
 export async function getNonCompliantApplications(): Promise<ComplianceApp[]> {
+  // Get total master controls
+  const masterFrameworkId = await getMasterFrameworkId()
+  if (!masterFrameworkId) return []
+
+  const totalMasterControlsResult = await db<{ c: string }[]>`
+    SELECT COUNT(*) AS c
+    FROM controls c
+    JOIN frameworks f ON f.id = c.framework_id
+    WHERE f.is_master = true
+  `
+  const totalMasterControls = Number(totalMasterControlsResult[0]?.c ?? 0)
+
   const apps = await db<{
     id: string
     name: string
@@ -476,10 +538,14 @@ export async function getNonCompliantApplications(): Promise<ComplianceApp[]> {
         a.name,
         a.service_owner as owner,
         a.criticality,
-        COALESCE(
-          ROUND(AVG(ca.final_score)::numeric, 1),
-          0
-        ) as percent
+        CASE 
+          WHEN ${totalMasterControls} > 0 THEN
+            ROUND(
+              (COUNT(*) FILTER (WHERE ca.final_score > 80) * 100.0 / ${totalMasterControls})::numeric,
+              1
+            )
+          ELSE 0
+        END as percent
       FROM applications a
       LEFT JOIN control_assessments ca ON ca.application_id = a.id
       GROUP BY a.id, a.name, a.service_owner, a.criticality
@@ -511,6 +577,18 @@ export async function getNonCompliantApplications(): Promise<ComplianceApp[]> {
 }
 
 export async function getCompliantApplications(): Promise<ComplianceApp[]> {
+  // Get total master controls
+  const masterFrameworkId = await getMasterFrameworkId()
+  if (!masterFrameworkId) return []
+
+  const totalMasterControlsResult = await db<{ c: string }[]>`
+    SELECT COUNT(*) AS c
+    FROM controls c
+    JOIN frameworks f ON f.id = c.framework_id
+    WHERE f.is_master = true
+  `
+  const totalMasterControls = Number(totalMasterControlsResult[0]?.c ?? 0)
+
   const apps = await db<{
     id: string
     name: string
@@ -524,10 +602,14 @@ export async function getCompliantApplications(): Promise<ComplianceApp[]> {
         a.name,
         a.service_owner as owner,
         a.criticality,
-        COALESCE(
-          ROUND(AVG(ca.final_score)::numeric, 1),
-          0
-        ) as percent
+        CASE 
+          WHEN ${totalMasterControls} > 0 THEN
+            ROUND(
+              (COUNT(*) FILTER (WHERE ca.final_score > 80) * 100.0 / ${totalMasterControls})::numeric,
+              1
+            )
+          ELSE 0
+        END as percent
       FROM applications a
       LEFT JOIN control_assessments ca ON ca.application_id = a.id
       GROUP BY a.id, a.name, a.service_owner, a.criticality
@@ -572,10 +654,10 @@ export async function getControlsByDomain(
       c.control_type as "controlType",
       c.is_automated as "isAutomated",
       COUNT(DISTINCT ca.application_id) FILTER (
-        WHERE ca.final_status = 'Compliant'
+        WHERE ca.final_score > 80
       ) as "compliantApps",
       COUNT(DISTINCT ca.application_id) FILTER (
-        WHERE ca.final_status IN ('Not Compliant', 'Partial Gap')
+        WHERE ca.final_score <= 50
       ) as "nonCompliantApps",
       COALESCE(
         ROUND(AVG(ca.final_score)::numeric, 1),
@@ -602,6 +684,14 @@ export async function getControlsByDomain(
 export async function getApplicabilityMetrics(
   masterFrameworkId: string
 ): Promise<ApplicabilityMetric[]> {
+  // Get total master controls
+  const totalMasterControlsResult = await db<{ c: string }[]>`
+    SELECT COUNT(*) AS c
+    FROM controls
+    WHERE framework_id = ${masterFrameworkId}
+  `
+  const totalMasterControls = Number(totalMasterControlsResult[0]?.c ?? 0)
+
   const metrics = await db<{
     categoryId: string
     categoryName: string
@@ -617,13 +707,24 @@ export async function getApplicabilityMetrics(
         ac.name as category_name,
         ac.code as category_code,
         COUNT(DISTINCT aa.application_id) as application_count,
-        COALESCE(
-          ROUND(AVG(ca.final_score)::numeric, 1),
-          0
-        ) as avg_compliance_score
+        CASE 
+          WHEN ${totalMasterControls} > 0 THEN
+            COALESCE(
+              ROUND(
+                AVG(
+                  (SELECT COUNT(*) FILTER (WHERE ca2.final_score > 80)
+                   FROM control_assessments ca2
+                   WHERE ca2.application_id = aa.application_id)
+                * 100.0 / ${totalMasterControls}
+                )::numeric,
+                1
+              ),
+              0
+            )
+          ELSE 0
+        END as avg_compliance_score
       FROM applicability_categories ac
       LEFT JOIN application_applicability aa ON aa.applicability_id = ac.id
-      LEFT JOIN control_assessments ca ON ca.application_id = aa.application_id
       GROUP BY ac.id, ac.name, ac.code
     ),
     category_controls AS (
@@ -632,7 +733,7 @@ export async function getApplicabilityMetrics(
         COUNT(DISTINCT CASE 
           WHEN ca.control_id IS NOT NULL THEN ca.control_id 
         END) as controls_covered,
-        (SELECT COUNT(*) FROM controls WHERE framework_id = ${masterFrameworkId}) as total_controls
+        ${totalMasterControls} as total_controls
       FROM applicability_categories ac
       LEFT JOIN application_applicability aa ON aa.applicability_id = ac.id
       LEFT JOIN control_assessments ca ON ca.application_id = aa.application_id

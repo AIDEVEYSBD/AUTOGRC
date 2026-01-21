@@ -79,12 +79,29 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
    * - control_assessments (final_score, final_status)
    * - applications (all new fields)
    * - application_applicability + applicability_categories
+   * 
+   * CORRECTED LOGIC:
+   * - Score = (compliant controls in assessments) / (total controls in master framework) * 100
+   * - Non-compliances = controls with final_score <= 50
+   * - Only count MASTER framework controls (not all assessments)
    */
+
+  // First, get the total number of controls in the master framework
+  const masterFrameworkControls = await db<Array<{ totalControls: string; masterFrameworkId: string }>>`
+    SELECT COUNT(*) as "totalControls", f.id as "masterFrameworkId"
+    FROM controls c
+    JOIN frameworks f ON f.id = c.framework_id
+    WHERE f.is_master = true
+    GROUP BY f.id
+  `
+  
+  const totalMasterControls = Number(masterFrameworkControls[0]?.totalControls || 0)
+  const masterFrameworkId = masterFrameworkControls[0]?.masterFrameworkId
 
   const rowsRaw = await db<
     Array<
       Omit<ApplicationRow, "status" | "score" | "nonCompliances" | "applicabilityCategories"> & {
-        score: string | null
+        compliantControls: string
         nonCompliances: string
         applicabilityCategories: string | null
       }
@@ -111,16 +128,25 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
       a.service_management AS "serviceManagement",
       a.cloud_provider AS "cloudProvider",
       
-      AVG(ca.final_score) AS score,
-      COUNT(*) FILTER (
-        WHERE ca.final_status IN ('Not Compliant', 'Partial Gap')
+      -- Count DISTINCT compliant master framework controls (score > 80)
+      COUNT(DISTINCT ca.control_id) FILTER (
+        WHERE ca.final_score > 80
+        AND c.framework_id = ${masterFrameworkId}
+      ) AS "compliantControls",
+      
+      -- Count DISTINCT non-compliances (score <= 50)
+      COUNT(DISTINCT ca.control_id) FILTER (
+        WHERE ca.final_score <= 50
+        AND c.framework_id = ${masterFrameworkId}
       ) AS "nonCompliances",
+      
       MAX(ca.assessed_at) AS "lastAssessedAt",
       
       STRING_AGG(DISTINCT ac.name, ', ' ORDER BY ac.name) AS "applicabilityCategories"
       
     FROM applications a
     LEFT JOIN control_assessments ca ON ca.application_id = a.id
+    LEFT JOIN controls c ON c.id = ca.control_id
     LEFT JOIN application_applicability aa ON aa.application_id = a.id
     LEFT JOIN applicability_categories ac ON ac.id = aa.applicability_id
     
@@ -141,10 +167,13 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
   let warning = 0
   let critical = 0
   let scoreSum = 0
-  let scoredApps = 0
 
   const rows: ApplicationRow[] = rowsRaw.map(r => {
-    const score = r.score !== null ? Math.round(Number(r.score)) : 0
+    // Calculate score: (compliant controls / total master controls) * 100
+    const compliantControls = Number(r.compliantControls)
+    const score = totalMasterControls > 0 
+      ? Math.round((compliantControls / totalMasterControls) * 100)
+      : 0
 
     let status: ApplicationStatus
     if (score >= 80) {
@@ -158,10 +187,7 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
       critical++
     }
 
-    if (r.score !== null) {
-      scoreSum += score
-      scoredApps++
-    }
+    scoreSum += score
 
     return {
       ...r,
@@ -175,7 +201,7 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
   })
 
   const totalApplications = rows.length
-  const avgScore = scoredApps > 0 ? Math.round(scoreSum / scoredApps) : 0
+  const avgScore = totalApplications > 0 ? Math.round(scoreSum / totalApplications) : 0
 
   return {
     kpis: {
@@ -229,4 +255,83 @@ export async function getAllApplicabilityCategories(): Promise<
   `
 
   return result
+}
+
+/* ─────────────────────────────────────────────
+   Compliance Trends (6 months)
+───────────────────────────────────────────── */
+
+export type ComplianceTrend = {
+  month: string
+  score: number
+}
+
+export async function getComplianceTrends(): Promise<ComplianceTrend[]> {
+  /**
+   * Returns compliance trends for the past 6 months
+   * Current month uses real data from assessments
+   * Previous 5 months use generated demo data (random variations)
+   * 
+   * Formula: (compliant controls / total master controls) * 100
+   */
+
+  // Get total master controls
+  const masterFrameworkControls = await db<Array<{ totalControls: string; masterFrameworkId: string }>>`
+    SELECT COUNT(*) as "totalControls", f.id as "masterFrameworkId"
+    FROM controls c
+    JOIN frameworks f ON f.id = c.framework_id
+    WHERE f.is_master = true
+    GROUP BY f.id
+  `
+  
+  const totalMasterControls = Number(masterFrameworkControls[0]?.totalControls || 0)
+  const masterFrameworkId = masterFrameworkControls[0]?.masterFrameworkId
+
+  if (!masterFrameworkId || totalMasterControls === 0) {
+    return []
+  }
+
+  // Get current month's actual compliance score
+  const currentScoreResult = await db<Array<{ compliantControls: string }>>`
+    SELECT 
+      COUNT(DISTINCT ca.control_id) as "compliantControls"
+    FROM control_assessments ca
+    JOIN controls c ON c.id = ca.control_id
+    WHERE ca.final_score > 80
+      AND c.framework_id = ${masterFrameworkId}
+  `
+
+  const currentCompliantControls = Number(currentScoreResult[0]?.compliantControls || 0)
+  const currentScore = totalMasterControls > 0 
+    ? Math.round((currentCompliantControls / totalMasterControls) * 100)
+    : 0
+
+  // Generate past 5 months with demo data (random variations around current score)
+  const months = []
+  const now = new Date()
+  
+  // Generate past 5 months (demo data)
+  for (let i = 5; i >= 1; i--) {
+    const date = new Date(now)
+    date.setMonth(date.getMonth() - i)
+    const monthName = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+    
+    // Generate random score within ±15% of current score, bounded by 0-100
+    const variation = Math.floor(Math.random() * 30) - 15 // -15 to +15
+    const demoScore = Math.max(0, Math.min(100, currentScore + variation))
+    
+    months.push({
+      month: monthName,
+      score: demoScore,
+    })
+  }
+
+  // Add current month with real data
+  const currentMonth = now.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+  months.push({
+    month: currentMonth,
+    score: currentScore,
+  })
+
+  return months
 }

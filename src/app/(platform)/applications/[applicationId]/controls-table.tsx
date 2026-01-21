@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import ReactMarkdown from "react-markdown"
 import type { ControlAssessmentRow, EvidenceRow } from "@/lib/application-detail.queries"
 
 type SortKey = "controlCode" | "domain" | "complianceScore" | "status"
@@ -252,8 +253,47 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Explanation
               </div>
-              <div className="text-sm text-gray-700 leading-relaxed">
-                {evidence.explanation}
+              <div className="prose prose-sm max-w-none text-gray-700">
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                    ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                    li: ({ children }) => <li className="ml-2">{children}</li>,
+                    strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                    em: ({ children }) => <em className="italic">{children}</em>,
+                    code: ({ children }) => (
+                      <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
+                        {children}
+                      </code>
+                    ),
+                    pre: ({ children }) => (
+                      <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">
+                        {children}
+                      </pre>
+                    ),
+                    h1: ({ children }) => <h1 className="text-base font-semibold mb-2">{children}</h1>,
+                    h2: ({ children }) => <h2 className="text-sm font-semibold mb-2">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-sm font-medium mb-1">{children}</h3>,
+                    a: ({ children, href }) => (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {children}
+                      </a>
+                    ),
+                    blockquote: ({ children }) => (
+                      <blockquote className="border-l-4 border-gray-300 pl-3 italic text-gray-600 mb-2">
+                        {children}
+                      </blockquote>
+                    ),
+                  }}
+                >
+                  {evidence.explanation}
+                </ReactMarkdown>
               </div>
             </div>
           )}
@@ -271,13 +311,13 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
             </div>
           )}
 
-          {(evidence.integrationRunId || evidence.socRunId) && (
+          {(evidence.automationRunId || evidence.socRunId) && (
             <div className="flex items-center gap-4 text-xs text-gray-500 pt-2 border-t border-gray-200">
-              {evidence.integrationRunId && (
+              {evidence.automationRunId && (
                 <div>
-                  <span className="font-medium">Integration Run: </span>
+                  <span className="font-medium">Automation Run: </span>
                   <span className="font-mono">
-                    {evidence.integrationRunId.slice(0, 8)}...
+                    {evidence.automationRunId.slice(0, 8)}...
                   </span>
                 </div>
               )}
