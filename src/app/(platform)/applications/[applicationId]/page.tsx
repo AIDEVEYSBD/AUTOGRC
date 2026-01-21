@@ -6,7 +6,7 @@ import ComplianceTrendsChart from "./compliance-trends-chart"
 /* ─────────────────────────────────────────────
    Page (Server Component)
 ───────────────────────────────────────────── */
-
+export const dynamic = "force-dynamic"
 export default async function ApplicationDetailPage({
   params,
 }: {

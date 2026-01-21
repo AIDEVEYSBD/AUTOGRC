@@ -1,1062 +1,2001 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+import {
+  fetchAutomations,
+  fetchAutomationRuns,
+  fetchControlOptions,
+  fetchApplicabilityCategoryOptions,
+  fetchApplicationOptions,
+  fetchIntegrationTableOptions,
+  fetchTableColumns,
+  fetchQueryPreview,
+  fetchAutomationKPIs,
+  createAutomation,
+  updateAutomation,
+  deleteAutomation,
+  executeAutomation,
+} from "./automations-actions"
+import type {
+  Automation,
+  AutomationRun,
+  ControlOption,
+  ApplicabilityCategoryOption,
+  ApplicationOption,
+  IntegrationTableOption,
+  TableColumn,
+  QueryBuilderState,
+  QueryJoin,
+  QuerySelect,
+  QueryCondition,
+  QueryOrderBy,
+  QueryPreviewResult,
+} from "@/lib/automations.types"
+export const dynamic = "force-dynamic"
+/* ───────────────────────────────────────────── */
+/* Custom Dropdown Component                     */
+/* ───────────────────────────────────────────── */
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_AUTOGRC_API_BASE?.replace(/\/$/, "") ||
-  "http://localhost:3200"
-
-// ─────────────────────────────────────────────
-// Constants
-// ─────────────────────────────────────────────
-const DEFAULT_FRAMEWORK_ID = "120051de-9207-4ab8-92ef-dc0bd31b8227" // CIS
-const DEFAULT_INTEGRATION = "ssl_labs"
-
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
-type EvidenceSource = {
-  key: string
-  label: string
-  table: string
-  description: string
-}
-
-type EvidenceField = {
-  name: string
-  type: "number" | "boolean" | "string"
-  operators: string[]
-}
-
-type EvidenceSourceFields = {
-  evidence_source: string
-  fields: EvidenceField[]
-}
-
-type Framework = { id: string; name: string }
-
-type Control = {
-  id: string
-  code: string
-  statement: string
-  domain: string
-  sub_domain: string
-  label: string
-}
-
-type RuleListItem = {
-  id: string
-  name: string
-  integration: string
-  control_id: string
-  rule: any
-}
-
-type PreviewResponse = {
-  pass: number
-  fail: number
-  results: any[]
-}
-
-type RunAllResponse = {
-  run_id: string
-  rules_executed: number
-}
-
-type ConditionRow = {
-  id: string
-  field: string
-  operator: string
+interface CustomSelectOption {
   value: string
+  label: string
+  description?: string
+  badge?: string
 }
 
-// ─────────────────────────────────────────────
-// Utility Functions
-// ─────────────────────────────────────────────
-function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ")
-}
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Select an option...",
+  disabled = false,
+  searchable = false,
+  className = "",
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: CustomSelectOption[]
+  placeholder?: string
+  disabled?: boolean
+  searchable?: boolean
+  className?: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const containerRef = useRef<HTMLDivElement>(null)
 
-function formatMaybe(value: any) {
-  if (value === null || value === undefined || value === "") return "—"
-  return String(value)
-}
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+        setSearchTerm("")
+      }
+    }
 
-function uniq<T>(arr: T[]) {
-  return Array.from(new Set(arr))
-}
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
 
-function formatJson(obj: any): string {
-  try {
-    return JSON.stringify(obj, null, 2)
-  } catch {
-    return ""
-  }
-}
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isOpen])
 
-function parseJson(text: string): { ok: true; value: any } | { ok: false; error: string } {
-  try {
-    return { ok: true, value: JSON.parse(text) }
-  } catch (e: any) {
-    return { ok: false, error: e?.message || "Invalid JSON" }
-  }
-}
-
-// ─────────────────────────────────────────────
-// Reusable Components
-// ─────────────────────────────────────────────
-function StatusPill({ text }: { text: string }) {
-  const t = (text || "").toLowerCase()
-  const base = "inline-flex items-center gap-2 px-2.5 py-1 text-xs font-semibold border rounded-md transition-all duration-200"
-
-  if (t.includes("error") || t.includes("fail")) {
-    return (
-      <span className={cx(base, "border-red-200 bg-red-50 text-red-700")}>
-        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-        {text}
-      </span>
-    )
-  }
-
-  if (t.includes("running") || t.includes("queued")) {
-    return (
-      <span className={cx(base, "border-amber-200 bg-amber-50 text-amber-800")}>
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-        {text}
-      </span>
-    )
-  }
+  const selectedOption = options.find(opt => opt.value === value)
+  const filteredOptions = searchable && searchTerm
+    ? options.filter(opt => 
+        opt.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        opt.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : options
 
   return (
-    <span className={cx(base, "border-emerald-200 bg-emerald-50 text-emerald-700")}>
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-      {text}
-    </span>
+    <div ref={containerRef} className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
+        className={`
+          w-full flex items-center justify-between gap-3 px-4 py-2.5 
+          border border-[#cccccc] rounded bg-white text-[#333333]
+          transition-colors
+          ${isOpen ? "border-[#ffe600]" : "hover:border-[#999999]"}
+          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+        `}
+      >
+        <div className="flex-1 text-left text-sm">
+          {selectedOption ? (
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{selectedOption.label}</span>
+              {selectedOption.badge && (
+                <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                  {selectedOption.badge}
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="text-[#999999]">{placeholder}</span>
+          )}
+        </div>
+        <span className={`text-[#666666] text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-[#ffe600] rounded shadow-lg max-h-80 overflow-hidden">
+          {searchable && (
+            <div className="p-2 border-b border-[#e5e7eb]">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                placeholder="Search..."
+                className="w-full px-3 py-2 text-sm border border-[#cccccc] rounded focus:outline-none focus:border-[#ffe600]"
+                autoFocus
+              />
+            </div>
+          )}
+          <div className="overflow-y-auto max-h-64">
+            {filteredOptions.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-[#999999]">
+                No options found
+              </div>
+            ) : (
+              filteredOptions.map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value)
+                    setIsOpen(false)
+                    setSearchTerm("")
+                  }}
+                  className={`
+                    w-full px-4 py-3 text-left text-sm transition-colors
+                    ${value === option.value ? "bg-[#ffe600]/20" : "hover:bg-[#f9f9f9]"}
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-[#333333]">{option.label}</span>
+                    {option.badge && (
+                      <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                        {option.badge}
+                      </span>
+                    )}
+                  </div>
+                  {option.description && (
+                    <div className="text-xs text-[#666666] mt-1">{option.description}</div>
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
-function Toast({ type, message, onDismiss }: { type: "ok" | "err"; message: string; onDismiss: () => void }) {
+/* ───────────────────────────────────────────── */
+/* Helper Functions                              */
+/* ───────────────────────────────────────────── */
+
+function formatDateTime(dateString: string | null): string {
+  if (!dateString) return "Never"
+  const date = new Date(dateString)
+  return date.toLocaleString()
+}
+
+function getStatusColor(status: string): string {
+  switch (status) {
+    case "Success": return "text-[#00a758]"
+    case "Failed": return "text-[#e41f13]"
+    case "Running": return "text-[#f59e0b]"
+    default: return "text-[#666666]"
+  }
+}
+
+function generateQuerySQL(query: QueryBuilderState): string {
+  const lines: string[] = []
+
+  // SELECT clause
+  if (query.selectColumns.length === 0) {
+    lines.push("SELECT *")
+  } else {
+    lines.push("SELECT")
+    const selectLines = query.selectColumns.map((col, i) => {
+      const isLast = i === query.selectColumns.length - 1
+      const expr = col.aggregate 
+        ? `${col.aggregate}(${col.expression})` 
+        : col.expression
+      const alias = col.alias ? ` AS ${col.alias}` : ""
+      return `  ${expr}${alias}${isLast ? "" : ","}`
+    })
+    lines.push(...selectLines)
+  }
+
+  // FROM clause
+  lines.push(`FROM ${query.fromTable} ${query.fromAlias}`)
+
+  // JOIN clauses
+  query.joins.forEach(join => {
+    lines.push(`${join.type} JOIN ${join.table} ${join.alias}`)
+    lines.push(`  ON ${join.onLeft} = ${join.onRight}`)
+  })
+
+  // WHERE clause
+  if (query.whereConditions.length > 0) {
+    lines.push("WHERE")
+    query.whereConditions.forEach((cond, i) => {
+      const prefix = i === 0 ? "  " : `  ${cond.logic} `
+      const right = ["IS NULL", "IS NOT NULL"].includes(cond.operator) 
+        ? "" 
+        : ` ${cond.right}`
+      lines.push(`${prefix}${cond.left} ${cond.operator}${right}`)
+    })
+  }
+
+  // GROUP BY clause
+  if (query.groupByColumns.length > 0) {
+    lines.push(`GROUP BY ${query.groupByColumns.join(", ")}`)
+  }
+
+  // HAVING clause
+  if (query.havingConditions.length > 0) {
+    lines.push("HAVING")
+    query.havingConditions.forEach((cond, i) => {
+      const prefix = i === 0 ? "  " : `  ${cond.logic} `
+      const right = ["IS NULL", "IS NOT NULL"].includes(cond.operator) 
+        ? "" 
+        : ` ${cond.right}`
+      lines.push(`${prefix}${cond.left} ${cond.operator}${right}`)
+    })
+  }
+
+  // ORDER BY clause
+  if (query.orderByColumns.length > 0) {
+    const orderCols = query.orderByColumns
+      .map(col => `${col.column} ${col.direction}`)
+      .join(", ")
+    lines.push(`ORDER BY ${orderCols}`)
+  }
+
+  return lines.join("\n") + ";"
+}
+
+/* ───────────────────────────────────────────── */
+/* Main Component                                */
+/* ───────────────────────────────────────────── */
+
+export default function AutomationsPage() {
+  const [automations, setAutomations] = useState<Automation[]>([])
+  const [loading, setLoading] = useState(true)
+  const [kpis, setKpis] = useState({
+    totalAutomations: 0,
+    controlsCovered: 0,
+    runs24h: 0,
+    successRate: 0,
+  })
+
+  // Expanded cards state
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
+  const [cardRuns, setCardRuns] = useState<Map<string, AutomationRun[]>>(new Map())
+  const [loadingRuns, setLoadingRuns] = useState<Set<string>>(new Set())
+
+  // Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingAutomation, setEditingAutomation] = useState<Automation | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  // Multi-step modal state
+  const [currentStep, setCurrentStep] = useState(1)
+  const totalSteps = 4
+
+  // Form data
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    controlId: "",
+    applyScope: "AllApplications" as "AllApplications" | "ByApplicability" | "SelectedApplications",
+    applicabilityIds: [] as string[],
+    applicationIds: [] as string[],
+    sqlText: "",
+    sourceIntegrations: [] as string[],
+    answerPass: "",
+    answerFail: "",
+  })
+
+  // Query builder state
+  const [queryBuilder, setQueryBuilder] = useState<QueryBuilderState>({
+    fromTable: "applications",
+    fromAlias: "a",
+    joins: [],
+    selectColumns: [
+      { id: crypto.randomUUID(), expression: "a.id", alias: "application_id", aggregate: null },
+    ],
+    whereConditions: [],
+    groupByColumns: [],
+    havingConditions: [],
+    orderByColumns: [],
+  })
+
+  // Query preview state
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewResult, setPreviewResult] = useState<QueryPreviewResult | null>(null)
+  const [loadingPreview, setLoadingPreview] = useState(false)
+
+  // Options for dropdowns
+  const [controlOptions, setControlOptions] = useState<ControlOption[]>([])
+  const [applicabilityOptions, setApplicabilityOptions] = useState<ApplicabilityCategoryOption[]>([])
+  const [applicationOptions, setApplicationOptions] = useState<ApplicationOption[]>([])
+  const [integrationTables, setIntegrationTables] = useState<IntegrationTableOption[]>([])
+  const [availableTables, setAvailableTables] = useState<string[]>([])
+  const [tableColumns, setTableColumns] = useState<Map<string, TableColumn[]>>(new Map())
+
   useEffect(() => {
-    const timer = setTimeout(onDismiss, 3500)
-    return () => clearTimeout(timer)
-  }, [onDismiss])
+    loadData()
+  }, [])
+
+  useEffect(() => {
+    // Build available tables list
+    const tables = ["applications", ...integrationTables.map(t => t.tableName)]
+    setAvailableTables(tables)
+  }, [integrationTables])
+
+  async function loadData() {
+    try {
+      setLoading(true)
+      const [automationsData, kpisData, controls, categories, apps, tables] = await Promise.all([
+        fetchAutomations(),
+        fetchAutomationKPIs(),
+        fetchControlOptions(),
+        fetchApplicabilityCategoryOptions(),
+        fetchApplicationOptions(),
+        fetchIntegrationTableOptions(),
+      ])
+      
+      setAutomations(automationsData)
+      setKpis(kpisData)
+      setControlOptions(controls)
+      setApplicabilityOptions(categories)
+      setApplicationOptions(apps)
+      setIntegrationTables(tables)
+
+      // Preload columns for applications table
+      const appColumns = await fetchTableColumns("applications")
+      setTableColumns(new Map([["applications", appColumns]]))
+    } catch (error) {
+      console.error("Failed to load data:", error)
+      alert("Failed to load automations")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function loadColumnsForTable(tableName: string) {
+    if (tableColumns.has(tableName)) return
+    
+    try {
+      const columns = await fetchTableColumns(tableName)
+      setTableColumns(new Map(tableColumns).set(tableName, columns))
+    } catch (error) {
+      console.error(`Failed to load columns for ${tableName}:`, error)
+    }
+  }
+
+  async function toggleCard(automationId: string) {
+    const newExpanded = new Set(expandedCards)
+    
+    if (expandedCards.has(automationId)) {
+      newExpanded.delete(automationId)
+      setExpandedCards(newExpanded)
+    } else {
+      newExpanded.add(automationId)
+      setExpandedCards(newExpanded)
+      
+      if (!cardRuns.has(automationId)) {
+        await loadRunsForCard(automationId)
+      }
+    }
+  }
+
+  async function loadRunsForCard(automationId: string) {
+    try {
+      setLoadingRuns(prev => new Set(prev).add(automationId))
+      const runs = await fetchAutomationRuns(automationId, 10)
+      setCardRuns(prev => new Map(prev).set(automationId, runs))
+    } catch (error) {
+      console.error("Failed to load runs:", error)
+    } finally {
+      setLoadingRuns(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(automationId)
+        return newSet
+      })
+    }
+  }
+
+  function openCreateModal() {
+    resetForm()
+    setEditingAutomation(null)
+    setCurrentStep(1)
+    setShowCreateModal(true)
+  }
+
+  function openEditModal(automation: Automation) {
+    setFormData({
+      name: automation.name,
+      description: automation.description || "",
+      controlId: automation.controlId,
+      applyScope: automation.applyScope,
+      applicabilityIds: automation.applicabilityIds || [],
+      applicationIds: automation.applicationIds || [],
+      sqlText: automation.sqlText,
+      sourceIntegrations: automation.sourceIntegrations || [],
+      answerPass: automation.answerPass,
+      answerFail: automation.answerFail,
+    })
+    setEditingAutomation(automation)
+    setCurrentStep(1)
+    setShowCreateModal(true)
+  }
+
+  function resetForm() {
+    setFormData({
+      name: "",
+      description: "",
+      controlId: "",
+      applyScope: "AllApplications",
+      applicabilityIds: [],
+      applicationIds: [],
+      sqlText: "",
+      sourceIntegrations: [],
+      answerPass: "",
+      answerFail: "",
+    })
+    setQueryBuilder({
+      fromTable: "applications",
+      fromAlias: "a",
+      joins: [],
+      selectColumns: [
+        { id: crypto.randomUUID(), expression: "a.id", alias: "application_id", aggregate: null },
+      ],
+      whereConditions: [],
+      groupByColumns: [],
+      havingConditions: [],
+      orderByColumns: [],
+    })
+    setPreviewResult(null)
+  }
+
+  function nextStep() {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  function canProceedToNextStep(): boolean {
+    switch (currentStep) {
+      case 1:
+        return !!(formData.name.trim() && formData.controlId)
+      case 2:
+        if (formData.applyScope === "ByApplicability") {
+          return formData.applicabilityIds.length > 0
+        }
+        if (formData.applyScope === "SelectedApplications") {
+          return formData.applicationIds.length > 0
+        }
+        return true
+      case 3:
+        return !!formData.sqlText.trim()
+      case 4:
+        return !!(formData.answerPass.trim() && formData.answerFail.trim())
+      default:
+        return false
+    }
+  }
+
+  async function handleSubmit() {
+    if (!canProceedToNextStep()) return
+
+    try {
+      setSubmitting(true)
+
+      const result = editingAutomation
+        ? await updateAutomation(editingAutomation.id, formData)
+        : await createAutomation(formData)
+
+      if (result.success) {
+        setShowCreateModal(false)
+        await loadData()
+        alert(editingAutomation ? "Automation updated successfully" : "Automation created successfully")
+      } else {
+        alert(result.error || "Failed to save automation")
+      }
+    } catch (error) {
+      console.error("Failed to save automation:", error)
+      alert("Failed to save automation")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleDelete(automation: Automation) {
+    if (!confirm(`Are you sure you want to delete "${automation.name}"? This will also delete all associated runs and evidence.`)) {
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const result = await deleteAutomation(automation.id)
+      
+      if (result.success) {
+        await loadData()
+        alert("Automation deleted successfully")
+      } else {
+        alert(result.error || "Failed to delete automation")
+      }
+    } catch (error) {
+      console.error("Failed to delete automation:", error)
+      alert("Failed to delete automation")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleExecute(automation: Automation) {
+    if (!confirm(`Execute automation "${automation.name}"? This will assess all applicable applications.`)) {
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const result = await executeAutomation(automation.id, "Manual")
+      
+      if (result.success) {
+        alert("Automation executed successfully")
+        await loadData()
+        if (expandedCards.has(automation.id)) {
+          await loadRunsForCard(automation.id)
+        }
+      } else {
+        alert(result.error || "Failed to execute automation")
+      }
+    } catch (error) {
+      console.error("Failed to execute automation:", error)
+      alert("Failed to execute automation")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handlePreviewQuery() {
+    try {
+      setLoadingPreview(true)
+      const result = await fetchQueryPreview(formData.sqlText, 10)
+      setPreviewResult(result)
+      setShowPreview(true)
+    } catch (error) {
+      console.error("Failed to preview query:", error)
+      alert("Failed to preview query")
+    } finally {
+      setLoadingPreview(false)
+    }
+  }
+
+  function updateQueryFromBuilder() {
+    const sql = generateQuerySQL(queryBuilder)
+    setFormData(prev => ({ ...prev, sqlText: sql }))
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-[#666666]">Loading automations...</div>
+      </div>
+    )
+  }
 
   return (
-    <div
-      className={cx(
-        "fixed right-6 top-6 z-[60] px-4 py-3 border rounded-md shadow-lg",
-        "animate-in slide-in-from-top-5 duration-300",
-        type === "ok"
-          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-          : "border-red-200 bg-red-50 text-red-800"
-      )}
-    >
-      <div className="flex items-center gap-3">
-        <div className="text-sm font-semibold">{message}</div>
+    <div className="space-y-8 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-[#333333]">
+            Control Automations
+          </h1>
+          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+            Create automated rules to continuously test compliance requirements across your applications.
+            Define tests that run automatically to ensure ongoing compliance.
+          </p>
+        </div>
+
         <button
-          onClick={onDismiss}
-          className="text-gray-500 hover:text-gray-700 transition-colors"
+          onClick={openCreateModal}
+          className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
         >
-          ×
+          Create Automation
         </button>
       </div>
-    </div>
-  )
-}
 
-function KPICard({ value, label }: { value: number | string; label: string }) {
-  return (
-    <div className="border border-gray-200 bg-white p-4 rounded-lg hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-      <div className="text-2xl font-semibold text-gray-900">{value}</div>
-      <div className="text-xs font-semibold text-gray-600 mt-1">{label}</div>
-    </div>
-  )
-}
-
-function JsonViewer({ data, maxHeight = "320px" }: { data: any; maxHeight?: string }) {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-      <div
-        className="px-5 py-4 bg-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <h4 className="text-sm font-semibold text-gray-900">Rule Configuration</h4>
-        <span className="text-gray-500 transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-          ▼
-        </span>
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <KpiCard title="Total Automations" value={kpis.totalAutomations} />
+        <KpiCard title="Controls Covered" value={kpis.controlsCovered} />
+        <KpiCard title="Runs (24h)" value={kpis.runs24h} />
+        <KpiCard title="Success Rate" value={`${kpis.successRate}%`} />
       </div>
-      
-      <div
-        className="overflow-hidden transition-all duration-300"
-        style={{
-          maxHeight: isExpanded ? maxHeight : "0",
-          opacity: isExpanded ? 1 : 0,
-        }}
-      >
-        <div className="p-5 overflow-auto" style={{ maxHeight }}>
-          <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-gray-800">
-            {formatJson(data)}
-          </pre>
+
+      {/* Automations List */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-[#333333]">
+            Active Automations
+          </h2>
+          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+            View and manage all automation rules. Click on any rule to see execution history and details.
+          </p>
         </div>
+
+        {automations.length === 0 ? (
+          <div className="rounded-lg border border-[#cccccc] bg-white p-12 text-center shadow-sm">
+            <div className="text-[#666666] mb-4">
+              No automations created yet. Create your first automation to start automatically testing compliance requirements.
+            </div>
+            <button
+              onClick={openCreateModal}
+              className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
+            >
+              Create First Automation
+            </button>
+          </div>
+        ) : (
+          automations.map(automation => {
+            const isExpanded = expandedCards.has(automation.id)
+            const runs = cardRuns.get(automation.id) || []
+            const isLoadingRuns = loadingRuns.has(automation.id)
+            const successRate = automation.totalRuns > 0
+              ? Math.round((automation.successfulRuns / automation.totalRuns) * 100)
+              : 0
+
+            return (
+              <div key={automation.id} className="rounded-lg border border-[#cccccc] bg-white shadow-sm">
+                {/* Collapsed Header */}
+                <div 
+                  className="p-6 cursor-pointer hover:bg-[#f9f9f9] transition-colors"
+                  onClick={() => toggleCard(automation.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <div className="font-bold text-lg text-[#333333]">{automation.name}</div>
+                        {automation.lastRunStatus && (
+                          <span className={`text-xs px-2 py-0.5 rounded font-bold ${
+                            automation.lastRunStatus === "Success"
+                              ? "bg-[#00a758] text-white"
+                              : automation.lastRunStatus === "Failed"
+                              ? "bg-[#e41f13] text-white"
+                              : "bg-[#f59e0b] text-white"
+                          }`}>
+                            {automation.lastRunStatus.toUpperCase()}
+                          </span>
+                        )}
+                        <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                          {automation.controlCode}
+                        </span>
+                      </div>
+                      <div className="text-sm text-[#666666] mt-1">
+                        {automation.controlTitle}
+                      </div>
+                      <div className="text-sm text-[#666666] mt-1">
+                        {automation.applyScope === "AllApplications" && "Applies to: All Applications"}
+                        {automation.applyScope === "ByApplicability" && 
+                          `Applies to: Applications in ${automation.applicabilityIds?.length || 0} categories`
+                        }
+                        {automation.applyScope === "SelectedApplications" && 
+                          `Applies to: ${automation.applicationIds?.length || 0} selected applications`
+                        }
+                      </div>
+                    </div>
+                    <div className="text-[#666666]">
+                      {isExpanded ? "▼" : "▶"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expanded Content */}
+                {isExpanded && (
+                  <div className="border-t border-[#cccccc] p-6 space-y-6 bg-[#fafafa]">
+                    {/* Details */}
+                    <div className="space-y-3">
+                      {automation.description && (
+                        <div className="text-sm text-[#666666]">
+                          <span className="font-bold">Description:</span> {automation.description}
+                        </div>
+                      )}
+                      <div className="text-sm text-[#666666]">
+                        <span className="font-bold">Last Run:</span> {formatDateTime(automation.lastRunAt)}
+                      </div>
+                      <div className="text-sm text-[#666666]">
+                        <span className="font-bold">Created:</span> {formatDateTime(automation.createdAt)}
+                      </div>
+                      
+                      {/* SQL Query */}
+                      <div>
+                        <div className="text-sm font-bold text-[#333333] mb-2">SQL Query:</div>
+                        <pre className="bg-white border border-[#e5e7eb] rounded p-4 text-xs overflow-x-auto text-[#333333]">
+                          {automation.sqlText}
+                        </pre>
+                      </div>
+
+                      {/* Narratives */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-sm font-bold text-[#00a758] mb-2">Pass Message:</div>
+                          <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-3 text-xs text-[#166534]">
+                            {automation.answerPass}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-[#e41f13] mb-2">Fail Message:</div>
+                          <div className="bg-[#fef2f2] border border-[#fca5a5] rounded p-3 text-xs text-[#991b1b]">
+                            {automation.answerFail}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 flex-wrap">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleExecute(automation)
+                        }}
+                        disabled={submitting}
+                        className="text-xs px-4 py-2 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {submitting ? "Executing..." : "Execute Now"}
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openEditModal(automation)
+                        }}
+                        disabled={submitting}
+                        className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        Edit Automation
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDelete(automation)
+                        }}
+                        disabled={submitting}
+                        className="text-xs px-4 py-2 rounded border border-[#e41f13] text-[#e41f13] hover:bg-[#e41f13] hover:text-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    {/* Run History */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-[#333333]">Recent Runs</h3>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            loadRunsForCard(automation.id)
+                          }}
+                          disabled={isLoadingRuns}
+                          className="text-xs px-3 py-1 rounded border border-[#cccccc] text-[#666666] hover:bg-white transition-colors disabled:opacity-60"
+                        >
+                          {isLoadingRuns ? "Loading..." : "Refresh"}
+                        </button>
+                      </div>
+
+                      {isLoadingRuns ? (
+                        <div className="text-sm text-[#666666] py-4">Loading runs...</div>
+                      ) : runs.length === 0 ? (
+                        <div className="text-sm text-[#666666] py-4">
+                          No runs yet. Execute the automation to see results here.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {runs.map(run => (
+                            <div key={run.id} className="bg-white rounded border border-[#e5e7eb] p-3">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3">
+                                    <span className={`text-xs font-bold ${getStatusColor(run.status)}`}>
+                                      {run.status}
+                                    </span>
+                                    <span className="text-xs text-[#999999]">
+                                      {run.triggeredBy}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-[#666666] mt-1">
+                                    Started: {formatDateTime(run.startedAt)}
+                                  </div>
+                                  {run.finishedAt && (
+                                    <div className="text-xs text-[#666666]">
+                                      Finished: {formatDateTime(run.finishedAt)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              {run.errorMessage && (
+                                <div className="text-xs text-[#e41f13] mt-2 p-2 bg-[#fff5f5] rounded">
+                                  {run.errorMessage}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Create/Edit Modal */}
+      {showCreateModal && (
+        <MultiStepModal
+          onClose={() => setShowCreateModal(false)}
+          title={editingAutomation ? "Edit Automation" : "Create Automation"}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          onNext={nextStep}
+          onPrev={prevStep}
+          onSubmit={handleSubmit}
+          canProceed={canProceedToNextStep()}
+          submitting={submitting}
+        >
+          {currentStep === 1 && (
+            <Step1BasicInfo
+              formData={formData}
+              setFormData={setFormData}
+              controlOptions={controlOptions}
+            />
+          )}
+          {currentStep === 2 && (
+            <Step2ApplicationScope
+              formData={formData}
+              setFormData={setFormData}
+              applicabilityOptions={applicabilityOptions}
+              applicationOptions={applicationOptions}
+            />
+          )}
+          {currentStep === 3 && (
+            <Step3QueryBuilder
+              formData={formData}
+              setFormData={setFormData}
+              queryBuilder={queryBuilder}
+              setQueryBuilder={setQueryBuilder}
+              availableTables={availableTables}
+              tableColumns={tableColumns}
+              loadColumnsForTable={loadColumnsForTable}
+              updateQueryFromBuilder={updateQueryFromBuilder}
+              onPreview={handlePreviewQuery}
+              loadingPreview={loadingPreview}
+            />
+          )}
+          {currentStep === 4 && (
+            <Step4Narratives
+              formData={formData}
+              setFormData={setFormData}
+            />
+          )}
+        </MultiStepModal>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && previewResult && (
+        <Modal onClose={() => setShowPreview(false)} wide>
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-[#333333]">Query Preview</h3>
+            <p className="mt-1 text-base text-[#666666]">
+              Showing {previewResult.rowCount} sample rows
+            </p>
+          </div>
+
+          {previewResult.error ? (
+            <div className="bg-[#fef2f2] border border-[#fca5a5] rounded p-4 text-sm text-[#991b1b]">
+              <div className="font-bold mb-2">Error:</div>
+              <div>{previewResult.error}</div>
+            </div>
+          ) : !previewResult.hasApplicationId ? (
+            <div className="bg-[#fff7ed] border border-[#fed7aa] rounded p-4 text-sm text-[#9a3412] mb-4">
+              <div className="font-bold mb-2">⚠️ Warning:</div>
+              <div>
+                Query must return a column named <code className="bg-white px-2 py-0.5 rounded">application_id</code> 
+                {" "}to be valid. This is required to link assessment evidence to applications.
+              </div>
+            </div>
+          ) : (
+            <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-4 text-sm text-[#166534] mb-4">
+              <div className="font-bold mb-2">✓ Valid Query</div>
+              <div>Query includes required application_id column.</div>
+            </div>
+          )}
+
+          {previewResult.rows.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-[#cccccc] text-sm">
+                <thead className="bg-[#f9f9f9]">
+                  <tr>
+                    {previewResult.columns.map(col => (
+                      <th key={col} className="border border-[#cccccc] px-4 py-3 text-left font-bold text-[#333333]">
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {previewResult.rows.map((row, i) => (
+                    <tr key={i} className="odd:bg-white even:bg-[#fafafa] hover:bg-[#f5f5f5]">
+                      {previewResult.columns.map(col => (
+                        <td key={col} className="border border-[#e5e7eb] px-4 py-3 text-[#666666]">
+                          {row[col] === null || row[col] === undefined
+                            ? "—"
+                            : typeof row[col] === "boolean"
+                            ? row[col] ? "Yes" : "No"
+                            : typeof row[col] === "object"
+                            ? JSON.stringify(row[col])
+                            : String(row[col])
+                          }
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal>
+      )}
+    </div>
+  )
+}
+
+/* ───────────────────────────────────────────── */
+/* Step Components                               */
+/* ───────────────────────────────────────────── */
+
+function Step1BasicInfo({
+  formData,
+  setFormData,
+  controlOptions,
+}: {
+  formData: any
+  setFormData: (data: any) => void
+  controlOptions: ControlOption[]
+}) {
+  const controlSelectOptions: CustomSelectOption[] = controlOptions.map(control => ({
+    value: control.id,
+    label: control.title,
+    badge: control.controlCode,
+    description: control.statement || "No description available",
+  }))
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h4 className="text-lg font-bold text-[#333333] mb-1">Basic Information</h4>
+        <p className="text-sm text-[#666666]">
+          Define the name and compliance requirement that this automation will test.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#333333] mb-2">
+          Automation Name <span className="text-[#e41f13]">*</span>
+        </label>
+        <input
+          type="text"
+          value={formData.name}
+          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          placeholder="e.g., TLS 1.3 Support Check"
+          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#333333] mb-2">
+          Description
+        </label>
+        <textarea
+          value={formData.description}
+          onChange={e => setFormData({ ...formData, description: e.target.value })}
+          placeholder="Describe what this automation tests and how it works..."
+          rows={3}
+          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#333333] mb-2">
+          Control <span className="text-[#e41f13]">*</span>
+        </label>
+        <CustomSelect
+          value={formData.controlId}
+          onChange={(value) => setFormData({ ...formData, controlId: value })}
+          options={controlSelectOptions}
+          placeholder="Select a control..."
+          searchable
+        />
+        <p className="text-xs text-[#999999] mt-1">
+          Select the compliance requirement that this automation will assess
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function Step2ApplicationScope({
+  formData,
+  setFormData,
+  applicabilityOptions,
+  applicationOptions,
+}: {
+  formData: any
+  setFormData: (data: any) => void
+  applicabilityOptions: ApplicabilityCategoryOption[]
+  applicationOptions: ApplicationOption[]
+}) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <h4 className="text-lg font-bold text-[#333333] mb-1">Application Scope</h4>
+        <p className="text-sm text-[#666666]">
+          Define which applications this automation will assess.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#333333] mb-3">
+          Apply To <span className="text-[#e41f13]">*</span>
+        </label>
+        <div className="space-y-2">
+          <label className="flex items-start gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+            <input
+              type="radio"
+              checked={formData.applyScope === "AllApplications"}
+              onChange={() => setFormData({ ...formData, applyScope: "AllApplications" })}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-medium text-[#333333]">All Applications</div>
+              <div className="text-xs text-[#666666]">
+                Run this automation for every application in the system
+              </div>
+            </div>
+          </label>
+
+          <label className="flex items-start gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+            <input
+              type="radio"
+              checked={formData.applyScope === "ByApplicability"}
+              onChange={() => setFormData({ ...formData, applyScope: "ByApplicability" })}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-medium text-[#333333]">By Applicability Category</div>
+              <div className="text-xs text-[#666666]">
+                Run for applications in selected categories (e.g., Internet-facing, Production)
+              </div>
+            </div>
+          </label>
+
+          <label className="flex items-start gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+            <input
+              type="radio"
+              checked={formData.applyScope === "SelectedApplications"}
+              onChange={() => setFormData({ ...formData, applyScope: "SelectedApplications" })}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-medium text-[#333333]">Selected Applications</div>
+              <div className="text-xs text-[#666666]">
+                Run only for specific applications you choose
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {formData.applyScope === "ByApplicability" && (
+        <div>
+          <label className="block text-sm font-medium text-[#333333] mb-2">
+            Select Categories <span className="text-[#e41f13]">*</span>
+          </label>
+          <div className="space-y-2 max-h-64 overflow-y-auto border border-[#cccccc] rounded p-3">
+            {applicabilityOptions.map(category => (
+              <label key={category.id} className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.applicabilityIds.includes(category.id)}
+                  onChange={e => {
+                    const newIds = e.target.checked
+                      ? [...formData.applicabilityIds, category.id]
+                      : formData.applicabilityIds.filter((id: string) => id !== category.id)
+                    setFormData({ ...formData, applicabilityIds: newIds })
+                  }}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="text-sm font-medium text-[#333333]">{category.name}</div>
+                  {category.description && (
+                    <div className="text-xs text-[#666666]">{category.description}</div>
+                  )}
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {formData.applyScope === "SelectedApplications" && (
+        <div>
+          <label className="block text-sm font-medium text-[#333333] mb-2">
+            Select Applications <span className="text-[#e41f13]">*</span>
+          </label>
+          <div className="space-y-2 max-h-64 overflow-y-auto border border-[#cccccc] rounded p-3">
+            {applicationOptions.map(app => (
+              <label key={app.id} className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.applicationIds.includes(app.id)}
+                  onChange={e => {
+                    const newIds = e.target.checked
+                      ? [...formData.applicationIds, app.id]
+                      : formData.applicationIds.filter((id: string) => id !== app.id)
+                    setFormData({ ...formData, applicationIds: newIds })
+                  }}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="text-sm font-medium text-[#333333]">{app.name}</div>
+                  <div className="text-xs text-[#666666]">
+                    {app.primaryUrl} • {app.criticality}
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Step3QueryBuilder({
+  formData,
+  setFormData,
+  queryBuilder,
+  setQueryBuilder,
+  availableTables,
+  tableColumns,
+  loadColumnsForTable,
+  updateQueryFromBuilder,
+  onPreview,
+  loadingPreview,
+}: {
+  formData: any
+  setFormData: (data: any) => void
+  queryBuilder: QueryBuilderState
+  setQueryBuilder: (state: QueryBuilderState) => void
+  availableTables: string[]
+  tableColumns: Map<string, TableColumn[]>
+  loadColumnsForTable: (table: string) => Promise<void>
+  updateQueryFromBuilder: () => void
+  onPreview: () => void
+  loadingPreview: boolean
+}) {
+  const [useVisualBuilder, setUseVisualBuilder] = useState(false)
+  // Track which WHERE conditions are comparing columns vs values
+  const [columnComparisonMode, setColumnComparisonMode] = useState<Map<string, boolean>>(new Map())
+
+  // Get all available columns with table prefix
+  function getAllAvailableColumns(): CustomSelectOption[] {
+    const columns: CustomSelectOption[] = []
+    
+    // Add columns from FROM table
+    const fromCols = tableColumns.get(queryBuilder.fromTable) || []
+    fromCols.forEach(col => {
+      columns.push({
+        value: `${queryBuilder.fromAlias}.${col.columnName}`,
+        label: `${queryBuilder.fromAlias}.${col.columnName}`,
+        description: `${queryBuilder.fromTable} - ${col.dataType}`,
+      })
+    })
+    
+    // Add columns from JOINed tables
+    queryBuilder.joins.forEach(join => {
+      if (join.table && join.alias) {
+        const joinCols = tableColumns.get(join.table) || []
+        joinCols.forEach(col => {
+          columns.push({
+            value: `${join.alias}.${col.columnName}`,
+            label: `${join.alias}.${col.columnName}`,
+            description: `${join.table} - ${col.dataType}`,
+          })
+        })
+      }
+    })
+    
+    return columns
+  }
+
+  function addJoin() {
+    const newJoin: QueryJoin = {
+      id: crypto.randomUUID(),
+      type: "LEFT",
+      table: "",
+      alias: "",
+      onLeft: "",
+      onRight: "",
+    }
+    setQueryBuilder({ ...queryBuilder, joins: [...queryBuilder.joins, newJoin] })
+  }
+
+  function updateJoin(id: string, updates: Partial<QueryJoin>) {
+    setQueryBuilder({
+      ...queryBuilder,
+      joins: queryBuilder.joins.map(j => j.id === id ? { ...j, ...updates } : j),
+    })
+  }
+
+  function removeJoin(id: string) {
+    setQueryBuilder({
+      ...queryBuilder,
+      joins: queryBuilder.joins.filter(j => j.id !== id),
+    })
+  }
+
+  function addSelect() {
+    const newSelect: QuerySelect = {
+      id: crypto.randomUUID(),
+      expression: "",
+      alias: "",
+      aggregate: null,
+    }
+    setQueryBuilder({ ...queryBuilder, selectColumns: [...queryBuilder.selectColumns, newSelect] })
+  }
+
+  function updateSelect(id: string, updates: Partial<QuerySelect>) {
+    setQueryBuilder({
+      ...queryBuilder,
+      selectColumns: queryBuilder.selectColumns.map(s => s.id === id ? { ...s, ...updates } : s),
+    })
+  }
+
+  function removeSelect(id: string) {
+    setQueryBuilder({
+      ...queryBuilder,
+      selectColumns: queryBuilder.selectColumns.filter(s => s.id !== id),
+    })
+  }
+
+  function addWhere() {
+    const newWhere: QueryCondition = {
+      id: crypto.randomUUID(),
+      logic: queryBuilder.whereConditions.length === 0 ? "AND" : "AND",
+      left: "",
+      operator: "=",
+      right: "",
+    }
+    setQueryBuilder({ ...queryBuilder, whereConditions: [...queryBuilder.whereConditions, newWhere] })
+    // Default to value comparison
+    setColumnComparisonMode(new Map(columnComparisonMode).set(newWhere.id, false))
+  }
+
+  function updateWhere(id: string, updates: Partial<QueryCondition>) {
+    setQueryBuilder({
+      ...queryBuilder,
+      whereConditions: queryBuilder.whereConditions.map(w => w.id === id ? { ...w, ...updates } : w),
+    })
+  }
+
+  function removeWhere(id: string) {
+    setQueryBuilder({
+      ...queryBuilder,
+      whereConditions: queryBuilder.whereConditions.filter(w => w.id !== id),
+    })
+    const newMode = new Map(columnComparisonMode)
+    newMode.delete(id)
+    setColumnComparisonMode(newMode)
+  }
+
+  function toggleComparisonMode(conditionId: string, isColumnMode: boolean) {
+    const newMode = new Map(columnComparisonMode)
+    newMode.set(conditionId, isColumnMode)
+    setColumnComparisonMode(newMode)
+    // Clear the right value when switching modes
+    updateWhere(conditionId, { right: "" })
+  }
+
+  function addGroupBy() {
+    const newCol = ""
+    setQueryBuilder({ ...queryBuilder, groupByColumns: [...queryBuilder.groupByColumns, newCol] })
+  }
+
+  function updateGroupBy(index: number, value: string) {
+    const newCols = [...queryBuilder.groupByColumns]
+    newCols[index] = value
+    setQueryBuilder({ ...queryBuilder, groupByColumns: newCols })
+  }
+
+  function removeGroupBy(index: number) {
+    setQueryBuilder({
+      ...queryBuilder,
+      groupByColumns: queryBuilder.groupByColumns.filter((_, i) => i !== index),
+    })
+  }
+
+  const tableOptions: CustomSelectOption[] = availableTables.map(table => ({
+    value: table,
+    label: table,
+  }))
+
+  const aggregateOptions: CustomSelectOption[] = [
+    { value: "", label: "No Aggregate" },
+    { value: "COUNT", label: "COUNT", description: "Count number of rows" },
+    { value: "SUM", label: "SUM", description: "Sum all values" },
+    { value: "AVG", label: "AVG", description: "Average of values" },
+    { value: "MIN", label: "MIN", description: "Minimum value" },
+    { value: "MAX", label: "MAX", description: "Maximum value" },
+    { value: "BOOL_AND", label: "BOOL_AND", description: "True if all values are true" },
+    { value: "BOOL_OR", label: "BOOL_OR", description: "True if any value is true" },
+    { value: "STRING_AGG", label: "STRING_AGG", description: "Concatenate strings" },
+  ]
+
+  const joinTypeOptions: CustomSelectOption[] = [
+    { value: "INNER", label: "INNER", description: "Only matching rows from both tables" },
+    { value: "LEFT", label: "LEFT", description: "All rows from left table, matching from right" },
+    { value: "RIGHT", label: "RIGHT", description: "All rows from right table, matching from left" },
+  ]
+
+  const operatorOptions: CustomSelectOption[] = [
+    { value: "=", label: "= (equals)" },
+    { value: "!=", label: "!= (not equals)" },
+    { value: ">", label: "> (greater than)" },
+    { value: "<", label: "< (less than)" },
+    { value: ">=", label: ">= (greater or equal)" },
+    { value: "<=", label: "<= (less or equal)" },
+    { value: "LIKE", label: "LIKE (pattern match)" },
+    { value: "ILIKE", label: "ILIKE (case-insensitive match)" },
+    { value: "IN", label: "IN (in list)" },
+    { value: "NOT IN", label: "NOT IN (not in list)" },
+    { value: "IS NULL", label: "IS NULL" },
+    { value: "IS NOT NULL", label: "IS NOT NULL" },
+  ]
+
+  const logicOptions: CustomSelectOption[] = [
+    { value: "AND", label: "AND", description: "Both conditions must be true" },
+    { value: "OR", label: "OR", description: "Either condition can be true" },
+  ]
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h4 className="text-lg font-bold text-[#333333] mb-1">SQL Query Builder</h4>
+        <p className="text-sm text-[#666666]">
+          Build the SQL query that will test this control. The query must return an 
+          <code className="bg-[#f5f5f5] px-2 py-0.5 rounded mx-1">application_id</code> 
+          column to link results to applications.
+        </p>
+      </div>
+
+      {/* Toggle Visual/Raw */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setUseVisualBuilder(false)}
+          className={`px-4 py-2 rounded font-medium transition-colors ${
+            !useVisualBuilder
+              ? "bg-[#333333] text-white"
+              : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+          }`}
+        >
+          Raw SQL
+        </button>
+        <button
+          onClick={() => {
+            setUseVisualBuilder(true)
+            if (formData.sqlText) {
+              // If SQL exists, keep it
+            } else {
+              updateQueryFromBuilder()
+            }
+          }}
+          className={`px-4 py-2 rounded font-medium transition-colors ${
+            useVisualBuilder
+              ? "bg-[#333333] text-white"
+              : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+          }`}
+        >
+          Visual Builder
+        </button>
+      </div>
+
+      {useVisualBuilder ? (
+        <div className="space-y-4 border border-[#cccccc] rounded p-4 bg-[#fafafa]">
+          {/* FROM */}
+          <div>
+            <label className="block text-sm font-bold text-[#333333] mb-2">FROM Table</label>
+            <div className="flex gap-2">
+              <CustomSelect
+                value={queryBuilder.fromTable}
+                onChange={async (value) => {
+                  setQueryBuilder({ ...queryBuilder, fromTable: value })
+                  await loadColumnsForTable(value)
+                }}
+                options={tableOptions}
+                placeholder="Select table..."
+                className="flex-1"
+              />
+              <input
+                type="text"
+                value={queryBuilder.fromAlias}
+                onChange={e => setQueryBuilder({ ...queryBuilder, fromAlias: e.target.value })}
+                placeholder="Alias (e.g., a)"
+                className="w-24 border border-[#cccccc] rounded px-3 py-2 text-sm text-[#333333]"
+              />
+            </div>
+          </div>
+
+          {/* JOINs */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-bold text-[#333333]">JOIN Tables</label>
+              <button
+                onClick={addJoin}
+                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+              >
+                + Add Join
+              </button>
+            </div>
+            {queryBuilder.joins.length === 0 ? (
+              <div className="text-sm text-[#999999] italic">No joins added</div>
+            ) : (
+              <div className="space-y-3">
+                {queryBuilder.joins.map(join => {
+                  const allColumns = getAllAvailableColumns()
+                  
+                  return (
+                    <div key={join.id} className="bg-white p-3 rounded border border-[#e5e7eb] space-y-2">
+                      <div className="flex gap-2 items-start">
+                        <CustomSelect
+                          value={join.type}
+                          onChange={value => updateJoin(join.id, { type: value as any })}
+                          options={joinTypeOptions}
+                          placeholder="Type"
+                          className="w-32"
+                        />
+                        <CustomSelect
+                          value={join.table}
+                          onChange={async (value) => {
+                            updateJoin(join.id, { table: value })
+                            await loadColumnsForTable(value)
+                          }}
+                          options={tableOptions}
+                          placeholder="Select table..."
+                          className="flex-1"
+                        />
+                        <input
+                          type="text"
+                          value={join.alias}
+                          onChange={e => updateJoin(join.id, { alias: e.target.value })}
+                          placeholder="Alias"
+                          className="w-20 border border-[#cccccc] rounded px-2 py-1 text-sm"
+                        />
+                        <button
+                          onClick={() => removeJoin(join.id)}
+                          className="text-[#e41f13] hover:text-[#991b1b] font-bold text-lg"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="flex gap-2 items-center pl-2">
+                        <span className="text-xs text-[#666666] font-bold">ON</span>
+                        <CustomSelect
+                          value={join.onLeft}
+                          onChange={value => updateJoin(join.id, { onLeft: value })}
+                          options={allColumns}
+                          placeholder="Left column"
+                          searchable
+                          className="flex-1"
+                        />
+                        <span className="text-sm text-[#666666]">=</span>
+                        <CustomSelect
+                          value={join.onRight}
+                          onChange={value => updateJoin(join.id, { onRight: value })}
+                          options={allColumns}
+                          placeholder="Right column"
+                          searchable
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* SELECT */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-bold text-[#333333]">SELECT Columns</label>
+              <button
+                onClick={addSelect}
+                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+              >
+                + Add Column
+              </button>
+            </div>
+            <div className="space-y-2">
+              {queryBuilder.selectColumns.map(sel => {
+                const allColumns = getAllAvailableColumns()
+                
+                return (
+                  <div key={sel.id} className="flex gap-2 items-start bg-white p-3 rounded border border-[#e5e7eb]">
+                    <CustomSelect
+                      value={sel.aggregate || ""}
+                      onChange={value => updateSelect(sel.id, { aggregate: value || null as any })}
+                      options={aggregateOptions}
+                      placeholder="Aggregate"
+                      className="w-40"
+                    />
+                    <CustomSelect
+                      value={sel.expression}
+                      onChange={value => updateSelect(sel.id, { expression: value })}
+                      options={allColumns}
+                      placeholder="Select column..."
+                      searchable
+                      className="flex-1"
+                    />
+                    <input
+                      type="text"
+                      value={sel.alias}
+                      onChange={e => updateSelect(sel.id, { alias: e.target.value })}
+                      placeholder="Alias"
+                      className="w-32 border border-[#cccccc] rounded px-2 py-1 text-sm"
+                    />
+                    <button
+                      onClick={() => removeSelect(sel.id)}
+                      className="text-[#e41f13] hover:text-[#991b1b] font-bold text-lg"
+                      disabled={queryBuilder.selectColumns.length === 1}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* WHERE */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-bold text-[#333333]">WHERE Conditions</label>
+              <button
+                onClick={addWhere}
+                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+              >
+                + Add Condition
+              </button>
+            </div>
+            {queryBuilder.whereConditions.length === 0 ? (
+              <div className="text-sm text-[#999999] italic">No conditions added</div>
+            ) : (
+              <div className="space-y-2">
+                {queryBuilder.whereConditions.map((cond, i) => {
+                  const allColumns = getAllAvailableColumns()
+                  const isColumnMode = columnComparisonMode.get(cond.id) || false
+                  
+                  return (
+                    <div key={cond.id} className="bg-white p-3 rounded border border-[#e5e7eb] space-y-2">
+                      <div className="flex gap-2 items-start">
+                        {i > 0 && (
+                          <CustomSelect
+                            value={cond.logic}
+                            onChange={value => updateWhere(cond.id, { logic: value as any })}
+                            options={logicOptions}
+                            className="w-24"
+                          />
+                        )}
+                        <CustomSelect
+                          value={cond.left}
+                          onChange={value => updateWhere(cond.id, { left: value })}
+                          options={allColumns}
+                          placeholder="Select column..."
+                          searchable
+                          className="flex-1"
+                        />
+                        <CustomSelect
+                          value={cond.operator}
+                          onChange={value => updateWhere(cond.id, { operator: value as any })}
+                          options={operatorOptions}
+                          className="w-44"
+                        />
+                        <button
+                          onClick={() => removeWhere(cond.id)}
+                          className="text-[#e41f13] hover:text-[#991b1b] font-bold text-lg"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      
+                      {!["IS NULL", "IS NOT NULL"].includes(cond.operator) && (
+                        <div className="pl-2">
+                          <div className="flex gap-2 mb-2">
+                            <button
+                              onClick={() => toggleComparisonMode(cond.id, false)}
+                              className={`text-xs px-3 py-1 rounded transition-colors ${
+                                !isColumnMode
+                                  ? "bg-[#333333] text-white"
+                                  : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+                              }`}
+                            >
+                              Compare to Value
+                            </button>
+                            <button
+                              onClick={() => toggleComparisonMode(cond.id, true)}
+                              className={`text-xs px-3 py-1 rounded transition-colors ${
+                                isColumnMode
+                                  ? "bg-[#333333] text-white"
+                                  : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+                              }`}
+                            >
+                              Compare to Column
+                            </button>
+                          </div>
+                          {isColumnMode ? (
+                            <CustomSelect
+                              value={cond.right}
+                              onChange={value => updateWhere(cond.id, { right: value })}
+                              options={allColumns}
+                              placeholder="Select column to compare..."
+                              searchable
+                              className="w-full"
+                            />
+                          ) : (
+                            <input
+                              type="text"
+                              value={cond.right}
+                              onChange={e => updateWhere(cond.id, { right: e.target.value })}
+                              placeholder="Enter value (e.g., 'text', 100, true)"
+                              className="w-full border border-[#cccccc] rounded px-3 py-2 text-sm"
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* GROUP BY */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-bold text-[#333333]">GROUP BY Columns</label>
+              <button
+                onClick={addGroupBy}
+                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+              >
+                + Add Column
+              </button>
+            </div>
+            {queryBuilder.groupByColumns.length === 0 ? (
+              <div className="text-sm text-[#999999] italic">No group by columns (required if using aggregates)</div>
+            ) : (
+              <div className="space-y-2">
+                {queryBuilder.groupByColumns.map((col, i) => {
+                  const allColumns = getAllAvailableColumns()
+                  
+                  return (
+                    <div key={i} className="flex gap-2 items-start bg-white p-3 rounded border border-[#e5e7eb]">
+                      <CustomSelect
+                        value={col}
+                        onChange={value => updateGroupBy(i, value)}
+                        options={allColumns}
+                        placeholder="Select column..."
+                        searchable
+                        className="flex-1"
+                      />
+                      <button
+                        onClick={() => removeGroupBy(i)}
+                        className="text-[#e41f13] hover:text-[#991b1b] font-bold text-lg"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            <p className="text-xs text-[#999999] mt-1">
+              If using aggregate functions (COUNT, BOOL_AND, etc.), list all non-aggregated SELECT columns here
+            </p>
+          </div>
+
+          {/* Generate SQL Button */}
+          <button
+            onClick={updateQueryFromBuilder}
+            className="w-full bg-[#333333] text-white px-4 py-2.5 rounded font-bold hover:bg-[#555555] transition-colors"
+          >
+            Generate SQL from Builder
+          </button>
+        </div>
+      ) : null}
+
+      {/* SQL Text Editor (Always Shown) */}
+      <div>
+        <label className="block text-sm font-bold text-[#333333] mb-2">
+          SQL Query <span className="text-[#e41f13]">*</span>
+        </label>
+        <textarea
+          value={formData.sqlText}
+          onChange={e => setFormData({ ...formData, sqlText: e.target.value })}
+          placeholder="SELECT a.id AS application_id, ... FROM applications a ..."
+          rows={10}
+          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-sm font-mono text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+        />
+        <p className="text-xs text-[#999999] mt-1">
+          Query must return a column named "application_id" to link results to applications
+        </p>
+      </div>
+
+      {/* Preview Button */}
+      <button
+        onClick={onPreview}
+        disabled={loadingPreview || !formData.sqlText.trim()}
+        className="w-full bg-[#ffe600] text-[#333333] px-4 py-2.5 rounded font-bold hover:bg-[#333333] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {loadingPreview ? "Loading Preview..." : "Preview Query Results"}
+      </button>
+    </div>
+  )
+}
+
+function Step4Narratives({
+  formData,
+  setFormData,
+}: {
+  formData: any
+  setFormData: (data: any) => void
+}) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <h4 className="text-lg font-bold text-[#333333] mb-1">Result Narratives</h4>
+        <p className="text-sm text-[#666666]">
+          Define the messages that will be shown when the test passes or fails for an application.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#333333] mb-2">
+          Pass Message <span className="text-[#e41f13]">*</span>
+        </label>
+        <textarea
+          value={formData.answerPass}
+          onChange={e => setFormData({ ...formData, answerPass: e.target.value })}
+          placeholder="e.g., All endpoints for {{host}} support TLS 1.3 encryption, meeting {{control_code}} requirements."
+          rows={3}
+          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+        />
+        <p className="text-xs text-[#999999] mt-1">
+          Message shown when the test passes. Use templates if needed (e.g., {"{{"} host {"}}"}
+
+)
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#333333] mb-2">
+          Fail Message <span className="text-[#e41f13]">*</span>
+        </label>
+        <textarea
+          value={formData.answerFail}
+          onChange={e => setFormData({ ...formData, answerFail: e.target.value })}
+          placeholder="e.g., Some endpoints for {{host}} do not support TLS 1.3, violating {{control_code}} requirements."
+          rows={3}
+          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+        />
+        <p className="text-xs text-[#999999] mt-1">
+          Message shown when the test fails. Use templates if needed (e.g., {"{{"} host {"}}"}
+
+)
+        </p>
+      </div>
+
+      <div className="bg-[#f0f9ff] border border-[#bae6fd] rounded p-4">
+        <div className="text-sm font-bold text-[#0c4a6e] mb-2">Preview: Pass</div>
+        <div className="text-sm text-[#0c4a6e] bg-white rounded p-3 mb-3">
+          {formData.answerPass || <span className="italic text-[#94a3b8]">Pass message will appear here...</span>}
+        </div>
+
+        <div className="text-sm font-bold text-[#0c4a6e] mb-2">Preview: Fail</div>
+        <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+          {formData.answerFail || <span className="italic text-[#94a3b8]">Fail message will appear here...</span>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ───────────────────────────────────────────── */
+/* UI Components                                 */
+/* ───────────────────────────────────────────── */
+
+function KpiCard({ title, value }: { title: string; value: string | number }) {
+  return (
+    <div className="rounded-lg border border-[#cccccc] bg-white p-6 shadow-sm">
+      <div className="text-sm font-medium text-[#666666] uppercase tracking-wide">
+        {title}
+      </div>
+      <div className="mt-3 text-4xl font-bold text-[#333333]">
+        {value}
       </div>
     </div>
   )
 }
 
 function Modal({
-  title,
-  subtitle,
-  onClose,
   children,
-  actions,
+  onClose,
+  wide,
 }: {
-  title: string
-  subtitle?: string
-  onClose: () => void
   children: React.ReactNode
-  actions?: React.ReactNode
+  onClose: () => void
+  wide?: boolean
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center animate-in fade-in duration-200"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      onClick={onClose}
     >
-      <div className="bg-white w-[95vw] max-w-7xl max-h-[90vh] rounded-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
-          <div className="space-y-1">
-            <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-            {subtitle ? <p className="text-xs text-gray-600">{subtitle}</p> : null}
-          </div>
+      <div
+        className={[
+          "relative bg-white rounded-lg shadow-lg w-full",
+          wide ? "max-w-5xl" : "max-w-xl",
+          "max-h-[90vh] flex flex-col",
+        ].join(" ")}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-2xl font-bold text-[#666666] hover:text-[#333333] transition-colors z-10"
+          title="Close"
+        >
+          ×
+        </button>
+
+        <div className="overflow-y-auto p-6">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+function MultiStepModal({
+  children,
+  onClose,
+  title,
+  currentStep,
+  totalSteps,
+  onNext,
+  onPrev,
+  onSubmit,
+  canProceed,
+  submitting,
+}: {
+  children: React.ReactNode
+  onClose: () => void
+  title: string
+  currentStep: number
+  totalSteps: number
+  onNext: () => void
+  onPrev: () => void
+  onSubmit: () => void
+  canProceed: boolean
+  submitting: boolean
+}) {
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-2xl font-bold text-[#666666] hover:text-[#333333] transition-colors z-10"
+          title="Close"
+        >
+          ×
+        </button>
+
+        {/* Header */}
+        <div className="p-6 border-b border-[#e5e7eb]">
+          <h3 className="text-2xl font-bold text-[#333333] mb-4">{title}</h3>
+          
+          {/* Progress Bar */}
           <div className="flex items-center gap-2">
-            {actions}
+            {Array.from({ length: totalSteps }, (_, i) => i + 1).map(step => (
+              <div key={step} className="flex-1">
+                <div className={`h-2 rounded ${
+                  step <= currentStep ? "bg-[#ffe600]" : "bg-[#e5e7eb]"
+                }`} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 text-sm text-[#666666]">
+            Step {currentStep} of {totalSteps}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="overflow-y-auto p-6 flex-1">
+          {children}
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-[#e5e7eb] flex justify-between">
+          <button
+            onClick={onPrev}
+            disabled={currentStep === 1 || submitting}
+            className="px-5 py-2.5 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f5f5f5] transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+
+          <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 transition-colors duration-200"
+              disabled={submitting}
+              className="px-5 py-2.5 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f5f5f5] transition-colors font-medium disabled:opacity-60"
             >
-              Close
-            </button>
-          </div>
-        </div>
-
-        <div className="overflow-auto">{children}</div>
-      </div>
-    </div>
-  )
-}
-
-function ResultsTable({ results, pass, fail }: { results: any[]; pass: number; fail: number }) {
-  return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-      <div className="px-5 py-4 border-b bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-900">Preview Results</h3>
-        <p className="text-xs text-gray-600 mt-1">
-          <span className="text-emerald-600 font-semibold">{pass} passed</span> ·{" "}
-          <span className="text-red-600 font-semibold">{fail} failed</span> · {results?.length || 0} total rows
-        </p>
-      </div>
-
-      <div className="overflow-auto max-h-[320px]">
-        <table className="w-full text-xs">
-          <thead className="bg-gray-50 sticky top-0 border-b">
-            <tr>
-              <th className="px-3 py-2 text-left font-semibold">Result</th>
-              <th className="px-3 py-2 text-left font-semibold">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(results || []).map((row, idx) => (
-              <tr key={idx} className="border-t align-top hover:bg-gray-50 transition-colors duration-150">
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <span className={cx(
-                    "font-semibold",
-                    row?.result === "pass" ? "text-emerald-600" : "text-red-600"
-                  )}>
-                    {formatMaybe(row?.result)}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-gray-700">
-                  <JsonViewer data={row} maxHeight="200px" />
-                </td>
-              </tr>
-            ))}
-            {!results?.length && (
-              <tr>
-                <td colSpan={2} className="px-4 py-6 text-center text-gray-500">
-                  No results returned
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-function ControlInfo({ control }: { control: Control | null }) {
-  if (!control) {
-    return (
-      <div className="border border-gray-200 rounded-lg p-5 text-sm text-gray-600">
-        Control metadata not available
-      </div>
-    )
-  }
-
-  return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-      <div className="px-5 py-4 border-b bg-gray-50">
-        <h4 className="text-sm font-semibold text-gray-900">Control Information</h4>
-      </div>
-      <div className="p-5 text-sm space-y-3">
-        <div>
-          <div className="font-semibold text-gray-900 text-base">{control.code}</div>
-          <div className="text-gray-700 mt-1">{control.statement}</div>
-        </div>
-        <div className="flex gap-4 text-xs text-gray-600">
-          <div>
-            <span className="font-semibold">Domain:</span> {formatMaybe(control.domain)}
-          </div>
-          <div>
-            <span className="font-semibold">Sub-domain:</span> {formatMaybe(control.sub_domain)}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────
-// Main Component
-// ─────────────────────────────────────────────
-export default function ControlsAutomationPage() {
-  // Lists
-  const [rules, setRules] = useState<RuleListItem[]>([])
-  const [frameworks, setFrameworks] = useState<Framework[]>([])
-  const [evidenceSources, setEvidenceSources] = useState<EvidenceSource[]>([])
-
-  // Builder metadata
-  const [controls, setControls] = useState<Control[]>([])
-  const [selectedControlId, setSelectedControlId] = useState("")
-
-  const [selectedEvidenceSource, setSelectedEvidenceSource] = useState("")
-  const [evidenceFields, setEvidenceFields] = useState<EvidenceSourceFields | null>(null)
-
-  // Builder form
-  const [ruleName, setRuleName] = useState("")
-  const [conditions, setConditions] = useState<ConditionRow[]>([
-    { id: crypto.randomUUID(), field: "", operator: "", value: "" },
-  ])
-
-  const [passResult] = useState("Compliant")
-  const [failResult] = useState("Non-Compliant")
-
-  // UI state
-  const [loadingRules, setLoadingRules] = useState(false)
-  const [creating, setCreating] = useState(false)
-  const [previewing, setPreviewing] = useState(false)
-  const [runningAll, setRunningAll] = useState(false)
-
-  const [toast, setToast] = useState<{ type: "ok" | "err"; msg: string } | null>(null)
-
-  // Modal state
-  const [openRule, setOpenRule] = useState<RuleListItem | null>(null)
-  const [openRuleControlInfo, setOpenRuleControlInfo] = useState<Control | null>(null)
-  const [openRulePreview, setOpenRulePreview] = useState<PreviewResponse | null>(null)
-  const [openRulePreviewing, setOpenRulePreviewing] = useState(false)
-
-  const [builderPreview, setBuilderPreview] = useState<PreviewResponse | null>(null)
-  const [lastRunAll, setLastRunAll] = useState<RunAllResponse | null>(null)
-
-  // Derived KPIs
-  const enabledRulesCount = rules.length
-  const controlsCovered = useMemo(() => uniq(rules.map((r) => r.control_id)).length, [rules])
-  const integrationsUsed = useMemo(() => uniq(rules.map((r) => r.integration)).length, [rules])
-
-  // ─────────────────────────────────────────────
-  // API Calls
-  // ─────────────────────────────────────────────
-  useEffect(() => {
-    void bootstrap()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  async function bootstrap() {
-    await Promise.all([loadRules(), loadFrameworks(), loadEvidenceSources()])
-    await loadControls(DEFAULT_FRAMEWORK_ID)
-  }
-
-  async function loadRules() {
-    setLoadingRules(true)
-    try {
-      const res = await fetch(`${API_BASE}/rules`)
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as RuleListItem[]
-      setRules(data)
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Failed to load rules: ${e?.message || e}` })
-    } finally {
-      setLoadingRules(false)
-    }
-  }
-
-  async function loadFrameworks() {
-    try {
-      const res = await fetch(`${API_BASE}/rules/metadata/frameworks`)
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as Framework[]
-      setFrameworks(data)
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Failed to load frameworks: ${e?.message || e}` })
-    }
-  }
-
-  async function loadEvidenceSources() {
-    try {
-      const res = await fetch(`${API_BASE}/rules/metadata/evidence-sources`)
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as EvidenceSource[]
-      setEvidenceSources(data)
-      if (data?.length && !selectedEvidenceSource) {
-        setSelectedEvidenceSource(data[0].key)
-      }
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Failed to load evidence sources: ${e?.message || e}` })
-    }
-  }
-
-  async function loadControls(frameworkId: string) {
-    if (!frameworkId) {
-      setControls([])
-      return
-    }
-    try {
-      const res = await fetch(`${API_BASE}/rules/metadata/frameworks/${frameworkId}/controls`)
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as Control[]
-      setControls(data)
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Failed to load controls: ${e?.message || e}` })
-    }
-  }
-
-  async function loadEvidenceFields(sourceKey: string) {
-    if (!sourceKey) {
-      setEvidenceFields(null)
-      return
-    }
-    try {
-      const res = await fetch(`${API_BASE}/rules/metadata/evidence-sources/${sourceKey}`)
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as EvidenceSourceFields
-      setEvidenceFields(data)
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Failed to load evidence fields: ${e?.message || e}` })
-    }
-  }
-
-  useEffect(() => {
-    void loadEvidenceFields(selectedEvidenceSource)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedEvidenceSource])
-
-  const builderRuleObject = useMemo(() => {
-    return {
-      name: ruleName || "New rule",
-      integration: DEFAULT_INTEGRATION,
-      control_id: selectedControlId || "",
-      evidence_source: selectedEvidenceSource || "ssl_labs",
-      conditions: conditions
-        .filter((c) => c.field && c.operator)
-        .map((c) => ({
-          field: c.field,
-          operator: c.operator,
-          value: c.value,
-        })),
-      pass_result: passResult,
-      fail_result: failResult,
-    }
-  }, [ruleName, selectedControlId, selectedEvidenceSource, conditions, passResult, failResult])
-
-  async function handleCreateRule() {
-    const ruleObj = builderRuleObject
-
-    if (!ruleObj.control_id) {
-      setToast({ type: "err", msg: "Please select a control" })
-      return
-    }
-
-    if (!ruleObj.name || ruleObj.name === "New rule") {
-      setToast({ type: "err", msg: "Please provide a rule name" })
-      return
-    }
-
-    if (ruleObj.conditions.length === 0) {
-      setToast({ type: "err", msg: "Please add at least one condition" })
-      return
-    }
-
-    setCreating(true)
-    try {
-      const res = await fetch(`${API_BASE}/rules`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ruleObj),
-      })
-      if (!res.ok) throw new Error(await res.text())
-
-      setToast({ type: "ok", msg: "Automation enabled successfully" })
-      setBuilderPreview(null)
-      
-      setRuleName("")
-      setSelectedControlId("")
-      setConditions([{ id: crypto.randomUUID(), field: "", operator: "", value: "" }])
-      
-      await loadRules()
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Create failed: ${e?.message || e}` })
-    } finally {
-      setCreating(false)
-    }
-  }
-
-  async function handlePreviewCurrentRule() {
-    const ruleObj = builderRuleObject
-
-    if (!ruleObj.control_id) {
-      setToast({ type: "err", msg: "Please select a control" })
-      return
-    }
-
-    if (ruleObj.conditions.length === 0) {
-      setToast({ type: "err", msg: "Please add at least one condition" })
-      return
-    }
-
-    setPreviewing(true)
-    try {
-      const res = await fetch(`${API_BASE}/rules/preview`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ruleObj),
-      })
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as PreviewResponse
-      setBuilderPreview(data)
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Preview failed: ${e?.message || e}` })
-    } finally {
-      setPreviewing(false)
-    }
-  }
-
-  async function handleRunAll() {
-    setRunningAll(true)
-    try {
-      const res = await fetch(`${API_BASE}/rules/run`, { method: "POST" })
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as RunAllResponse
-      setLastRunAll(data)
-      setToast({ type: "ok", msg: `Executed ${data.rules_executed} rule(s) successfully` })
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Run all failed: ${e?.message || e}` })
-    } finally {
-      setRunningAll(false)
-    }
-  }
-
-  async function resolveControlInfoById(controlId: string): Promise<Control | null> {
-    try {
-      const fws = frameworks.length ? frameworks : await (async () => {
-        const res = await fetch(`${API_BASE}/rules/metadata/frameworks`)
-        if (!res.ok) throw new Error(await res.text())
-        return (await res.json()) as Framework[]
-      })()
-
-      for (const fw of fws) {
-        const res = await fetch(`${API_BASE}/rules/metadata/frameworks/${fw.id}/controls`)
-        if (!res.ok) continue
-        const list = (await res.json()) as Control[]
-        const found = list.find((c) => c.id === controlId)
-        if (found) return found
-      }
-      return null
-    } catch {
-      return null
-    }
-  }
-
-  async function openRuleModal(rule: RuleListItem) {
-    setOpenRule(rule)
-    setOpenRulePreview(null)
-    setOpenRuleControlInfo(null)
-    setOpenRulePreviewing(false)
-
-    const info = await resolveControlInfoById(rule.control_id)
-    setOpenRuleControlInfo(info)
-  }
-
-  async function previewOpenRule() {
-    if (!openRule) return
-    const ruleObj = openRule.rule || {}
-    setOpenRulePreviewing(true)
-    try {
-      const res = await fetch(`${API_BASE}/rules/preview`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ruleObj),
-      })
-      if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as PreviewResponse
-      setOpenRulePreview(data)
-    } catch (e: any) {
-      setToast({ type: "err", msg: `Preview failed: ${e?.message || e}` })
-    } finally {
-      setOpenRulePreviewing(false)
-    }
-  }
-
-  function addConditionRow() {
-    setConditions((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), field: "", operator: "", value: "" },
-    ])
-  }
-
-  function removeConditionRow(id: string) {
-    setConditions((prev) => prev.filter((c) => c.id !== id))
-  }
-
-  function updateConditionRow(id: string, patch: Partial<ConditionRow>) {
-    setConditions((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)))
-  }
-
-  const selectedFieldMeta = useMemo(() => {
-    const fields = evidenceFields?.fields || []
-    return new Map(fields.map((f) => [f.name, f]))
-  }, [evidenceFields])
-
-  const disableCreate = creating || !selectedControlId || !ruleName || ruleName === "New rule" || 
-    conditions.filter(c => c.field && c.operator).length === 0
-
-  return (
-    <div className="space-y-8">
-      {/* Toast */}
-      {toast && (
-        <Toast
-          type={toast.type}
-          message={toast.msg}
-          onDismiss={() => setToast(null)}
-        />
-      )}
-
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-gray-900">Controls Automation</h1>
-        <p className="text-sm text-gray-600 max-w-3xl">
-          Define rules against live evidence sources to automatically test controls.
-          Each enabled rule evaluates a single control and can be previewed before running.
-        </p>
-      </div>
-
-      {/* KPI Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard value={enabledRulesCount} label="Enabled rules" />
-        <KPICard value={controlsCovered} label="Controls covered" />
-        <KPICard value={evidenceSources.length} label="Evidence sources" />
-        <KPICard value={integrationsUsed} label="Integrations used" />
-      </div>
-
-      {/* Primary Actions */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-sm text-gray-600">
-          {lastRunAll ? (
-            <span>
-              Last run: <span className="font-semibold text-gray-900">{lastRunAll.run_id}</span>{" "}
-              ({lastRunAll.rules_executed} rules)
-            </span>
-          ) : (
-            <span>Run all enabled rules to persist results for audit and reporting</span>
-          )}
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={loadRules}
-            className="px-3 py-2 text-sm font-semibold border rounded-md hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
-            disabled={loadingRules}
-          >
-            {loadingRules ? "Refreshing…" : "Refresh"}
-          </button>
-
-          <button
-            onClick={handleRunAll}
-            disabled={runningAll || rules.length === 0}
-            className={cx(
-              "px-4 py-2 text-sm font-semibold border border-yellow-400 bg-yellow-300 text-black rounded-md",
-              "hover:bg-black hover:text-white hover:border-black transition-all duration-200 hover:shadow-md",
-              (runningAll || rules.length === 0) && "opacity-60 cursor-not-allowed"
-            )}
-          >
-            {runningAll ? "Running…" : "Run All Automations"}
-          </button>
-        </div>
-      </div>
-
-      {/* Rules Table */}
-      <div className="border border-gray-200 bg-white rounded-lg overflow-hidden shadow-sm">
-        <div className="px-5 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
-          <h2 className="text-lg font-semibold text-gray-900">Enabled Rules</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Active automation rules ready to execute
-          </p>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">Rule</th>
-                <th className="px-4 py-3 text-left font-semibold">Integration</th>
-                <th className="px-4 py-3 text-left font-semibold">Control ID</th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                <th className="px-4 py-3 text-left font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules.map((r) => (
-                <tr
-                  key={r.id}
-                  className="border-t hover:bg-gray-50 cursor-pointer transition-colors duration-150"
-                  onClick={() => openRuleModal(r)}
-                >
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-gray-900">{r.name}</div>
-                    <div className="text-xs text-gray-500 font-mono">{r.id}</div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{r.integration}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-gray-600">{r.control_id}</td>
-                  <td className="px-4 py-3">
-                    <StatusPill text="Enabled" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      className="px-3 py-1.5 text-xs font-semibold border rounded-md hover:bg-gray-50 transition-all duration-200"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        void openRuleModal(r)
-                      }}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {!loadingRules && rules.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                    No enabled rules yet. Create one below to enable automation.
-                  </td>
-                </tr>
-              )}
-
-              {loadingRules && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full" />
-                      Loading rules…
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Create Rule Panel */}
-      <div className="border border-gray-200 bg-white p-6 rounded-lg space-y-6 shadow-sm">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">Create Automation Rule</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Configure and preview your automation before enabling
-          </p>
-        </div>
-
-        {/* Control Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Select Control (Master Framework)</label>
-          <select
-            value={selectedControlId}
-            onChange={(e) => setSelectedControlId(e.target.value)}
-            className="w-full border border-gray-300 px-3 py-2 rounded-md bg-white focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200"
-          >
-            <option value="">Select control</option>
-            {controls.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          {selectedControlId && (() => {
-            const ctrl = controls.find(c => c.id === selectedControlId)
-            if (!ctrl) return null
-            return (
-              <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md text-xs">
-                <div className="font-semibold text-gray-900">{ctrl.code}</div>
-                <div className="text-gray-700 mt-1">{ctrl.statement}</div>
-              </div>
-            )
-          })()}
-        </div>
-
-        {/* Rule name */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Rule name</label>
-          <input
-            value={ruleName}
-            onChange={(e) => setRuleName(e.target.value)}
-            className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200"
-            placeholder="e.g., TLS grade meets baseline"
-          />
-        </div>
-
-        {/* Evidence source */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Evidence source</label>
-          <select
-            value={selectedEvidenceSource}
-            onChange={(e) => setSelectedEvidenceSource(e.target.value)}
-            className="w-full border border-gray-300 px-3 py-2 rounded-md bg-white focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200"
-          >
-            {evidenceSources.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-          {(() => {
-            const src = evidenceSources.find((s) => s.key === selectedEvidenceSource)
-            if (!src) return null
-            return <p className="text-xs text-gray-600">{src.description}</p>
-          })()}
-        </div>
-
-        {/* Conditions builder */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900">Conditions</h3>
-              <p className="text-xs text-gray-600 mt-1">
-                Define logic using available fields and operators
-              </p>
-            </div>
-
-            <button
-              onClick={addConditionRow}
-              className="px-3 py-2 text-sm font-semibold border rounded-md hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
-            >
-              + Add condition
-            </button>
-          </div>
-
-          <div className="border border-gray-200 rounded-lg overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Field</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Operator</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Value</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap w-24"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {conditions.map((c) => {
-                  const fmeta = selectedFieldMeta.get(c.field)
-                  const operators = fmeta?.operators || []
-                  const fieldOptions = evidenceFields?.fields || []
-                  return (
-                    <tr key={c.id} className="border-t hover:bg-gray-50 transition-colors duration-150">
-                      <td className="px-4 py-2">
-                        <select
-                          value={c.field}
-                          onChange={(e) => {
-                            const nextField = e.target.value
-                            const nextMeta = selectedFieldMeta.get(nextField)
-                            updateConditionRow(c.id, {
-                              field: nextField,
-                              operator: nextMeta?.operators?.[0] || "",
-                              value: "",
-                            })
-                          }}
-                          className="w-full min-w-[200px] border border-gray-300 px-3 py-2 rounded-md bg-white text-sm focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200"
-                        >
-                          <option value="">Select field</option>
-                          {fieldOptions.map((f) => (
-                            <option key={f.name} value={f.name}>
-                              {f.name} ({f.type})
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      <td className="px-4 py-2">
-                        <select
-                          value={c.operator}
-                          onChange={(e) => updateConditionRow(c.id, { operator: e.target.value })}
-                          className="w-full min-w-[120px] border border-gray-300 px-3 py-2 rounded-md bg-white text-sm focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={!c.field}
-                        >
-                          <option value="">Select operator</option>
-                          {operators.map((op) => (
-                            <option key={op} value={op}>
-                              {op}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      <td className="px-4 py-2">
-                        {fmeta?.type === "boolean" ? (
-                          <select
-                            value={c.value}
-                            onChange={(e) => updateConditionRow(c.id, { value: e.target.value })}
-                            className="w-full min-w-[120px] border border-gray-300 px-3 py-2 rounded-md bg-white text-sm focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!c.operator}
-                          >
-                            <option value="">Select value</option>
-                            <option value="true">true</option>
-                            <option value="false">false</option>
-                          </select>
-                        ) : (
-                          <input
-                            value={c.value}
-                            onChange={(e) => updateConditionRow(c.id, { value: e.target.value })}
-                            className="w-full min-w-[150px] border border-gray-300 px-3 py-2 rounded-md text-sm focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            placeholder={fmeta?.type === "number" ? "e.g., 42" : "e.g., A+"}
-                            disabled={!c.operator}
-                          />
-                        )}
-                      </td>
-
-                      <td className="px-4 py-2">
-                        <button
-                          onClick={() => removeConditionRow(c.id)}
-                          className="w-full px-3 py-2 text-xs font-semibold border rounded-md hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                          disabled={conditions.length <= 1}
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Preview + Create buttons */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-4 border-t">
-          <div className="text-xs text-gray-600">
-            Preview runs the rule without persisting results
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handlePreviewCurrentRule}
-              disabled={previewing || !selectedControlId || conditions.filter(c => c.field && c.operator).length === 0}
-              className={cx(
-                "px-4 py-2 text-sm font-semibold border rounded-md hover:bg-gray-50 transition-all duration-200 hover:shadow-sm",
-                (previewing || !selectedControlId || conditions.filter(c => c.field && c.operator).length === 0) && "opacity-60 cursor-not-allowed"
-              )}
-            >
-              {previewing ? (
-                <span className="flex items-center gap-2">
-                  <span className="animate-spin h-3 w-3 border-2 border-gray-300 border-t-gray-600 rounded-full" />
-                  Previewing…
-                </span>
-              ) : (
-                "Preview Rule"
-              )}
+              Cancel
             </button>
 
-            <button
-              onClick={handleCreateRule}
-              disabled={disableCreate}
-              className={cx(
-                "px-4 py-2 text-sm font-semibold border border-yellow-400 bg-yellow-300 text-black rounded-md",
-                "hover:bg-black hover:text-white hover:border-black transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
-                disableCreate && "opacity-60 cursor-not-allowed hover:translate-y-0"
-              )}
-            >
-              {creating ? (
-                <span className="flex items-center gap-2">
-                  <span className="animate-spin h-3 w-3 border-2 border-gray-600 border-t-white rounded-full" />
-                  Enabling…
-                </span>
-              ) : (
-                "Enable Automation"
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Preview results (builder) */}
-        {builderPreview && (
-          <div className="animate-in slide-in-from-top-4 duration-300">
-            <ResultsTable
-              results={builderPreview.results}
-              pass={builderPreview.pass}
-              fail={builderPreview.fail}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Rule Details Modal */}
-      {openRule && (
-        <Modal
-          title={openRule.name}
-          subtitle={`Integration: ${openRule.integration} · Control ID: ${openRule.control_id}`}
-          onClose={() => {
-            setOpenRule(null)
-            setOpenRuleControlInfo(null)
-            setOpenRulePreview(null)
-          }}
-          actions={
-            <button
-              onClick={previewOpenRule}
-              disabled={openRulePreviewing}
-              className={cx(
-                "px-3 py-1.5 text-sm font-semibold border border-yellow-400 bg-yellow-300 text-black rounded-md",
-                "hover:bg-black hover:text-white hover:border-black transition-all duration-200",
-                openRulePreviewing && "opacity-60 cursor-not-allowed"
-              )}
-            >
-              {openRulePreviewing ? "Previewing…" : "Preview Rule"}
-            </button>
-          }
-        >
-          <div className="p-6 space-y-6">
-            <ControlInfo control={openRuleControlInfo} />
-            <JsonViewer data={openRule.rule} />
-            {openRulePreview && (
-              <div className="animate-in slide-in-from-top-4 duration-300">
-                <ResultsTable
-                  results={openRulePreview.results}
-                  pass={openRulePreview.pass}
-                  fail={openRulePreview.fail}
-                />
-              </div>
+            {currentStep < totalSteps ? (
+              <button
+                onClick={onNext}
+                disabled={!canProceed || submitting}
+                className="px-5 py-2.5 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                onClick={onSubmit}
+                disabled={!canProceed || submitting}
+                className="px-5 py-2.5 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting ? "Saving..." : "Create Automation"}
+              </button>
             )}
           </div>
-        </Modal>
-      )}
+        </div>
+      </div>
     </div>
   )
 }

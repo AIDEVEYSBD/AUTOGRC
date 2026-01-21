@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 
-const API_BASE = "http://localhost:3101"
+const API_BASE = (process.env.NEXT_PUBLIC_SCHEDULER_API_BASE ||
+  "http://localhost:3101"
+).replace(/\/$/, "")
 
 // Hardcoded SOC run config (hidden from UI)
 const DEFAULT_AZURE_CONTROLS_PATH = "azure_controls.json"
@@ -19,6 +21,9 @@ type SocRun = {
 }
 
 type SocResult = {
+  // NEW (critical in your schema)
+  control_id: string
+
   domain: string
   sub_domain: string | null
   control_statement: string
@@ -26,7 +31,7 @@ type SocResult = {
   soc_control_code: string
   soc_control_statement: string
 
-  score: number // 0-100
+  score: number // could be 0-1 or 0-100 depending on engine output
   status: "Met" | "Partially Met" | "Not Met" | string
   explanation: string
   created_at: string
@@ -37,12 +42,34 @@ type SocSummary = {
   met: number
   partial: number
   not_met: number
-  avg_score: number
+  avg_score: number // 0-100
+}
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const r = await fetch(url, init)
+  if (!r.ok) {
+    const txt = await r.text().catch(() => "")
+    throw new Error(`HTTP ${r.status} ${r.statusText}: ${txt}`)
+  }
+  return r.json()
+}
+
+function normalizeScoreTo100(x: any): number {
+  const n = Number(x)
+  if (!Number.isFinite(n)) return 0
+  // Backward compatible: if mapper emits 0..1, treat as fraction
+  if (n <= 1) return clamp(n * 100, 0, 100)
+  return clamp(n, 0, 100)
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  if (v < lo) return lo
+  if (v > hi) return hi
+  return v
 }
 
 export default function SocMapperPage() {
   const [runs, setRuns] = useState<SocRun[]>([])
-
   const [showInstructions, setShowInstructions] = useState(false)
 
   // Upload state (dummy gating, front end only)
@@ -57,14 +84,29 @@ export default function SocMapperPage() {
   const [loading, setLoading] = useState(false)
   const [starting, setStarting] = useState(false)
 
+  const hasActiveRuns = useMemo(
+    () => runs.some((r) => ["queued", "running"].includes((r.status || "").toLowerCase())),
+    [runs]
+  )
+
+  const fetchRuns = async () => {
+    const data = await fetchJson<SocRun[]>(`${API_BASE}/soc-runs`)
+    setRuns(data || [])
+  }
+
   useEffect(() => {
-    fetchRuns()
+    fetchRuns().catch(() => setRuns([]))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const fetchRuns = () =>
-    fetch(`${API_BASE}/soc-runs`)
-      .then((r) => r.json())
-      .then(setRuns)
+  // Poll only when there are active runs
+  useEffect(() => {
+    if (!hasActiveRuns) return
+    const t = setInterval(() => {
+      fetchRuns().catch(() => {})
+    }, 5000)
+    return () => clearInterval(t)
+  }, [hasActiveRuns])
 
   const onPickPdfClick = () => {
     setUploadError("")
@@ -98,11 +140,11 @@ export default function SocMapperPage() {
 
     setStarting(true)
     try {
-      // We label the run using the uploaded PDF filename.
-      // The backend still uses Azure_controls.json for the actual mapping inputs.
+      // Label the run using the uploaded PDF filename.
+      // Backend still uses Azure_controls.json for actual mapping inputs.
       const socReportName = stripPdfExt(pdfFile.name)
 
-      await fetch(`${API_BASE}/soc-runs`, {
+      await fetchJson(`${API_BASE}/soc-runs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -113,7 +155,7 @@ export default function SocMapperPage() {
         }),
       })
 
-      fetchRuns()
+      await fetchRuns()
     } finally {
       setStarting(false)
     }
@@ -126,8 +168,9 @@ export default function SocMapperPage() {
     setLoading(true)
 
     try {
-      const res = await fetch(`${API_BASE}/soc-runs/${runId}/results`)
-      const data = await res.json()
+      const data = await fetchJson<{ run: any; results: SocResult[] }>(
+        `${API_BASE}/soc-runs/${runId}/results`
+      )
       setResults(data.results ?? [])
     } finally {
       setLoading(false)
@@ -150,12 +193,14 @@ export default function SocMapperPage() {
 
   const summary: SocSummary = useMemo(() => {
     const total = results.length
-    const met = results.filter((r) => r.status === "Met").length
-    const partial = results.filter((r) => r.status === "Partially Met").length
-    const not_met = total - met - partial
+    const met = results.filter((r) => (r.status || "").toLowerCase() === "met").length
+    const partial = results.filter((r) => (r.status || "").toLowerCase() === "partially met").length
+    const not_met = results.filter((r) => (r.status || "").toLowerCase() === "not met").length
+
     const avg_score = total
-      ? round2(results.reduce((acc, r) => acc + (Number(r.score) || 0), 0) / total)
+      ? round2(results.reduce((acc, r) => acc + normalizeScoreTo100(r.score), 0) / total)
       : 0
+
     return { total, met, partial, not_met, avg_score }
   }, [results])
 
@@ -197,7 +242,7 @@ export default function SocMapperPage() {
               Instructions
             </button>
             <button
-              onClick={fetchRuns}
+              onClick={() => fetchRuns().catch(() => {})}
               className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
               title="Refresh runs"
             >
@@ -219,9 +264,7 @@ export default function SocMapperPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-bold text-[#333333]">SOC report PDF</p>
-              <p className="text-xs text-[#666666] mt-1">
-                Upload a PDF to enable running the mapper.
-              </p>
+              <p className="text-xs text-[#666666] mt-1">Upload a PDF to enable running the mapper.</p>
             </div>
 
             <div className="flex gap-2">
@@ -262,9 +305,7 @@ export default function SocMapperPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-[#333333] truncate">{pdfFile.name}</p>
-                  <p className="text-xs text-[#666666] mt-1">
-                    {(pdfFile.size / (1024 * 1024)).toFixed(2)} MB
-                  </p>
+                  <p className="text-xs text-[#666666] mt-1">{(pdfFile.size / (1024 * 1024)).toFixed(2)} MB</p>
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#e8f0fe] text-[#2563eb]">
                   Ready
@@ -343,7 +384,7 @@ export default function SocMapperPage() {
                 <p className="text-sm text-[#666666] mt-1">
                   {openRunMeta?.soc_report_name || "SOC Run"} · {openRunMeta?.master_framework_name || "Master"} ·{" "}
                   {summary.met} met · {summary.partial} partial · {summary.not_met} not met · {summary.total} total · avg{" "}
-                  {summary.avg_score.toFixed(2)}
+                  {summary.avg_score.toFixed(1)}
                 </p>
               </div>
 
@@ -386,32 +427,38 @@ export default function SocMapperPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {results.map((r, i) => (
-                      <tr key={i} className="border-t border-[#e5e7eb] align-top hover:bg-[#f9f9f9]">
-                        <td className="px-4 py-3 text-[#333333] font-semibold whitespace-nowrap">
-                          {r.domain || "SOC"}
-                        </td>
-                        <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{r.sub_domain || "-"}</td>
-                        <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[420px] max-w-[520px]">
-                          {r.control_statement}
-                        </td>
-                        <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[360px] max-w-[520px]">
-                          <div className="font-semibold whitespace-nowrap">{r.soc_control_code ? r.soc_control_code : "-"}</div>
-                          <div className="text-[#666666] mt-1">{r.soc_control_statement || ""}</div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`font-bold ${scoreColor(r.score)}`}>{round2(r.score).toFixed(2)}</span>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`text-xs font-bold px-3 py-1 rounded-full ${socStatusPill(r.status)}`}>
-                            {r.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-[#666666] text-xs leading-relaxed min-w-[420px] max-w-[560px]">
-                          {r.explanation}
-                        </td>
-                      </tr>
-                    ))}
+                    {results.map((r, i) => {
+                      const s100 = normalizeScoreTo100(r.score)
+                      return (
+                        <tr key={i} className="border-t border-[#e5e7eb] align-top hover:bg-[#f9f9f9]">
+                          <td className="px-4 py-3 text-[#333333] font-semibold whitespace-nowrap">
+                            {r.domain || "SOC"}
+                          </td>
+                          <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{r.sub_domain || "-"}</td>
+                          <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[420px] max-w-[520px]">
+                            {r.control_statement}
+                            <div className="text-[10px] text-[#9ca3af] mt-2">
+                              control_id: <span className="font-mono">{r.control_id}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[360px] max-w-[520px]">
+                            <div className="font-semibold whitespace-nowrap">{r.soc_control_code ? r.soc_control_code : "-"}</div>
+                            <div className="text-[#666666] mt-1">{r.soc_control_statement || ""}</div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={`font-bold ${scoreColor(s100)}`}>{s100.toFixed(1)}</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={`text-xs font-bold px-3 py-1 rounded-full ${socStatusPill(r.status)}`}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-[#666666] text-xs leading-relaxed min-w-[420px] max-w-[560px]">
+                            {r.explanation}
+                          </td>
+                        </tr>
+                      )
+                    })}
 
                     {results.length === 0 && (
                       <tr>
@@ -467,7 +514,7 @@ export default function SocMapperPage() {
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">Step 3: Review results</h4>
                 <p className="text-sm text-[#666666]">
-                  Click any run to open the results modal. You will see per-control status, scores, and explanations.
+                  Click any run to open the results modal. You will see per-control status, scores, explanations, and control_id traceability.
                 </p>
               </div>
 
@@ -480,7 +527,12 @@ export default function SocMapperPage() {
 
               <div className="bg-[#fffbea] border border-[#ffe600] rounded p-4 mt-6">
                 <div className="flex gap-3">
-                  <svg className="w-5 h-5 text-[#f59e0b] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 text-[#f59e0b] flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -526,7 +578,10 @@ function round2(v: any) {
 }
 
 function formatTs(ts: string) {
-  return ts || "-"
+  if (!ts) return "-"
+  const d = new Date(ts)
+  if (Number.isNaN(d.getTime())) return ts
+  return d.toLocaleString()
 }
 
 function statusPill(status: string) {
@@ -545,8 +600,8 @@ function socStatusPill(status: string) {
   return "bg-[#fee] text-[#e41f13]"
 }
 
-function scoreColor(score: number) {
-  const x = Number(score) || 0
+function scoreColor(score0to100: number) {
+  const x = Number(score0to100) || 0
   if (x >= 70) return "text-[#00a758]"
   if (x >= 40) return "text-[#f59e0b]"
   return "text-[#e41f13]"
