@@ -32,7 +32,7 @@ export type ControlAssessmentRow = {
   status: "Compliant" | "Not Compliant" | "Partial Gap" | "Not Applicable"
   complianceScore: number
 
-  assessedBy: string // Derived from evidence titles
+  assessedBy: string
   assessedAt: string
 
   evidence: EvidenceRow[]
@@ -91,6 +91,35 @@ export type ApplicationDetail = ApplicationHeaderRow & {
   }
 
   controls: ControlAssessmentRow[]
+}
+
+/* ─────────────────────────────────────────────
+   Helpers
+───────────────────────────────────────────── */
+
+function parseEvidenceIds(value: unknown): string[] {
+  if (!value) return []
+
+  // If driver already gives JSON as an array
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === "string" && v.length > 0)
+  }
+
+  // If driver gives JSONB as a string
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) {
+        return parsed.filter((v): v is string => typeof v === "string" && v.length > 0)
+      }
+      return []
+    } catch {
+      return []
+    }
+  }
+
+  // Rare: driver gives an object but not an array
+  return []
 }
 
 /* ─────────────────────────────────────────────
@@ -153,7 +182,7 @@ export async function getApplicationDetail(
       testingProcedure: string | null
       finalStatus: string
       finalScore: number
-      usedEvidenceIds: string
+      usedEvidenceIds: unknown
       assessedAt: string
     }>
   >`
@@ -181,7 +210,6 @@ export async function getApplicationDetail(
   `
 
   if (assessmentsResult.length === 0) {
-    // Return application with no assessments
     return {
       ...app,
       overallScore: 0,
@@ -202,20 +230,17 @@ export async function getApplicationDetail(
      Fetch all evidence for these assessments
   ──────────────── */
 
-  // Collect all evidence IDs from all assessments
   const allEvidenceIds = new Set<string>()
   assessmentsResult.forEach(a => {
-    try {
-      const ids = JSON.parse(a.usedEvidenceIds) as string[]
-      ids.forEach(id => allEvidenceIds.add(id))
-    } catch (e) {
-      // Skip invalid JSON
-    }
+    const ids = parseEvidenceIds(a.usedEvidenceIds)
+    ids.forEach(id => allEvidenceIds.add(id))
   })
 
-  // Fetch evidence in bulk
   const evidenceMap = new Map<string, EvidenceRow>()
+
   if (allEvidenceIds.size > 0) {
+    const ids = Array.from(allEvidenceIds)
+
     const evidenceResult = await db<
       Array<{
         id: string
@@ -226,7 +251,7 @@ export async function getApplicationDetail(
         score: number
         title: string
         explanation: string | null
-        evidenceData: string | null
+        evidenceData: any | null
         collectedAt: string
         createdAt: string
       }>
@@ -244,7 +269,7 @@ export async function getApplicationDetail(
         collected_at AS "collectedAt",
         created_at AS "createdAt"
       FROM assessment_evidence
-      WHERE id = ANY(${Array.from(allEvidenceIds)})
+      WHERE id = ANY(${ids}::text[])
     `
 
     evidenceResult.forEach(e => {
@@ -274,29 +299,19 @@ export async function getApplicationDetail(
     const score = Math.round(a.finalScore)
     scoreSum += score
 
-    // Count by status
     if (a.finalStatus === "Compliant") compliant++
     else if (a.finalStatus === "Partial Gap") partialGap++
     else if (a.finalStatus === "Not Compliant") notCompliant++
     else if (a.finalStatus === "Not Applicable") notApplicable++
 
-    // Get evidence for this assessment
-    let evidenceIds: string[] = []
-    try {
-      evidenceIds = JSON.parse(a.usedEvidenceIds) as string[]
-    } catch (e) {
-      evidenceIds = []
-    }
+    const evidenceIds = parseEvidenceIds(a.usedEvidenceIds)
 
     const evidence: EvidenceRow[] = evidenceIds
       .map(id => evidenceMap.get(id))
       .filter((e): e is EvidenceRow => e !== undefined)
 
-    // Derive assessedBy from evidence titles (comma-separated)
     const assessedBy =
-      evidence.length > 0
-        ? evidence.map(e => e.title).join(", ")
-        : "Unknown"
+      evidence.length > 0 ? evidence.map(e => e.title).join(", ") : "Unknown"
 
     return {
       id: a.id,
@@ -318,11 +333,7 @@ export async function getApplicationDetail(
   const overallScore = total > 0 ? Math.round(scoreSum / total) : 0
 
   const status =
-    overallScore >= 80
-      ? "Compliant"
-      : overallScore >= 50
-      ? "Warning"
-      : "Critical"
+    overallScore >= 80 ? "Compliant" : overallScore >= 50 ? "Warning" : "Critical"
 
   const lastAssessedAt =
     controls.length > 0
