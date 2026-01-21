@@ -34,7 +34,7 @@ export default async function ApplicationsPage() {
     </div>
   )
 }
-
+export const dynamic = "force-dynamic"
 /* ─────────────────────────────────────────────
    Components
 ───────────────────────────────────────────── */

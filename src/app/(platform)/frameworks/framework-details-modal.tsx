@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react"
 import { updateControlMetadata, updateControlApplicabilities, fetchFrameworkDetails } from "./framework-actions"
-
+export const dynamic = "force-dynamic"
 type FrameworkDetailsControl = {
   id: string
   controlCode: string

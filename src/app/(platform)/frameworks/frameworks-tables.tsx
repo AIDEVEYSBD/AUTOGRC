@@ -4,7 +4,7 @@ import { useDeactivatedFrameworks } from "./deactivated-context"
 import Link from "next/link"
 import { useState } from "react"
 import * as XLSX from "xlsx"
-
+export const dynamic = "force-dynamic"
 type FrameworkComparisonCell = {
   targetControlCode: string
   targetStatement: string
