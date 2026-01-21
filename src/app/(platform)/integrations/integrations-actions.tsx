@@ -17,7 +17,6 @@ import {
   updateSchedule,
   updateScheduleRunTimestamps,
 } from "@/lib/integrations.queries"
-export const dynamic = "force-dynamic"
 
 import type { Integration, IntegrationRun } from "@/lib/integrations.types"
 
