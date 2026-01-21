@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
+export const dynamic = "force-dynamic"
 
 const STORAGE_KEY = "autogrc_deactivated_frameworks"
 

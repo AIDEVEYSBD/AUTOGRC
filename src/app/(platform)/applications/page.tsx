@@ -38,6 +38,7 @@ export default async function ApplicationsPage() {
 /* ─────────────────────────────────────────────
    Components
 ───────────────────────────────────────────── */
+export const dynamic = "force-dynamic"
 
 function MetricCard({
   label,

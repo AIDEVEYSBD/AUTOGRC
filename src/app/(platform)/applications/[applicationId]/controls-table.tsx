@@ -4,6 +4,7 @@ import { useState } from "react"
 import type { ControlAssessmentRow, EvidenceRow } from "@/lib/application-detail.queries"
 
 type SortKey = "controlCode" | "domain" | "complianceScore" | "status"
+export const dynamic = "force-dynamic"
 
 export default function ControlsTable({
   controls,

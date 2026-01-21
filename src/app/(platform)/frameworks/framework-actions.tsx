@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { getFrameworkDetails } from "@/lib/frameworks.queries"
+export const dynamic = "force-dynamic"
 
 export async function updateControlMetadata(
   controlId: string,

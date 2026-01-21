@@ -11,6 +11,7 @@ import {
   saveSchedule,
 } from "./integrations-actions"
 import type { Integration, IntegrationRun } from "@/lib/integrations.types"
+export const dynamic = "force-dynamic"
 
 /* ───────────────────────────────────────────── */
 /* Helper Functions                              */
