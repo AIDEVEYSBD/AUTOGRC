@@ -27,7 +27,6 @@ export async function getIntegrations(): Promise<Integration[]> {
       i.status,
       i.last_sync_at AS "lastSyncAt",
       i.last_error AS "lastError",
-      i.created_at AS "createdAt",
       -- Schedule info
       s.id AS "scheduleId",
       s.schedule_type AS "scheduleType",
@@ -315,10 +314,16 @@ export async function getNormalizedData(
     throw new Error("Invalid table name")
   }
   
+  // Check if table exists first
+  const tableExists = await normalizedTableExists(tableName)
+  if (!tableExists) {
+    return []
+  }
+  
+  // Query without ORDER BY since we don't know what columns exist
   const rows = await db.unsafe(`
     SELECT * 
     FROM ${tableName}
-    ORDER BY created_at DESC
     LIMIT ${limit}
   `)
   
