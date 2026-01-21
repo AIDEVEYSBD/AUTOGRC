@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import type { ControlAssessmentRow, EvidenceRow } from "@/lib/application-detail.queries"
 
 type SortKey = "controlCode" | "domain" | "complianceScore" | "status"
@@ -255,6 +256,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               </div>
               <div className="prose prose-sm max-w-none text-gray-700">
                 <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
                   components={{
                     p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
                     ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
@@ -303,10 +305,54 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Evidence Data
               </div>
-              <div className="bg-gray-50 rounded p-3 border border-gray-200">
-                <pre className="text-xs text-gray-700 overflow-x-auto">
-                  {JSON.stringify(evidence.evidenceData, null, 2)}
-                </pre>
+              <div className="bg-gray-50 rounded p-3 border border-gray-200 overflow-x-auto">
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      table: ({ children }) => (
+                        <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
+                          {children}
+                        </table>
+                      ),
+                      thead: ({ children }) => (
+                        <thead className="bg-gray-100">
+                          {children}
+                        </thead>
+                      ),
+                      tbody: ({ children }) => (
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          {children}
+                        </tbody>
+                      ),
+                      tr: ({ children }) => (
+                        <tr>
+                          {children}
+                        </tr>
+                      ),
+                      th: ({ children }) => (
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900 border-r border-gray-300 last:border-r-0">
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }) => (
+                        <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-200 last:border-r-0">
+                          {children}
+                        </td>
+                      ),
+                      p: ({ children }) => <p className="mb-2 last:mb-0 text-xs">{children}</p>,
+                      code: ({ children }) => (
+                        <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
+                          {children}
+                        </code>
+                      ),
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                    }}
+                  >
+                    {evidence.evidenceData}
+                  </ReactMarkdown>
+                </div>
               </div>
             </div>
           )}

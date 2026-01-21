@@ -14,7 +14,7 @@ export type EvidenceRow = {
   score: number
   title: string
   explanation: string | null
-  evidenceData: any | null
+  evidenceData: string | null
   collectedAt: string
   createdAt: string
 }
@@ -130,21 +130,6 @@ export async function getApplicationDetail(
   applicationId: string
 ): Promise<ApplicationDetail | null> {
   const normalizedId = applicationId.trim()
-
-  /* ────────────────
-     Get total master framework controls
-  ──────────────── */
-  
-  const masterFrameworkControls = await db<Array<{ totalControls: string; masterFrameworkId: string }>>`
-    SELECT COUNT(*) as "totalControls", f.id as "masterFrameworkId"
-    FROM controls c
-    JOIN frameworks f ON f.id = c.framework_id
-    WHERE f.is_master = true
-    GROUP BY f.id
-  `
-  
-  const totalMasterControls = Number(masterFrameworkControls[0]?.totalControls || 0)
-  const masterFrameworkId = masterFrameworkControls[0]?.masterFrameworkId
 
   /* ────────────────
      Application header (FULL)
@@ -266,7 +251,7 @@ export async function getApplicationDetail(
         score: number
         title: string
         explanation: string | null
-        evidenceData: any | null
+        evidenceData: string | null
         collectedAt: string
         createdAt: string
       }>
@@ -292,10 +277,7 @@ export async function getApplicationDetail(
         ...e,
         sourceType: e.sourceType as EvidenceRow["sourceType"],
         status: e.status as EvidenceRow["status"],
-        evidenceData:
-          e.evidenceData && typeof e.evidenceData === "string"
-            ? JSON.parse(e.evidenceData)
-            : e.evidenceData,
+        evidenceData: e.evidenceData,
       })
     })
   }
@@ -308,15 +290,11 @@ export async function getApplicationDetail(
   let partialGap = 0
   let notCompliant = 0
   let notApplicable = 0
-  let compliantControlsCount = 0
+  let scoreSum = 0
 
   const controls: ControlAssessmentRow[] = assessmentsResult.map(a => {
     const score = Math.round(a.finalScore)
-
-    // Count compliant controls (score > 80)
-    if (score > 80) {
-      compliantControlsCount++
-    }
+    scoreSum += score
 
     if (a.finalStatus === "Compliant") compliant++
     else if (a.finalStatus === "Partial Gap") partialGap++
@@ -349,11 +327,7 @@ export async function getApplicationDetail(
   })
 
   const total = controls.length
-  
-  // CORRECTED: Calculate score as (compliant controls / total master controls) * 100
-  const overallScore = totalMasterControls > 0 
-    ? Math.round((compliantControlsCount / totalMasterControls) * 100)
-    : 0
+  const overallScore = total > 0 ? Math.round(scoreSum / total) : 0
 
   const status =
     overallScore >= 80 ? "Compliant" : overallScore >= 50 ? "Warning" : "Critical"
