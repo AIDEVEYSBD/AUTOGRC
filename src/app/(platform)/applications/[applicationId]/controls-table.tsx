@@ -26,6 +26,11 @@ export default function ControlsTable({
   }
 
   const sorted = [...controls].sort((a, b) => {
+    // First priority: assessed controls always come before unassessed
+    if (a.isAssessed && !b.isAssessed) return -1
+    if (!a.isAssessed && b.isAssessed) return 1
+    
+    // Second priority: sort by selected column within each group
     const av = a[sortKey]
     const bv = b[sortKey]
     if (av < bv) return sortDir === "asc" ? -1 : 1
@@ -90,65 +95,100 @@ export default function ControlsTable({
             {sorted.map(c => (
               <>
                 <tr
-                  key={c.id}
-                  onClick={() =>
-                    setExpandedId(expandedId === c.id ? null : c.id)
-                  }
-                  className="cursor-pointer hover:bg-gray-50 transition-colors"
+                  key={c.controlId}
+                  onClick={() => {
+                    // Only allow expansion for assessed controls
+                    if (c.isAssessed) {
+                      setExpandedId(expandedId === c.controlId ? null : c.controlId)
+                    }
+                  }}
+                  className={`transition-colors ${
+                    c.isAssessed 
+                      ? "cursor-pointer hover:bg-gray-50" 
+                      : "cursor-not-allowed bg-gray-50 opacity-60"
+                  }`}
                 >
-                  <Td className="font-semibold text-gray-900">
+                  <Td className={`font-semibold ${c.isAssessed ? "text-gray-900" : "text-gray-500"}`}>
                     {c.controlCode}
                   </Td>
                   <Td>
                     <div className="space-y-1">
-                      <div className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                      <div className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                        c.isAssessed ? "bg-gray-100 text-gray-700" : "bg-gray-200 text-gray-500"
+                      }`}>
                         {c.domain}
                       </div>
                       {c.subDomain && (
-                        <div className="text-xs text-gray-500">
+                        <div className={`text-xs ${c.isAssessed ? "text-gray-500" : "text-gray-400"}`}>
                           {c.subDomain}
                         </div>
                       )}
                     </div>
                   </Td>
                   <Td>
-                    <div className="text-gray-700 leading-relaxed">
+                    <div className={`leading-relaxed ${c.isAssessed ? "text-gray-700" : "text-gray-500"}`}>
                       {c.controlStatement}
                     </div>
                   </Td>
                   <Td>
-                    <StatusBadge status={c.status} />
+                    <StatusBadge status={c.status} isAssessed={c.isAssessed} />
                   </Td>
                   <Td>
-                    <ScoreBadge score={c.complianceScore} />
+                    {c.isAssessed ? (
+                      <ScoreBadge score={c.complianceScore} />
+                    ) : (
+                      <span className="inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+                        N/A
+                      </span>
+                    )}
                   </Td>
                   <Td>
                     <div className="flex items-center gap-1">
-                      <span className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700">
+                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${
+                        c.isAssessed 
+                          ? "border-gray-200 bg-gray-50 text-gray-700" 
+                          : "border-gray-300 bg-gray-200 text-gray-400"
+                      }`}>
                         {c.evidence.length}
                       </span>
                     </div>
                   </Td>
                   <Td className="text-right">
-                    <svg
-                      className={`w-5 h-5 text-gray-400 transition-transform ${
-                        expandedId === c.id ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                    {c.isAssessed ? (
+                      <svg
+                        className={`w-5 h-5 text-gray-400 transition-transform ${
+                          expandedId === c.controlId ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5 text-gray-300"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                        />
+                      </svg>
+                    )}
                   </Td>
                 </tr>
 
-                {expandedId === c.id && (
+                {expandedId === c.controlId && c.isAssessed && (
                   <tr className="bg-gray-50">
                     <Td colSpan={7} className="p-6">
                       <div className="space-y-6 max-w-6xl">
@@ -189,14 +229,16 @@ export default function ControlsTable({
                         </div>
 
                         {/* Assessment Info */}
-                        <div className="flex items-center gap-6 text-xs text-gray-500 pt-4 border-t border-gray-200">
-                          <div className="flex items-center gap-2">
-                            <span>Assessed:</span>
-                            <span className="font-medium text-gray-900">
-                              {new Date(c.assessedAt).toLocaleDateString()}
-                            </span>
+                        {c.assessedAt && (
+                          <div className="flex items-center gap-6 text-xs text-gray-500 pt-4 border-t border-gray-200">
+                            <div className="flex items-center gap-2">
+                              <span>Assessed:</span>
+                              <span className="font-medium text-gray-900">
+                                {new Date(c.assessedAt).toLocaleDateString()}
+                              </span>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </Td>
                   </tr>
@@ -223,7 +265,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <SourceTypeBadge sourceType={evidence.sourceType} />
-              <StatusBadge status={evidence.status} />
+              <StatusBadge status={evidence.status} isAssessed={true} />
               <ScoreBadge score={evidence.score} />
             </div>
             <div className="font-medium text-gray-900 text-sm">
@@ -434,19 +476,24 @@ function ScoreBadge({ score }: { score: number }) {
 
 function StatusBadge({
   status,
+  isAssessed,
 }: {
-  status: "Compliant" | "Not Compliant" | "Partial Gap" | "Not Applicable"
+  status: "Compliant" | "Not Compliant" | "Partial Gap" | "Not Applicable" | "Not Assessed"
+  isAssessed: boolean
 }) {
   const variants = {
     Compliant: "bg-green-100 text-green-800 border-green-200",
     "Partial Gap": "bg-amber-100 text-amber-800 border-amber-200",
     "Not Compliant": "bg-red-100 text-red-800 border-red-200",
     "Not Applicable": "bg-gray-100 text-gray-800 border-gray-200",
+    "Not Assessed": "bg-gray-200 text-gray-500 border-gray-300",
   }
 
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${variants[status]}`}
+      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${
+        isAssessed ? variants[status] : "bg-gray-200 text-gray-500 border-gray-300"
+      }`}
     >
       {status}
     </span>

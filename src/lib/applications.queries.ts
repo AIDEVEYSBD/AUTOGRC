@@ -81,27 +81,25 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
    * - application_applicability + applicability_categories
    * 
    * CORRECTED LOGIC:
-   * - Score = (compliant controls in assessments) / (total controls in master framework) * 100
+   * - Score = average of all assessed control scores per application
    * - Non-compliances = controls with final_score <= 50
    * - Only count MASTER framework controls (not all assessments)
    */
 
-  // First, get the total number of controls in the master framework
-  const masterFrameworkControls = await db<Array<{ totalControls: string; masterFrameworkId: string }>>`
-    SELECT COUNT(*) as "totalControls", f.id as "masterFrameworkId"
-    FROM controls c
-    JOIN frameworks f ON f.id = c.framework_id
+  // First, get the master framework ID
+  const masterFrameworkResult = await db<Array<{ masterFrameworkId: string }>>`
+    SELECT f.id as "masterFrameworkId"
+    FROM frameworks f
     WHERE f.is_master = true
-    GROUP BY f.id
+    LIMIT 1
   `
   
-  const totalMasterControls = Number(masterFrameworkControls[0]?.totalControls || 0)
-  const masterFrameworkId = masterFrameworkControls[0]?.masterFrameworkId
+  const masterFrameworkId = masterFrameworkResult[0]?.masterFrameworkId
 
   const rowsRaw = await db<
     Array<
       Omit<ApplicationRow, "status" | "score" | "nonCompliances" | "applicabilityCategories"> & {
-        compliantControls: string
+        avgScore: number
         nonCompliances: string
         applicabilityCategories: string | null
       }
@@ -128,11 +126,13 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
       a.service_management AS "serviceManagement",
       a.cloud_provider AS "cloudProvider",
       
-      -- Count DISTINCT compliant master framework controls (score > 80)
-      COUNT(DISTINCT ca.control_id) FILTER (
-        WHERE ca.final_score > 80
-        AND c.framework_id = ${masterFrameworkId}
-      ) AS "compliantControls",
+      -- Average score of all assessed master framework controls
+      COALESCE(
+        ROUND(AVG(ca.final_score) FILTER (
+          WHERE c.framework_id = ${masterFrameworkId}
+        )::numeric, 1),
+        0
+      ) AS "avgScore",
       
       -- Count DISTINCT non-compliances (score <= 50)
       COUNT(DISTINCT ca.control_id) FILTER (
@@ -169,11 +169,8 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
   let scoreSum = 0
 
   const rows: ApplicationRow[] = rowsRaw.map(r => {
-    // Calculate score: (compliant controls / total master controls) * 100
-    const compliantControls = Number(r.compliantControls)
-    const score = totalMasterControls > 0 
-      ? Math.round((compliantControls / totalMasterControls) * 100)
-      : 0
+    // Score is the average of all assessed control scores
+    const score = Math.round(Number(r.avgScore))
 
     let status: ApplicationStatus
     if (score >= 80) {
@@ -272,39 +269,33 @@ export async function getComplianceTrends(): Promise<ComplianceTrend[]> {
    * Current month uses real data from assessments
    * Previous 5 months use generated demo data (random variations)
    * 
-   * Formula: (compliant controls / total master controls) * 100
+   * Formula: average of all assessed control scores
    */
 
-  // Get total master controls
-  const masterFrameworkControls = await db<Array<{ totalControls: string; masterFrameworkId: string }>>`
-    SELECT COUNT(*) as "totalControls", f.id as "masterFrameworkId"
-    FROM controls c
-    JOIN frameworks f ON f.id = c.framework_id
+  // Get master framework ID
+  const masterFrameworkResult = await db<Array<{ masterFrameworkId: string }>>`
+    SELECT f.id as "masterFrameworkId"
+    FROM frameworks f
     WHERE f.is_master = true
-    GROUP BY f.id
+    LIMIT 1
   `
   
-  const totalMasterControls = Number(masterFrameworkControls[0]?.totalControls || 0)
-  const masterFrameworkId = masterFrameworkControls[0]?.masterFrameworkId
+  const masterFrameworkId = masterFrameworkResult[0]?.masterFrameworkId
 
-  if (!masterFrameworkId || totalMasterControls === 0) {
+  if (!masterFrameworkId) {
     return []
   }
 
-  // Get current month's actual compliance score
-  const currentScoreResult = await db<Array<{ compliantControls: string }>>`
+  // Get current month's actual compliance score (average of all control scores)
+  const currentScoreResult = await db<Array<{ avgScore: number }>>`
     SELECT 
-      COUNT(DISTINCT ca.control_id) as "compliantControls"
+      COALESCE(ROUND(AVG(ca.final_score)::numeric, 1), 0) as "avgScore"
     FROM control_assessments ca
     JOIN controls c ON c.id = ca.control_id
-    WHERE ca.final_score > 80
-      AND c.framework_id = ${masterFrameworkId}
+    WHERE c.framework_id = ${masterFrameworkId}
   `
 
-  const currentCompliantControls = Number(currentScoreResult[0]?.compliantControls || 0)
-  const currentScore = totalMasterControls > 0 
-    ? Math.round((currentCompliantControls / totalMasterControls) * 100)
-    : 0
+  const currentScore = Math.round(Number(currentScoreResult[0]?.avgScore || 0))
 
   // Generate past 5 months with demo data (random variations around current score)
   const months = []

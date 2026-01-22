@@ -20,7 +20,7 @@ export type EvidenceRow = {
 }
 
 export type ControlAssessmentRow = {
-  id: string
+  id: string | null // null for unassessed controls
 
   controlId: string
   controlCode: string
@@ -29,13 +29,14 @@ export type ControlAssessmentRow = {
   controlStatement: string
   testingProcedure: string | null
 
-  status: "Compliant" | "Not Compliant" | "Partial Gap" | "Not Applicable"
+  status: "Compliant" | "Not Compliant" | "Partial Gap" | "Not Applicable" | "Not Assessed"
   complianceScore: number
 
-  assessedBy: string
-  assessedAt: string
+  assessedBy: string | null
+  assessedAt: string | null
 
   evidence: EvidenceRow[]
+  isAssessed: boolean // Helper flag to distinguish assessed vs unassessed
 }
 
 export type ApplicationHeaderRow = {
@@ -88,6 +89,7 @@ export type ApplicationDetail = ApplicationHeaderRow & {
     partialGap: number
     notCompliant: number
     notApplicable: number
+    notAssessed: number
   }
 
   controls: ControlAssessmentRow[]
@@ -168,48 +170,18 @@ export async function getApplicationDetail(
   if (!app) return null
 
   /* ────────────────
-     Control assessments with evidence
+     Get master framework ID
   ──────────────── */
 
-  const assessmentsResult = await db<
-    Array<{
-      id: string
-      controlId: string
-      controlCode: string
-      domain: string
-      subDomain: string | null
-      controlStatement: string
-      testingProcedure: string | null
-      finalStatus: string
-      finalScore: number
-      usedEvidenceIds: unknown
-      assessedAt: string
-    }>
-  >`
-    SELECT
-      ca.id,
-      ca.control_id AS "controlId",
-
-      c.control_code AS "controlCode",
-      c.domain,
-      c.sub_domain AS "subDomain",
-      c.control_statement AS "controlStatement",
-      c.testing_procedure AS "testingProcedure",
-
-      ca.final_status AS "finalStatus",
-      ca.final_score AS "finalScore",
-      ca.used_evidence_ids AS "usedEvidenceIds",
-      ca.assessed_at AS "assessedAt"
-
-    FROM control_assessments ca
-    JOIN controls c ON c.id = ca.control_id
-
-    WHERE ca.application_id = ${normalizedId}
-
-    ORDER BY c.domain, c.control_code
+  const masterFrameworkResult = await db<{ id: string }[]>`
+    SELECT id
+    FROM frameworks
+    WHERE is_master = true
+    LIMIT 1
   `
 
-  if (assessmentsResult.length === 0) {
+  const masterFrameworkId = masterFrameworkResult[0]?.id
+  if (!masterFrameworkId) {
     return {
       ...app,
       overallScore: 0,
@@ -221,19 +193,85 @@ export async function getApplicationDetail(
         partialGap: 0,
         notCompliant: 0,
         notApplicable: 0,
+        notAssessed: 0,
       },
       controls: [],
     }
   }
 
   /* ────────────────
-     Fetch all evidence for these assessments
+     Get ALL master framework controls (assessed + unassessed)
+  ──────────────── */
+
+  const controlsResult = await db<
+    Array<{
+      controlId: string
+      controlCode: string
+      domain: string
+      subDomain: string | null
+      controlStatement: string
+      testingProcedure: string | null
+      
+      // Assessment fields (nullable for unassessed)
+      assessmentId: string | null
+      finalStatus: string | null
+      finalScore: number | null
+      usedEvidenceIds: unknown
+      assessedAt: string | null
+    }>
+  >`
+    SELECT
+      c.id AS "controlId",
+      c.control_code AS "controlCode",
+      c.domain,
+      c.sub_domain AS "subDomain",
+      c.control_statement AS "controlStatement",
+      c.testing_procedure AS "testingProcedure",
+
+      ca.id AS "assessmentId",
+      ca.final_status AS "finalStatus",
+      ca.final_score AS "finalScore",
+      ca.used_evidence_ids AS "usedEvidenceIds",
+      ca.assessed_at AS "assessedAt"
+
+    FROM controls c
+    LEFT JOIN control_assessments ca 
+      ON ca.control_id = c.id 
+      AND ca.application_id = ${normalizedId}
+
+    WHERE c.framework_id = ${masterFrameworkId}
+
+    ORDER BY c.domain, c.control_code
+  `
+
+  if (controlsResult.length === 0) {
+    return {
+      ...app,
+      overallScore: 0,
+      status: "Critical",
+      lastAssessedAt: null,
+      summary: {
+        total: 0,
+        compliant: 0,
+        partialGap: 0,
+        notCompliant: 0,
+        notApplicable: 0,
+        notAssessed: 0,
+      },
+      controls: [],
+    }
+  }
+
+  /* ────────────────
+     Fetch all evidence for assessed controls
   ──────────────── */
 
   const allEvidenceIds = new Set<string>()
-  assessmentsResult.forEach(a => {
-    const ids = parseEvidenceIds(a.usedEvidenceIds)
-    ids.forEach(id => allEvidenceIds.add(id))
+  controlsResult.forEach(c => {
+    if (c.assessmentId) {
+      const ids = parseEvidenceIds(c.usedEvidenceIds)
+      ids.forEach(id => allEvidenceIds.add(id))
+    }
   })
 
   const evidenceMap = new Map<string, EvidenceRow>()
@@ -290,18 +328,44 @@ export async function getApplicationDetail(
   let partialGap = 0
   let notCompliant = 0
   let notApplicable = 0
+  let notAssessed = 0
   let scoreSum = 0
+  let assessedCount = 0
 
-  const controls: ControlAssessmentRow[] = assessmentsResult.map(a => {
-    const score = Math.round(a.finalScore)
+  const controls: ControlAssessmentRow[] = controlsResult.map(c => {
+    const isAssessed = c.assessmentId !== null
+
+    if (!isAssessed) {
+      // Unassessed control
+      notAssessed++
+      return {
+        id: null,
+        controlId: c.controlId,
+        controlCode: c.controlCode,
+        domain: c.domain,
+        subDomain: c.subDomain,
+        controlStatement: c.controlStatement,
+        testingProcedure: c.testingProcedure,
+        status: "Not Assessed" as const,
+        complianceScore: 0,
+        assessedBy: null,
+        assessedAt: null,
+        evidence: [],
+        isAssessed: false,
+      }
+    }
+
+    // Assessed control
+    const score = Math.round(c.finalScore ?? 0)
     scoreSum += score
+    assessedCount++
 
-    if (a.finalStatus === "Compliant") compliant++
-    else if (a.finalStatus === "Partial Gap") partialGap++
-    else if (a.finalStatus === "Not Compliant") notCompliant++
-    else if (a.finalStatus === "Not Applicable") notApplicable++
+    if (c.finalStatus === "Compliant") compliant++
+    else if (c.finalStatus === "Partial Gap") partialGap++
+    else if (c.finalStatus === "Not Compliant") notCompliant++
+    else if (c.finalStatus === "Not Applicable") notApplicable++
 
-    const evidenceIds = parseEvidenceIds(a.usedEvidenceIds)
+    const evidenceIds = parseEvidenceIds(c.usedEvidenceIds)
 
     const evidence: EvidenceRow[] = evidenceIds
       .map(id => evidenceMap.get(id))
@@ -311,34 +375,35 @@ export async function getApplicationDetail(
       evidence.length > 0 ? evidence.map(e => e.title).join(", ") : "Unknown"
 
     return {
-      id: a.id,
-      controlId: a.controlId,
-      controlCode: a.controlCode,
-      domain: a.domain,
-      subDomain: a.subDomain,
-      controlStatement: a.controlStatement,
-      testingProcedure: a.testingProcedure,
-      status: a.finalStatus as ControlAssessmentRow["status"],
+      id: c.assessmentId,
+      controlId: c.controlId,
+      controlCode: c.controlCode,
+      domain: c.domain,
+      subDomain: c.subDomain,
+      controlStatement: c.controlStatement,
+      testingProcedure: c.testingProcedure,
+      status: c.finalStatus as ControlAssessmentRow["status"],
       complianceScore: score,
       assessedBy,
-      assessedAt: a.assessedAt,
+      assessedAt: c.assessedAt,
       evidence,
+      isAssessed: true,
     }
   })
 
   const total = controls.length
-  const overallScore = total > 0 ? Math.round(scoreSum / total) : 0
+  const overallScore = assessedCount > 0 ? Math.round(scoreSum / assessedCount) : 0
 
   const status =
     overallScore >= 80 ? "Compliant" : overallScore >= 50 ? "Warning" : "Critical"
 
   const lastAssessedAt =
-    controls.length > 0
-      ? controls.reduce(
-          (max, c) => (c.assessedAt > max ? c.assessedAt : max),
-          controls[0].assessedAt
-        )
-      : null
+    controls
+      .filter(c => c.assessedAt !== null)
+      .reduce<string | null>(
+        (max, c) => (!max || (c.assessedAt && c.assessedAt > max) ? c.assessedAt : max),
+        null
+      )
 
   return {
     ...app,
@@ -351,6 +416,7 @@ export async function getApplicationDetail(
       partialGap,
       notCompliant,
       notApplicable,
+      notAssessed,
     },
     controls,
   }
