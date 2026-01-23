@@ -126,10 +126,7 @@ export function ComparisonTable({
 }) {
   const { deactivated, mounted } = useDeactivatedFrameworks()
   const [isExporting, setIsExporting] = useState(false)
-  const [masterFilters, setMasterFilters] = useState({
-    controlCode: "",
-    statement: "",
-  })
+  const [masterFilter, setMasterFilter] = useState("")
   const [frameworkFilters, setFrameworkFilters] = useState<Record<string, string>>({})
 
   const domains = comparison.domains ?? []
@@ -145,14 +142,11 @@ export function ComparisonTable({
 
   // Apply all filters
   const visibleRows = domainFiltered.filter(row => {
-    // Master framework filters
-    const controlCodeMatch = 
-      !masterFilters.controlCode ||
-      row.controlCode.toLowerCase().includes(masterFilters.controlCode.toLowerCase())
-    
-    const statementMatch = 
-      !masterFilters.statement ||
-      row.statement.toLowerCase().includes(masterFilters.statement.toLowerCase())
+    // Master framework filter
+    const masterMatch = 
+      !masterFilter ||
+      row.controlCode.toLowerCase().includes(masterFilter.toLowerCase()) ||
+      row.statement.toLowerCase().includes(masterFilter.toLowerCase())
 
     // Framework-specific filters
     const frameworkMatches = activeFrameworks.every(fw => {
@@ -169,7 +163,7 @@ export function ComparisonTable({
       )
     })
 
-    return controlCodeMatch && statementMatch && frameworkMatches
+    return masterMatch && frameworkMatches
   })
 
   const masterColWidth = 360
@@ -179,7 +173,7 @@ export function ComparisonTable({
   const minGridWidth = masterColWidth + targetCount * targetColWidth
 
   const activeFilterCount = 
-    Object.values(masterFilters).filter(f => f !== "").length +
+    (masterFilter !== "" ? 1 : 0) +
     Object.values(frameworkFilters).filter(f => f !== "").length
 
   if (activeFrameworks.length === 0) {
@@ -246,10 +240,7 @@ export function ComparisonTable({
           </div>
           <button
             onClick={() => {
-              setMasterFilters({
-                controlCode: "",
-                statement: "",
-              })
+              setMasterFilter("")
               setFrameworkFilters({})
             }}
             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
@@ -303,16 +294,10 @@ export function ComparisonTable({
                     <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
                       <span>{comparison.masterFramework?.name ?? "Master"} (Master)</span>
                       <FilterDropdown
-                        label="Control ID"
-                        value={masterFilters.controlCode}
-                        onChange={(value) => setMasterFilters(prev => ({ ...prev, controlCode: value }))}
-                        onClear={() => setMasterFilters(prev => ({ ...prev, controlCode: "" }))}
-                      />
-                      <FilterDropdown
-                        label="Description"
-                        value={masterFilters.statement}
-                        onChange={(value) => setMasterFilters(prev => ({ ...prev, statement: value }))}
-                        onClear={() => setMasterFilters(prev => ({ ...prev, statement: "" }))}
+                        label={`${comparison.masterFramework?.name ?? "Master"} controls`}
+                        value={masterFilter}
+                        onChange={setMasterFilter}
+                        onClear={() => setMasterFilter("")}
                       />
                     </div>
 
