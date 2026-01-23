@@ -300,8 +300,7 @@ export default function AutomationsPage() {
     applicationIds: [] as string[],
     sqlText: "",
     sourceIntegrations: [] as string[],
-    answerPass: "",
-    answerFail: "",
+    answerTemplate: "",
   })
 
   // Query builder state
@@ -431,8 +430,7 @@ export default function AutomationsPage() {
       applicationIds: automation.applicationIds || [],
       sqlText: automation.sqlText,
       sourceIntegrations: automation.sourceIntegrations || [],
-      answerPass: automation.answerPass,
-      answerFail: automation.answerFail,
+      answerTemplate: automation.answerTemplate || automation.answerPass || "",
     })
     setEditingAutomation(automation)
     setCurrentStep(1)
@@ -449,8 +447,7 @@ export default function AutomationsPage() {
       applicationIds: [],
       sqlText: "",
       sourceIntegrations: [],
-      answerPass: "",
-      answerFail: "",
+      answerTemplate: "",
     })
     setQueryBuilder({
       fromTable: "applications",
@@ -494,7 +491,7 @@ export default function AutomationsPage() {
       case 3:
         return !!formData.sqlText.trim()
       case 4:
-        return !!(formData.answerPass.trim() && formData.answerFail.trim())
+        return !!formData.answerTemplate.trim()
       default:
         return false
     }
@@ -611,7 +608,7 @@ export default function AutomationsPage() {
           </h1>
           <p className="mt-1 text-base text-[#666666] max-w-4xl">
             Create automated rules to continuously test compliance requirements across your applications.
-            Define tests that run automatically to ensure ongoing compliance.
+            Define tests that run automatically to ensure ongoing compliance with percentage-based scoring.
           </p>
         </div>
 
@@ -733,19 +730,14 @@ export default function AutomationsPage() {
                         </pre>
                       </div>
 
-                      {/* Narratives */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="text-sm font-bold text-[#00a758] mb-2">Pass Message:</div>
-                          <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-3 text-xs text-[#166534]">
-                            {automation.answerPass}
-                          </div>
+                      {/* Answer Template */}
+                      <div>
+                        <div className="text-sm font-bold text-[#333333] mb-2">Result Template:</div>
+                        <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-3 text-sm text-[#166534]">
+                          {automation.answerTemplate || automation.answerPass || "No template configured"}
                         </div>
-                        <div>
-                          <div className="text-sm font-bold text-[#e41f13] mb-2">Fail Message:</div>
-                          <div className="bg-[#fef2f2] border border-[#fca5a5] rounded p-3 text-xs text-[#991b1b]">
-                            {automation.answerFail}
-                          </div>
+                        <div className="text-xs text-[#999999] mt-1">
+                          Template supports placeholders: {"{{compliance_percentage}}"}, {"{{total_rows}}"}, {"{{compliant_rows}}"}, {"{{partial_gap_rows}}"}, {"{{non_compliant_rows}}"}, {"{{application_name}}"}, {"{{host}}"}, {"{{control_code}}"}
                         </div>
                       </div>
                     </div>
@@ -893,7 +885,7 @@ export default function AutomationsPage() {
             />
           )}
           {currentStep === 4 && (
-            <Step4Narratives
+            <Step4ResultTemplate
               formData={formData}
               setFormData={setFormData}
             />
@@ -916,19 +908,64 @@ export default function AutomationsPage() {
               <div className="font-bold mb-2">Error:</div>
               <div>{previewResult.error}</div>
             </div>
-          ) : !previewResult.hasApplicationId ? (
-            <div className="bg-[#fff7ed] border border-[#fed7aa] rounded p-4 text-sm text-[#9a3412] mb-4">
-              <div className="font-bold mb-2">⚠️ Warning:</div>
-              <div>
-                Query must return a column named <code className="bg-white px-2 py-0.5 rounded">application_id</code> 
-                {" "}to be valid. This is required to link assessment evidence to applications.
-              </div>
-            </div>
           ) : (
-            <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-4 text-sm text-[#166534] mb-4">
-              <div className="font-bold mb-2">✓ Valid Query</div>
-              <div>Query includes required application_id column.</div>
-            </div>
+            <>
+              {/* Validation Messages */}
+              {!previewResult.hasApplicationId && (
+                <div className="bg-[#fff7ed] border border-[#fed7aa] rounded p-4 text-sm text-[#9a3412] mb-4">
+                  <div className="font-bold mb-2">⚠️ Missing Required Column:</div>
+                  <div>
+                    Query must return a column named <code className="bg-white px-2 py-0.5 rounded">application_id</code>
+                    {" "}to link assessment evidence to applications.
+                  </div>
+                </div>
+              )}
+
+              {!previewResult.hasCompliancePercentage && (
+                <div className="bg-[#fff7ed] border border-[#fed7aa] rounded p-4 text-sm text-[#9a3412] mb-4">
+                  <div className="font-bold mb-2">⚠️ Missing Required Column:</div>
+                  <div>
+                    Query must return a column named <code className="bg-white px-2 py-0.5 rounded">compliance_percentage</code>
+                    {" "}for percentage-based scoring.
+                  </div>
+                </div>
+              )}
+
+              {previewResult.hasApplicationId && previewResult.hasCompliancePercentage && (
+                <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-4 text-sm text-[#166534] mb-4">
+                  <div className="font-bold mb-2">✓ Valid Query</div>
+                  <div>Query includes all required columns (application_id, compliance_percentage).</div>
+                  
+                  {previewResult.previewData && (
+                    <div className="mt-3 pt-3 border-t border-[#86efac]">
+                      <div className="font-bold mb-1">Preview Compliance Assessment:</div>
+                      <div className="flex items-center gap-4 text-xs mb-2">
+                        <span>Average: <strong>{previewResult.previewData.averageCompliance}%</strong></span>
+                        <span className={`px-2 py-0.5 rounded font-bold ${
+                          previewResult.previewData.predictedStatus === "Compliant"
+                            ? "bg-[#00a758] text-white"
+                            : previewResult.previewData.predictedStatus === "Partial Gap"
+                            ? "bg-[#f59e0b] text-white"
+                            : "bg-[#e41f13] text-white"
+                        }`}>
+                          {previewResult.previewData.predictedStatus.toUpperCase()}
+                        </span>
+                      </div>
+                      {previewResult.previewData.rowCounts && (
+                        <div className="text-xs text-[#166534] mb-2">
+                          <strong>Breakdown:</strong> {previewResult.previewData.rowCounts.compliantRows} compliant, {previewResult.previewData.rowCounts.partialGapRows} partial gap, {previewResult.previewData.rowCounts.nonCompliantRows} non-compliant out of {previewResult.previewData.rowCounts.totalRows} total rows
+                        </div>
+                      )}
+                      <div className="text-xs text-[#166534] mt-2">
+                        Thresholds: Compliant ({previewResult.previewData.thresholdInfo.compliant}), 
+                        Partial Gap ({previewResult.previewData.thresholdInfo.partial_gap}), 
+                        Not Compliant ({previewResult.previewData.thresholdInfo.not_compliant})
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {previewResult.rows.length > 0 && (
@@ -939,6 +976,11 @@ export default function AutomationsPage() {
                     {previewResult.columns.map(col => (
                       <th key={col} className="border border-[#cccccc] px-4 py-3 text-left font-bold text-[#333333]">
                         {col}
+                        {col === "compliance_percentage" && (
+                          <span className="ml-2 text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                            REQUIRED
+                          </span>
+                        )}
                       </th>
                     ))}
                   </tr>
@@ -952,6 +994,8 @@ export default function AutomationsPage() {
                             ? "—"
                             : typeof row[col] === "boolean"
                             ? row[col] ? "Yes" : "No"
+                            : typeof row[col] === "number" && col === "compliance_percentage"
+                            ? `${row[col]}%`
                             : typeof row[col] === "object"
                             ? JSON.stringify(row[col])
                             : String(row[col])
@@ -1007,7 +1051,7 @@ function Step1BasicInfo({
           type="text"
           value={formData.name}
           onChange={e => setFormData({ ...formData, name: e.target.value })}
-          placeholder="e.g., TLS 1.3 Support Check"
+          placeholder="e.g., TLS 1.3 Compliance Check"
           className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
       </div>
@@ -1205,14 +1249,11 @@ function Step3QueryBuilder({
   loadingPreview: boolean
 }) {
   const [useVisualBuilder, setUseVisualBuilder] = useState(false)
-  // Track which WHERE conditions are comparing columns vs values
   const [columnComparisonMode, setColumnComparisonMode] = useState<Map<string, boolean>>(new Map())
 
-  // Get all available columns with table prefix
   function getAllAvailableColumns(): CustomSelectOption[] {
     const columns: CustomSelectOption[] = []
     
-    // Add columns from FROM table
     const fromCols = tableColumns.get(queryBuilder.fromTable) || []
     fromCols.forEach(col => {
       columns.push({
@@ -1222,7 +1263,6 @@ function Step3QueryBuilder({
       })
     })
     
-    // Add columns from JOINed tables
     queryBuilder.joins.forEach(join => {
       if (join.table && join.alias) {
         const joinCols = tableColumns.get(join.table) || []
@@ -1298,7 +1338,6 @@ function Step3QueryBuilder({
       right: "",
     }
     setQueryBuilder({ ...queryBuilder, whereConditions: [...queryBuilder.whereConditions, newWhere] })
-    // Default to value comparison
     setColumnComparisonMode(new Map(columnComparisonMode).set(newWhere.id, false))
   }
 
@@ -1323,7 +1362,6 @@ function Step3QueryBuilder({
     const newMode = new Map(columnComparisonMode)
     newMode.set(conditionId, isColumnMode)
     setColumnComparisonMode(newMode)
-    // Clear the right value when switching modes
     updateWhere(conditionId, { right: "" })
   }
 
@@ -1393,13 +1431,12 @@ function Step3QueryBuilder({
       <div>
         <h4 className="text-lg font-bold text-[#333333] mb-1">SQL Query Builder</h4>
         <p className="text-sm text-[#666666]">
-          Build the SQL query that will test this control. The query must return an 
-          <code className="bg-[#f5f5f5] px-2 py-0.5 rounded mx-1">application_id</code> 
-          column to link results to applications.
+          Build the SQL query that will test this control. The query must return both 
+          <code className="bg-[#f5f5f5] px-2 py-0.5 rounded mx-1">application_id</code> and 
+          <code className="bg-[#f5f5f5] px-2 py-0.5 rounded mx-1">compliance_percentage</code> columns.
         </p>
       </div>
 
-      {/* Toggle Visual/Raw */}
       <div className="flex gap-2">
         <button
           onClick={() => setUseVisualBuilder(false)}
@@ -1415,7 +1452,7 @@ function Step3QueryBuilder({
           onClick={() => {
             setUseVisualBuilder(true)
             if (formData.sqlText) {
-              // If SQL exists, keep it
+              // Keep existing SQL
             } else {
               updateQueryFromBuilder()
             }
@@ -1430,7 +1467,7 @@ function Step3QueryBuilder({
         </button>
       </div>
 
-      {useVisualBuilder ? (
+      {useVisualBuilder && (
         <div className="space-y-4 border border-[#cccccc] rounded p-4 bg-[#fafafa]">
           {/* FROM */}
           <div>
@@ -1572,7 +1609,7 @@ function Step3QueryBuilder({
                       value={sel.alias}
                       onChange={e => updateSelect(sel.id, { alias: e.target.value })}
                       placeholder="Alias"
-                      className="w-32 border border-[#cccccc] rounded px-2 py-1 text-sm"
+                      className="w-40 border border-[#cccccc] rounded px-2 py-1 text-sm"
                     />
                     <button
                       onClick={() => removeSelect(sel.id)}
@@ -1734,7 +1771,6 @@ function Step3QueryBuilder({
             </p>
           </div>
 
-          {/* Generate SQL Button */}
           <button
             onClick={updateQueryFromBuilder}
             className="w-full bg-[#333333] text-white px-4 py-2.5 rounded font-bold hover:bg-[#555555] transition-colors"
@@ -1742,9 +1778,9 @@ function Step3QueryBuilder({
             Generate SQL from Builder
           </button>
         </div>
-      ) : null}
+      )}
 
-      {/* SQL Text Editor (Always Shown) */}
+      {/* SQL Text Editor */}
       <div>
         <label className="block text-sm font-bold text-[#333333] mb-2">
           SQL Query <span className="text-[#e41f13]">*</span>
@@ -1752,16 +1788,15 @@ function Step3QueryBuilder({
         <textarea
           value={formData.sqlText}
           onChange={e => setFormData({ ...formData, sqlText: e.target.value })}
-          placeholder="SELECT a.id AS application_id, ... FROM applications a ..."
+          placeholder="SELECT a.id AS application_id, ... AS compliance_percentage FROM applications a ..."
           rows={10}
           className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-sm font-mono text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
         <p className="text-xs text-[#999999] mt-1">
-          Query must return a column named "application_id" to link results to applications
+          Query must return columns named "application_id" and "compliance_percentage" (0-100)
         </p>
       </div>
 
-      {/* Preview Button */}
       <button
         onClick={onPreview}
         disabled={loadingPreview || !formData.sqlText.trim()}
@@ -1773,7 +1808,7 @@ function Step3QueryBuilder({
   )
 }
 
-function Step4Narratives({
+function Step4ResultTemplate({
   formData,
   setFormData,
 }: {
@@ -1783,57 +1818,90 @@ function Step4Narratives({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-lg font-bold text-[#333333] mb-1">Result Narratives</h4>
+        <h4 className="text-lg font-bold text-[#333333] mb-1">Result Template</h4>
         <p className="text-sm text-[#666666]">
-          Define the messages that will be shown when the test passes or fails for an application.
+          Define the message template that will be shown in assessment evidence. 
+          The template will be rendered with the compliance percentage and other application details.
         </p>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[#333333] mb-2">
-          Pass Message <span className="text-[#e41f13]">*</span>
+          Answer Template <span className="text-[#e41f13]">*</span>
         </label>
         <textarea
-          value={formData.answerPass}
-          onChange={e => setFormData({ ...formData, answerPass: e.target.value })}
-          placeholder="e.g., All endpoints for {{host}} support TLS 1.3 encryption, meeting {{control_code}} requirements."
-          rows={3}
+          value={formData.answerTemplate}
+          onChange={e => setFormData({ ...formData, answerTemplate: e.target.value })}
+          placeholder="e.g., Application {{application_name}} has {{non_compliant_rows}} out of {{total_rows}} servers failing {{control_code}} compliance ({{compliance_percentage}} overall)."
+          rows={4}
           className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
         <p className="text-xs text-[#999999] mt-1">
-          Message shown when the test passes. Use templates if needed (e.g., {"{{"} host {"}}"}
-
-)
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-[#333333] mb-2">
-          Fail Message <span className="text-[#e41f13]">*</span>
-        </label>
-        <textarea
-          value={formData.answerFail}
-          onChange={e => setFormData({ ...formData, answerFail: e.target.value })}
-          placeholder="e.g., Some endpoints for {{host}} do not support TLS 1.3, violating {{control_code}} requirements."
-          rows={3}
-          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
-        />
-        <p className="text-xs text-[#999999] mt-1">
-          Message shown when the test fails. Use templates if needed (e.g., {"{{"} host {"}}"}
-
-)
+          Available placeholders: {"{{compliance_percentage}}"}, {"{{total_rows}}"}, {"{{compliant_rows}}"}, {"{{partial_gap_rows}}"}, {"{{non_compliant_rows}}"}, {"{{application_name}}"}, {"{{host}}"}, {"{{control_code}}"}
         </p>
       </div>
 
       <div className="bg-[#f0f9ff] border border-[#bae6fd] rounded p-4">
-        <div className="text-sm font-bold text-[#0c4a6e] mb-2">Preview: Pass</div>
-        <div className="text-sm text-[#0c4a6e] bg-white rounded p-3 mb-3">
-          {formData.answerPass || <span className="italic text-[#94a3b8]">Pass message will appear here...</span>}
+        <div className="text-sm font-bold text-[#0c4a6e] mb-2">Template Preview</div>
+        
+        <div className="space-y-3">
+          <div>
+            <div className="text-xs font-bold text-[#00a758] mb-1">Compliant (≥80%):</div>
+            <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+              {formData.answerTemplate 
+                ? formData.answerTemplate
+                    .replace(/\{\{compliance_percentage\}\}/g, "95.0%")
+                    .replace(/\{\{total_rows\}\}/g, "10")
+                    .replace(/\{\{compliant_rows\}\}/g, "10")
+                    .replace(/\{\{partial_gap_rows\}\}/g, "0")
+                    .replace(/\{\{non_compliant_rows\}\}/g, "0")
+                    .replace(/\{\{application_name\}\}/g, "Example App")
+                    .replace(/\{\{host\}\}/g, "app.example.com")
+                    .replace(/\{\{control_code\}\}/g, "CTRL-001")
+                : <span className="italic text-[#94a3b8]">Template will appear here...</span>
+              }
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs font-bold text-[#f59e0b] mb-1">Partial Gap (40-79%):</div>
+            <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+              {formData.answerTemplate 
+                ? formData.answerTemplate
+                    .replace(/\{\{compliance_percentage\}\}/g, "65.0%")
+                    .replace(/\{\{total_rows\}\}/g, "10")
+                    .replace(/\{\{compliant_rows\}\}/g, "6")
+                    .replace(/\{\{partial_gap_rows\}\}/g, "2")
+                    .replace(/\{\{non_compliant_rows\}\}/g, "2")
+                    .replace(/\{\{application_name\}\}/g, "Example App")
+                    .replace(/\{\{host\}\}/g, "app.example.com")
+                    .replace(/\{\{control_code\}\}/g, "CTRL-001")
+                : <span className="italic text-[#94a3b8]">Template will appear here...</span>
+              }
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs font-bold text-[#e41f13] mb-1">Not Compliant (&lt;40%):</div>
+            <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+              {formData.answerTemplate 
+                ? formData.answerTemplate
+                    .replace(/\{\{compliance_percentage\}\}/g, "25.0%")
+                    .replace(/\{\{total_rows\}\}/g, "10")
+                    .replace(/\{\{compliant_rows\}\}/g, "2")
+                    .replace(/\{\{partial_gap_rows\}\}/g, "1")
+                    .replace(/\{\{non_compliant_rows\}\}/g, "7")
+                    .replace(/\{\{application_name\}\}/g, "Example App")
+                    .replace(/\{\{host\}\}/g, "app.example.com")
+                    .replace(/\{\{control_code\}\}/g, "CTRL-001")
+                : <span className="italic text-[#94a3b8]">Template will appear here...</span>
+              }
+            </div>
+          </div>
         </div>
 
-        <div className="text-sm font-bold text-[#0c4a6e] mb-2">Preview: Fail</div>
-        <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
-          {formData.answerFail || <span className="italic text-[#94a3b8]">Fail message will appear here...</span>}
+        <div className="text-xs text-[#0c4a6e] mt-3 pt-3 border-t border-[#bae6fd]">
+          <strong>Status Mapping:</strong> Compliant (≥80%), Partial Gap (40-79%), Not Compliant (&lt;40%)
         </div>
       </div>
     </div>

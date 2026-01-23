@@ -12,25 +12,29 @@ export interface Automation {
   applicationIds: string[] | null
   sqlText: string
   sourceIntegrations: string[] | null
-  answerPass: string
-  answerFail: string
+  
+  // New percentage-based system
+  answerTemplate: string | null
+  
+  // Legacy fields (for backward compatibility)
+  answerPass: string | null
+  answerFail: string | null
+  
   createdAt: string
   lastRunAt: string | null
-  lastRunStatus: "Running" | "Success" | "Failed" | null
+  lastRunStatus: string | null
   totalRuns: number
   successfulRuns: number
-  failedRuns: number
 }
 
 export interface AutomationRun {
   id: string
   automationId: string
-  triggeredBy: "Manual" | "Schedule"
+  triggeredBy: string
+  status: string
   startedAt: string
   finishedAt: string | null
-  status: "Running" | "Success" | "Failed"
   errorMessage: string | null
-  appsProcessed: number | null
 }
 
 export interface ControlOption {
@@ -38,7 +42,6 @@ export interface ControlOption {
   controlCode: string
   title: string
   statement: string | null
-  frameworkName: string
 }
 
 export interface ApplicabilityCategoryOption {
@@ -50,14 +53,14 @@ export interface ApplicabilityCategoryOption {
 export interface ApplicationOption {
   id: string
   name: string
-  primaryUrl: string | null
+  primaryUrl: string
   criticality: string
 }
 
 export interface IntegrationTableOption {
-  integrationId: string
-  integrationName: string
   tableName: string
+  integrationName: string
+  description: string | null
 }
 
 export interface TableColumn {
@@ -66,7 +69,31 @@ export interface TableColumn {
   isNullable: boolean
 }
 
-// Query Builder Types
+export interface QueryPreviewResult {
+  columns: string[]
+  rows: Record<string, any>[]
+  rowCount: number
+  hasApplicationId: boolean
+  hasCompliancePercentage: boolean
+  previewData: {
+    averageCompliance: number
+    predictedStatus: string
+    // FIX: Added rowCounts object to resolve TS2339 error
+    rowCounts: {
+      totalRows: number
+      compliantRows: number
+      partialGapRows: number
+      nonCompliantRows: number
+    }
+    thresholdInfo: {
+      compliant: string
+      partial_gap: string
+      not_compliant: string
+    }
+  } | null
+  error: string | null
+}
+
 export interface QueryBuilderState {
   fromTable: string
   fromAlias: string
@@ -83,35 +110,27 @@ export interface QueryJoin {
   type: "INNER" | "LEFT" | "RIGHT"
   table: string
   alias: string
-  onLeft: string // e.g., "a.id"
-  onRight: string // e.g., "s.application_id"
+  onLeft: string
+  onRight: string
 }
 
 export interface QuerySelect {
   id: string
-  expression: string // e.g., "a.id", "s.host", "BOOL_AND(s.supports_tls_1_3)"
-  alias: string // e.g., "application_id", "host", "supports_tls_1_3"
+  expression: string
+  alias: string
   aggregate: "COUNT" | "SUM" | "AVG" | "MIN" | "MAX" | "BOOL_AND" | "BOOL_OR" | "STRING_AGG" | null
 }
 
 export interface QueryCondition {
   id: string
   logic: "AND" | "OR"
-  left: string // column or expression
+  left: string
   operator: "=" | "!=" | ">" | "<" | ">=" | "<=" | "LIKE" | "ILIKE" | "IN" | "NOT IN" | "IS NULL" | "IS NOT NULL"
-  right: string // value or expression
+  right: string
 }
 
 export interface QueryOrderBy {
   id: string
   column: string
   direction: "ASC" | "DESC"
-}
-
-export interface QueryPreviewResult {
-  columns: string[]
-  rows: Record<string, any>[]
-  rowCount: number
-  hasApplicationId: boolean
-  error: string | null
 }

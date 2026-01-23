@@ -86,40 +86,74 @@ export async function createAutomation(data: {
   applicationIds: string[] | null
   sqlText: string
   sourceIntegrations: string[] | null
-  answerPass: string
-  answerFail: string
+  answerTemplate: string
 }): Promise<{ success: boolean; error?: string; automationId?: string }> {
   try {
     const id = crypto.randomUUID()
 
-    await db`
-      INSERT INTO automations (
-        id,
-        name,
-        description,
-        control_id,
-        apply_scope,
-        applicability_ids,
-        application_ids,
-        sql_text,
-        source_integrations,
-        answer_pass,
-        answer_fail
-      )
-      VALUES (
-        ${id},
-        ${data.name},
-        ${data.description},
-        ${data.controlId},
-        ${data.applyScope},
-        ${JSON.stringify(data.applicabilityIds)},
-        ${JSON.stringify(data.applicationIds)},
-        ${data.sqlText},
-        ${JSON.stringify(data.sourceIntegrations)},
-        ${data.answerPass},
-        ${data.answerFail}
-      )
-    `
+    // Try new schema with answer_template
+    try {
+      await db`
+        INSERT INTO automations (
+          id,
+          name,
+          description,
+          control_id,
+          apply_scope,
+          applicability_ids,
+          application_ids,
+          sql_text,
+          source_integrations,
+          answer_template
+        )
+        VALUES (
+          ${id},
+          ${data.name},
+          ${data.description},
+          ${data.controlId},
+          ${data.applyScope},
+          ${JSON.stringify(data.applicabilityIds)},
+          ${JSON.stringify(data.applicationIds)},
+          ${data.sqlText},
+          ${JSON.stringify(data.sourceIntegrations)},
+          ${data.answerTemplate}
+        )
+      `
+    } catch (error: any) {
+      // Fallback to old schema with answer_pass/answer_fail if answer_template column doesn't exist
+      if (error.message?.includes("answer_template") || error.code === "42703") {
+        await db`
+          INSERT INTO automations (
+            id,
+            name,
+            description,
+            control_id,
+            apply_scope,
+            applicability_ids,
+            application_ids,
+            sql_text,
+            source_integrations,
+            answer_pass,
+            answer_fail
+          )
+          VALUES (
+            ${id},
+            ${data.name},
+            ${data.description},
+            ${data.controlId},
+            ${data.applyScope},
+            ${JSON.stringify(data.applicabilityIds)},
+            ${JSON.stringify(data.applicationIds)},
+            ${data.sqlText},
+            ${JSON.stringify(data.sourceIntegrations)},
+            ${data.answerTemplate},
+            ${data.answerTemplate}
+          )
+        `
+      } else {
+        throw error
+      }
+    }
 
     revalidatePath("/automations")
     return { success: true, automationId: id }
@@ -140,26 +174,48 @@ export async function updateAutomation(
     applicationIds: string[] | null
     sqlText: string
     sourceIntegrations: string[] | null
-    answerPass: string
-    answerFail: string
+    answerTemplate: string
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await db`
-      UPDATE automations
-      SET
-        name = ${data.name},
-        description = ${data.description},
-        control_id = ${data.controlId},
-        apply_scope = ${data.applyScope},
-        applicability_ids = ${JSON.stringify(data.applicabilityIds)},
-        application_ids = ${JSON.stringify(data.applicationIds)},
-        sql_text = ${data.sqlText},
-        source_integrations = ${JSON.stringify(data.sourceIntegrations)},
-        answer_pass = ${data.answerPass},
-        answer_fail = ${data.answerFail}
-      WHERE id = ${id}
-    `
+    // Try new schema with answer_template
+    try {
+      await db`
+        UPDATE automations
+        SET
+          name = ${data.name},
+          description = ${data.description},
+          control_id = ${data.controlId},
+          apply_scope = ${data.applyScope},
+          applicability_ids = ${JSON.stringify(data.applicabilityIds)},
+          application_ids = ${JSON.stringify(data.applicationIds)},
+          sql_text = ${data.sqlText},
+          source_integrations = ${JSON.stringify(data.sourceIntegrations)},
+          answer_template = ${data.answerTemplate}
+        WHERE id = ${id}
+      `
+    } catch (error: any) {
+      // Fallback to old schema with answer_pass/answer_fail if answer_template column doesn't exist
+      if (error.message?.includes("answer_template") || error.code === "42703") {
+        await db`
+          UPDATE automations
+          SET
+            name = ${data.name},
+            description = ${data.description},
+            control_id = ${data.controlId},
+            apply_scope = ${data.applyScope},
+            applicability_ids = ${JSON.stringify(data.applicabilityIds)},
+            application_ids = ${JSON.stringify(data.applicationIds)},
+            sql_text = ${data.sqlText},
+            source_integrations = ${JSON.stringify(data.sourceIntegrations)},
+            answer_pass = ${data.answerTemplate},
+            answer_fail = ${data.answerTemplate}
+          WHERE id = ${id}
+        `
+      } else {
+        throw error
+      }
+    }
 
     revalidatePath("/automations")
     return { success: true }
@@ -194,7 +250,7 @@ export async function executeAutomation(
 ): Promise<{ success: boolean; error?: string; runId?: string }> {
   try {
     // Call the FastAPI backend
-    const apiUrl = process.env.AUTOMATIONS_API_URL || "http://localhost:3104"
+    const apiUrl = process.env.AUTOMATIONS_API_URL || "http://localhost:8001"
     const response = await fetch(`${apiUrl}/automations/${automationId}/run`, {
       method: "POST",
       headers: {

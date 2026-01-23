@@ -71,14 +71,6 @@ export default function ControlsTable({
               </Th>
               <Th width="flex-1">Control Statement</Th>
               <Th
-                onClick={() => toggleSort("status")}
-                isActive={sortKey === "status"}
-                sortDir={sortKey === "status" ? sortDir : undefined}
-                width="w-32"
-              >
-                Status
-              </Th>
-              <Th
                 onClick={() => toggleSort("complianceScore")}
                 isActive={sortKey === "complianceScore"}
                 sortDir={sortKey === "complianceScore" ? sortDir : undefined}
@@ -129,9 +121,6 @@ export default function ControlsTable({
                     <div className={`leading-relaxed ${c.isAssessed ? "text-gray-700" : "text-gray-500"}`}>
                       {c.controlStatement}
                     </div>
-                  </Td>
-                  <Td>
-                    <StatusBadge status={c.status} isAssessed={c.isAssessed} />
                   </Td>
                   <Td>
                     {c.isAssessed ? (
@@ -190,7 +179,7 @@ export default function ControlsTable({
 
                 {expandedId === c.controlId && c.isAssessed && (
                   <tr className="bg-gray-50">
-                    <Td colSpan={7} className="p-6">
+                    <Td colSpan={6} className="p-6">
                       <div className="space-y-6 max-w-6xl">
                         {/* Testing Procedure */}
                         {c.testingProcedure && (
