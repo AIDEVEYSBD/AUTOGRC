@@ -55,6 +55,16 @@ type SortKey =
   | "drLevel"
   | "lifecycleStatus"
 
+type FilterKey = 
+  | "name"
+  | "owners"
+  | "criticality"
+  | "drLevel"
+  | "lifecycleStatus"
+  | "hostingType"
+  | "categories"
+  | "status"
+
 export default function ApplicationsTable({
   rows,
 }: {
@@ -62,7 +72,17 @@ export default function ApplicationsTable({
 }) {
   const [sortKey, setSortKey] = useState<SortKey>("name")
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [activeFilter, setActiveFilter] = useState<FilterKey | null>(null)
+  const [filters, setFilters] = useState<Record<FilterKey, string>>({
+    name: "",
+    owners: "",
+    criticality: "",
+    drLevel: "",
+    lifecycleStatus: "",
+    hostingType: "",
+    categories: "",
+    status: "",
+  })
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -73,18 +93,64 @@ export default function ApplicationsTable({
     }
   }
 
-  // Filter based on search
+  function toggleFilter(key: FilterKey) {
+    if (activeFilter === key) {
+      setActiveFilter(null)
+    } else {
+      setActiveFilter(key)
+    }
+  }
+
+  function updateFilter(key: FilterKey, value: string) {
+    setFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  function clearFilter(key: FilterKey) {
+    setFilters(prev => ({ ...prev, [key]: "" }))
+    setActiveFilter(null)
+  }
+
+  // Apply all active filters
   const filtered = rows.filter(app => {
-    const query = searchQuery.toLowerCase()
-    return (
-      app.name.toLowerCase().includes(query) ||
-      app.serviceOwner.toLowerCase().includes(query) ||
-      app.businessOwner.toLowerCase().includes(query) ||
-      app.primaryFqdn.toLowerCase().includes(query) ||
-      app.applicabilityCategories.some(cat =>
-        cat.toLowerCase().includes(query)
+    const nameMatch = 
+      !filters.name || 
+      app.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+      app.primaryFqdn.toLowerCase().includes(filters.name.toLowerCase())
+    
+    const ownersMatch = 
+      !filters.owners ||
+      app.serviceOwner.toLowerCase().includes(filters.owners.toLowerCase()) ||
+      app.businessOwner.toLowerCase().includes(filters.owners.toLowerCase())
+    
+    const criticalityMatch = 
+      !filters.criticality ||
+      app.criticality.toLowerCase().includes(filters.criticality.toLowerCase())
+    
+    const drLevelMatch = 
+      !filters.drLevel ||
+      app.drLevel.toString().includes(filters.drLevel)
+    
+    const lifecycleMatch = 
+      !filters.lifecycleStatus ||
+      app.lifecycleStatus.toLowerCase().includes(filters.lifecycleStatus.toLowerCase())
+    
+    const hostingMatch = 
+      !filters.hostingType ||
+      app.serviceManagement.toLowerCase().includes(filters.hostingType.toLowerCase()) ||
+      (app.cloudProvider && app.cloudProvider.toLowerCase().includes(filters.hostingType.toLowerCase()))
+    
+    const categoriesMatch = 
+      !filters.categories ||
+      app.applicabilityCategories.some(cat => 
+        cat.toLowerCase().includes(filters.categories.toLowerCase())
       )
-    )
+    
+    const statusMatch = 
+      !filters.status ||
+      app.status.toLowerCase().includes(filters.status.toLowerCase())
+
+    return nameMatch && ownersMatch && criticalityMatch && drLevelMatch && 
+           lifecycleMatch && hostingMatch && categoriesMatch && statusMatch
   })
 
   // Sort
@@ -101,22 +167,41 @@ export default function ApplicationsTable({
     return 0
   })
 
+  const activeFilterCount = Object.values(filters).filter(f => f !== "").length
+
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="text-sm text-gray-600">
-          {sorted.length} of {rows.length} applications
+      {/* Filter Status Bar */}
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="text-sm text-gray-600">
+            {sorted.length} of {rows.length} applications
+            {activeFilterCount > 0 && (
+              <span className="ml-2 text-gray-500">
+                • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setFilters({
+                name: "",
+                owners: "",
+                criticality: "",
+                drLevel: "",
+                lifecycleStatus: "",
+                hostingType: "",
+                categories: "",
+                status: "",
+              })
+              setActiveFilter(null)
+            }}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Clear all filters
+          </button>
         </div>
-
-        <input
-          type="text"
-          placeholder="Search applications, owners, categories..."
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="w-80 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
-        />
-      </div>
+      )}
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -124,44 +209,106 @@ export default function ApplicationsTable({
           <table className="w-full text-sm">
             <thead className="bg-[#FFE600] text-xs uppercase tracking-wide">
               <tr>
-                <Th
-                  onClick={() => toggleSort("name")}
-                  isActive={sortKey === "name"}
-                  sortDir={sortKey === "name" ? sortDir : undefined}
-                >
-                  Application
-                </Th>
-                <Th>Owners</Th>
-                <Th
-                  onClick={() => toggleSort("criticality")}
-                  isActive={sortKey === "criticality"}
-                  sortDir={sortKey === "criticality" ? sortDir : undefined}
-                >
-                  Criticality
-                </Th>
-                <Th
-                  onClick={() => toggleSort("drLevel")}
-                  isActive={sortKey === "drLevel"}
-                  sortDir={sortKey === "drLevel" ? sortDir : undefined}
-                >
-                  DR Level
-                </Th>
-                <Th
-                  onClick={() => toggleSort("lifecycleStatus")}
-                  isActive={sortKey === "lifecycleStatus"}
-                  sortDir={sortKey === "lifecycleStatus" ? sortDir : undefined}
-                >
-                  Lifecycle
-                </Th>
-                <Th>Hosting Type</Th>
-                <Th>Categories</Th>
-                <Th
-                  onClick={() => toggleSort("status")}
-                  isActive={sortKey === "status"}
-                  sortDir={sortKey === "status" ? sortDir : undefined}
-                >
-                  Status
-                </Th>
+                <ThWithFilter
+                  label="Application"
+                  sortKey="name"
+                  filterKey="name"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                  isFilterActive={activeFilter === "name"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.name}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.name !== ""}
+                />
+                <ThWithFilter
+                  label="Owners"
+                  filterKey="owners"
+                  isFilterActive={activeFilter === "owners"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.owners}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.owners !== ""}
+                />
+                <ThWithFilter
+                  label="Criticality"
+                  sortKey="criticality"
+                  filterKey="criticality"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                  isFilterActive={activeFilter === "criticality"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.criticality}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.criticality !== ""}
+                />
+                <ThWithFilter
+                  label="DR Level"
+                  sortKey="drLevel"
+                  filterKey="drLevel"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                  isFilterActive={activeFilter === "drLevel"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.drLevel}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.drLevel !== ""}
+                />
+                <ThWithFilter
+                  label="Lifecycle"
+                  sortKey="lifecycleStatus"
+                  filterKey="lifecycleStatus"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                  isFilterActive={activeFilter === "lifecycleStatus"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.lifecycleStatus}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.lifecycleStatus !== ""}
+                />
+                <ThWithFilter
+                  label="Hosting Type"
+                  filterKey="hostingType"
+                  isFilterActive={activeFilter === "hostingType"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.hostingType}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.hostingType !== ""}
+                />
+                <ThWithFilter
+                  label="Categories"
+                  filterKey="categories"
+                  isFilterActive={activeFilter === "categories"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.categories}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.categories !== ""}
+                />
+                <ThWithFilter
+                  label="Status"
+                  sortKey="status"
+                  filterKey="status"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                  isFilterActive={activeFilter === "status"}
+                  onToggleFilter={toggleFilter}
+                  filterValue={filters.status}
+                  onFilterChange={updateFilter}
+                  onClearFilter={clearFilter}
+                  hasActiveFilter={filters.status !== ""}
+                />
                 <Th
                   onClick={() => toggleSort("score")}
                   isActive={sortKey === "score"}
@@ -280,8 +427,8 @@ export default function ApplicationsTable({
               {sorted.length === 0 && (
                 <tr>
                   <Td colSpan={11} className="py-8 text-center text-gray-500">
-                    {searchQuery
-                      ? "No applications match your search."
+                    {activeFilterCount > 0
+                      ? "No applications match your filters."
                       : "No applications found."}
                   </Td>
                 </tr>
@@ -291,6 +438,138 @@ export default function ApplicationsTable({
         </div>
       </div>
     </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Table Header with Filter
+───────────────────────────────────────────── */
+
+function ThWithFilter({
+  label,
+  sortKey,
+  filterKey,
+  currentSortKey,
+  sortDir,
+  onSort,
+  isFilterActive,
+  onToggleFilter,
+  filterValue,
+  onFilterChange,
+  onClearFilter,
+  hasActiveFilter,
+}: {
+  label: string
+  sortKey?: SortKey
+  filterKey: FilterKey
+  currentSortKey?: SortKey
+  sortDir?: "asc" | "desc"
+  onSort?: (key: SortKey) => void
+  isFilterActive: boolean
+  onToggleFilter: (key: FilterKey) => void
+  filterValue: string
+  onFilterChange: (key: FilterKey, value: string) => void
+  onClearFilter: (key: FilterKey) => void
+  hasActiveFilter: boolean
+}) {
+  const isSortActive = sortKey && currentSortKey === sortKey
+
+  return (
+    <th className="px-4 py-3.5 text-left font-semibold text-gray-700 relative">
+      <div className="flex items-center gap-2">
+        {/* Label and Sort Icon */}
+        <div 
+          className={`flex items-center gap-2 ${sortKey ? "cursor-pointer select-none hover:text-gray-900" : ""} ${isSortActive ? "text-gray-900" : ""}`}
+          onClick={() => sortKey && onSort && onSort(sortKey)}
+        >
+          <span>{label}</span>
+          {sortKey && (
+            <svg
+              className={`w-4 h-4 transition-all ${
+                isSortActive ? "text-gray-900" : "text-gray-600"
+              } ${sortDir === "desc" ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 11l5-5m0 0l5 5m-5-5v12"
+              />
+            </svg>
+          )}
+        </div>
+
+        {/* Filter Icon */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleFilter(filterKey)
+          }}
+          className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
+            hasActiveFilter ? "text-blue-600" : "text-gray-600"
+          }`}
+          title="Filter column"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Filter Dropdown */}
+      {isFilterActive && (
+        <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={filterValue}
+              onChange={(e) => onFilterChange(filterKey, e.target.value)}
+              placeholder={`Filter ${label.toLowerCase()}...`}
+              className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+              autoFocus
+              onClick={(e) => e.stopPropagation()}
+            />
+            {filterValue && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onClearFilter(filterKey)
+                }}
+                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                title="Clear filter"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </th>
   )
 }
 

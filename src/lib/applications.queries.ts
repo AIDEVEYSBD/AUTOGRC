@@ -51,10 +51,14 @@ export type ApplicationRow = {
 
 export type ApplicationsKPIs = {
   totalApplications: number
-  compliant: number
-  warning: number
-  critical: number
-  avgScore: number
+  totalAvgScore: number
+  byServiceManagement: {
+    vendorManagedCloud: { count: number; avgScore: number }
+    orgManagedCloud: { count: number; avgScore: number }
+    hybrid: { count: number; avgScore: number }
+    onPremise: { count: number; avgScore: number }
+    saas: { count: number; avgScore: number }
+  }
 }
 
 export type ApplicationsOverview = {
@@ -160,13 +164,18 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
   `
 
   /* ─────────────────────────────────────────────
-     Derive status + KPIs
+     Derive status + KPIs by Service Management
   ───────────────────────────────────────────── */
 
-  let compliant = 0
-  let warning = 0
-  let critical = 0
-  let scoreSum = 0
+  const serviceManagementStats: Record<string, { count: number; totalScore: number }> = {
+    "Vendor Managed Cloud": { count: 0, totalScore: 0 },
+    "Org-Managed Cloud": { count: 0, totalScore: 0 },
+    "Hybrid": { count: 0, totalScore: 0 },
+    "On-Premise": { count: 0, totalScore: 0 },
+    "SaaS": { count: 0, totalScore: 0 },
+  }
+
+  let totalScore = 0
 
   const rows: ApplicationRow[] = rowsRaw.map(r => {
     // Score is the average of all assessed control scores
@@ -175,16 +184,19 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
     let status: ApplicationStatus
     if (score >= 80) {
       status = "Compliant"
-      compliant++
     } else if (score >= 50) {
       status = "Warning"
-      warning++
     } else {
       status = "Critical"
-      critical++
     }
 
-    scoreSum += score
+    totalScore += score
+
+    // Track by service management type
+    if (serviceManagementStats[r.serviceManagement]) {
+      serviceManagementStats[r.serviceManagement].count++
+      serviceManagementStats[r.serviceManagement].totalScore += score
+    }
 
     return {
       ...r,
@@ -198,15 +210,44 @@ export async function getApplicationsOverview(): Promise<ApplicationsOverview> {
   })
 
   const totalApplications = rows.length
-  const avgScore = totalApplications > 0 ? Math.round(scoreSum / totalApplications) : 0
+  const totalAvgScore = totalApplications > 0 ? Math.round(totalScore / totalApplications) : 0
 
   return {
     kpis: {
       totalApplications,
-      compliant,
-      warning,
-      critical,
-      avgScore,
+      totalAvgScore,
+      byServiceManagement: {
+        vendorManagedCloud: {
+          count: serviceManagementStats["Vendor Managed Cloud"].count,
+          avgScore: serviceManagementStats["Vendor Managed Cloud"].count > 0
+            ? Math.round(serviceManagementStats["Vendor Managed Cloud"].totalScore / serviceManagementStats["Vendor Managed Cloud"].count)
+            : 0,
+        },
+        orgManagedCloud: {
+          count: serviceManagementStats["Org-Managed Cloud"].count,
+          avgScore: serviceManagementStats["Org-Managed Cloud"].count > 0
+            ? Math.round(serviceManagementStats["Org-Managed Cloud"].totalScore / serviceManagementStats["Org-Managed Cloud"].count)
+            : 0,
+        },
+        hybrid: {
+          count: serviceManagementStats["Hybrid"].count,
+          avgScore: serviceManagementStats["Hybrid"].count > 0
+            ? Math.round(serviceManagementStats["Hybrid"].totalScore / serviceManagementStats["Hybrid"].count)
+            : 0,
+        },
+        onPremise: {
+          count: serviceManagementStats["On-Premise"].count,
+          avgScore: serviceManagementStats["On-Premise"].count > 0
+            ? Math.round(serviceManagementStats["On-Premise"].totalScore / serviceManagementStats["On-Premise"].count)
+            : 0,
+        },
+        saas: {
+          count: serviceManagementStats["SaaS"].count,
+          avgScore: serviceManagementStats["SaaS"].count > 0
+            ? Math.round(serviceManagementStats["SaaS"].totalScore / serviceManagementStats["SaaS"].count)
+            : 0,
+        },
+      },
     },
     rows,
   }

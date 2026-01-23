@@ -126,6 +126,11 @@ export function ComparisonTable({
 }) {
   const { deactivated, mounted } = useDeactivatedFrameworks()
   const [isExporting, setIsExporting] = useState(false)
+  const [masterFilters, setMasterFilters] = useState({
+    controlCode: "",
+    statement: "",
+  })
+  const [frameworkFilters, setFrameworkFilters] = useState<Record<string, string>>({})
 
   const domains = comparison.domains ?? []
 
@@ -133,15 +138,49 @@ export function ComparisonTable({
     ? comparison.frameworks.filter(f => !deactivated.has(f.id))
     : comparison.frameworks
 
-  const visibleRows = activeDomain
+  // Apply domain filter
+  const domainFiltered = activeDomain
     ? comparison.rows.filter(r => r.domain === activeDomain)
     : comparison.rows
+
+  // Apply all filters
+  const visibleRows = domainFiltered.filter(row => {
+    // Master framework filters
+    const controlCodeMatch = 
+      !masterFilters.controlCode ||
+      row.controlCode.toLowerCase().includes(masterFilters.controlCode.toLowerCase())
+    
+    const statementMatch = 
+      !masterFilters.statement ||
+      row.statement.toLowerCase().includes(masterFilters.statement.toLowerCase())
+
+    // Framework-specific filters
+    const frameworkMatches = activeFrameworks.every(fw => {
+      const filterValue = frameworkFilters[fw.id]
+      if (!filterValue) return true // No filter for this framework
+      
+      const cells = row.mappings[fw.id] ?? []
+      if (cells.length === 0) return false // No mappings, doesn't match filter
+      
+      // Check if any mapping in this framework matches the filter
+      return cells.some(cell => 
+        cell.targetControlCode.toLowerCase().includes(filterValue.toLowerCase()) ||
+        cell.targetStatement.toLowerCase().includes(filterValue.toLowerCase())
+      )
+    })
+
+    return controlCodeMatch && statementMatch && frameworkMatches
+  })
 
   const masterColWidth = 360
   const targetColWidth = 280
   const targetCount = activeFrameworks.length
   const gridTemplateColumns = `${masterColWidth}px repeat(${targetCount}, ${targetColWidth}px)`
   const minGridWidth = masterColWidth + targetCount * targetColWidth
+
+  const activeFilterCount = 
+    Object.values(masterFilters).filter(f => f !== "").length +
+    Object.values(frameworkFilters).filter(f => f !== "").length
 
   if (activeFrameworks.length === 0) {
     return null
@@ -194,6 +233,32 @@ export function ComparisonTable({
         </button>
       </div>
 
+      {/* Filter Status Bar */}
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="text-sm text-gray-600">
+            {visibleRows.length} of {domainFiltered.length} controls
+            {activeFilterCount > 0 && (
+              <span className="ml-2 text-gray-500">
+                • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setMasterFilters({
+                controlCode: "",
+                statement: "",
+              })
+              setFrameworkFilters({})
+            }}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
+
       <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
         <div className="grid grid-cols-[240px_1fr]">
           <aside className="border-r border-[#cccccc] bg-[#f9f9f9]">
@@ -235,16 +300,38 @@ export function ComparisonTable({
                   style={{ backgroundColor: "#ffe600" }}
                 >
                   <div className="grid" style={{ gridTemplateColumns }}>
-                    <div className="h-12 px-4 flex items-center font-bold text-[#333333]">
-                      {comparison.masterFramework?.name ?? "Master"} (Master)
+                    <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
+                      <span>{comparison.masterFramework?.name ?? "Master"} (Master)</span>
+                      <FilterDropdown
+                        label="Control ID"
+                        value={masterFilters.controlCode}
+                        onChange={(value) => setMasterFilters(prev => ({ ...prev, controlCode: value }))}
+                        onClear={() => setMasterFilters(prev => ({ ...prev, controlCode: "" }))}
+                      />
+                      <FilterDropdown
+                        label="Description"
+                        value={masterFilters.statement}
+                        onChange={(value) => setMasterFilters(prev => ({ ...prev, statement: value }))}
+                        onClear={() => setMasterFilters(prev => ({ ...prev, statement: "" }))}
+                      />
                     </div>
 
                     {activeFrameworks.map(fw => (
                       <div
                         key={fw.id}
-                        className="h-12 px-4 flex items-center font-bold text-sm text-[#333333] whitespace-nowrap"
+                        className="h-12 px-4 flex items-center gap-2 font-bold text-sm text-[#333333] whitespace-nowrap"
                       >
-                        {fw.name}
+                        <span>{fw.name}</span>
+                        <FilterDropdown
+                          label={`${fw.name} mappings`}
+                          value={frameworkFilters[fw.id] || ""}
+                          onChange={(value) => setFrameworkFilters(prev => ({ ...prev, [fw.id]: value }))}
+                          onClear={() => setFrameworkFilters(prev => {
+                            const newFilters = { ...prev }
+                            delete newFilters[fw.id]
+                            return newFilters
+                          })}
+                        />
                       </div>
                     ))}
                   </div>
@@ -252,7 +339,9 @@ export function ComparisonTable({
 
                 {visibleRows.length === 0 ? (
                   <div className="p-6 text-sm text-[#666666]">
-                    No controls found for this domain.
+                    {activeFilterCount > 0
+                      ? "No controls match your filters."
+                      : "No controls found for this domain."}
                   </div>
                 ) : (
                   visibleRows.map(row => (
@@ -358,6 +447,12 @@ export function UnmappedControlsTable({
   selectedGapFramework: string | null
 }) {
   const { deactivated, mounted } = useDeactivatedFrameworks()
+  const [filters, setFilters] = useState({
+    controlCode: "",
+    domain: "",
+    subDomain: "",
+    statement: "",
+  })
 
   const activeFrameworks = mounted
     ? gaps.frameworks.filter(f => !deactivated.has(f.id))
@@ -369,6 +464,29 @@ export function UnmappedControlsTable({
       ? gaps.activeFramework
       : activeFrameworks[0]
     : gaps.activeFramework
+
+  // Apply text filters
+  const visibleRows = gaps.rows.filter(row => {
+    const controlCodeMatch = 
+      !filters.controlCode ||
+      row.controlCode.toLowerCase().includes(filters.controlCode.toLowerCase())
+    
+    const domainMatch = 
+      !filters.domain ||
+      row.domain.toLowerCase().includes(filters.domain.toLowerCase())
+    
+    const subDomainMatch = 
+      !filters.subDomain ||
+      (row.subDomain && row.subDomain.toLowerCase().includes(filters.subDomain.toLowerCase()))
+    
+    const statementMatch = 
+      !filters.statement ||
+      row.statement.toLowerCase().includes(filters.statement.toLowerCase())
+
+    return controlCodeMatch && domainMatch && subDomainMatch && statementMatch
+  })
+
+  const activeFilterCount = Object.values(filters).filter(f => f !== "").length
 
   if (activeFrameworks.length === 0) {
     return null
@@ -401,6 +519,33 @@ export function UnmappedControlsTable({
           frameworks.
         </p>
       </div>
+
+      {/* Filter Status Bar */}
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="text-sm text-gray-600">
+            {visibleRows.length} of {gaps.rows.length} controls
+            {activeFilterCount > 0 && (
+              <span className="ml-2 text-gray-500">
+                • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setFilters({
+                controlCode: "",
+                domain: "",
+                subDomain: "",
+                statement: "",
+              })
+            }}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
 
       <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
         <div className="grid grid-cols-[280px_1fr]">
@@ -459,20 +604,42 @@ export function UnmappedControlsTable({
                     className="grid"
                     style={{ gridTemplateColumns }}
                   >
-                    <HeaderCell>Control ID</HeaderCell>
-                    <HeaderCell>Domain</HeaderCell>
-                    <HeaderCell>Sub-domain</HeaderCell>
-                    <HeaderCell>Control Description</HeaderCell>
+                    <HeaderCellWithFilter
+                      label="Control ID"
+                      value={filters.controlCode}
+                      onChange={(value) => setFilters(prev => ({ ...prev, controlCode: value }))}
+                      onClear={() => setFilters(prev => ({ ...prev, controlCode: "" }))}
+                    />
+                    <HeaderCellWithFilter
+                      label="Domain"
+                      value={filters.domain}
+                      onChange={(value) => setFilters(prev => ({ ...prev, domain: value }))}
+                      onClear={() => setFilters(prev => ({ ...prev, domain: "" }))}
+                    />
+                    <HeaderCellWithFilter
+                      label="Sub-domain"
+                      value={filters.subDomain}
+                      onChange={(value) => setFilters(prev => ({ ...prev, subDomain: value }))}
+                      onClear={() => setFilters(prev => ({ ...prev, subDomain: "" }))}
+                    />
+                    <HeaderCellWithFilter
+                      label="Control Description"
+                      value={filters.statement}
+                      onChange={(value) => setFilters(prev => ({ ...prev, statement: value }))}
+                      onClear={() => setFilters(prev => ({ ...prev, statement: "" }))}
+                    />
                   </div>
                 </div>
 
                 {/* Rows */}
-                {gaps.rows.length === 0 ? (
+                {visibleRows.length === 0 ? (
                   <div className="p-6 text-sm text-[#666666]">
-                    No unmapped controls for this framework.
+                    {activeFilterCount > 0
+                      ? "No controls match your filters."
+                      : "No unmapped controls for this framework."}
                   </div>
                 ) : (
-                  gaps.rows.map(r => (
+                  visibleRows.map(r => (
                     <div
                       key={r.id}
                       className="border-b border-[#e5e7eb] last:border-b-0 hover:bg-[#f9f9f9] transition-colors"
@@ -509,6 +676,121 @@ export function UnmappedControlsTable({
           </section>
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ---------- Filter Components ---------- */
+
+function FilterDropdown({
+  label,
+  value,
+  onChange,
+  onClear,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  onClear: () => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
+          value ? "text-blue-600" : "text-gray-600"
+        }`}
+        title={`Filter ${label}`}
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+          />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={`Filter ${label.toLowerCase()}...`}
+                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+              {value && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onClear()
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  title="Clear filter"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function HeaderCellWithFilter({
+  label,
+  value,
+  onChange,
+  onClear,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  onClear: () => void
+}) {
+  return (
+    <div className="h-12 px-4 flex items-center gap-2 text-sm font-bold text-[#333333]">
+      <span>{label}</span>
+      <FilterDropdown
+        label={label}
+        value={value}
+        onChange={onChange}
+        onClear={onClear}
+      />
     </div>
   )
 }

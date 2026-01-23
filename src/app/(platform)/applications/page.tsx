@@ -19,13 +19,41 @@ export default async function ApplicationsPage() {
           </p>
         </div>
 
-        {/* KPI METRICS */}
-        <div className="grid grid-cols-5 gap-4">
-          <MetricCard label="Total Applications" value={kpis.totalApplications} />
-          <MetricCard label="Compliant" value={kpis.compliant} variant="success" />
-          <MetricCard label="Warning" value={kpis.warning} variant="warning" />
-          <MetricCard label="Critical" value={kpis.critical} variant="danger" />
-          <MetricCard label="Avg Score" value={`${kpis.avgScore}%`} />
+        {/* KPI METRICS - BY SERVICE MANAGEMENT TYPE */}
+        <div className="grid grid-cols-6 gap-4">
+          <MetricCard 
+            label="Total" 
+            sublabel="Applications"
+            count={kpis.totalApplications}
+            avgScore={kpis.totalAvgScore}
+          />
+          <MetricCard 
+            label="Vendor" 
+            sublabel="Managed Cloud"
+            count={kpis.byServiceManagement.vendorManagedCloud.count}
+            avgScore={kpis.byServiceManagement.vendorManagedCloud.avgScore}
+          />
+          <MetricCard 
+            label="Org-Managed" 
+            sublabel="Cloud"
+            count={kpis.byServiceManagement.orgManagedCloud.count}
+            avgScore={kpis.byServiceManagement.orgManagedCloud.avgScore}
+          />
+          <MetricCard 
+            label="Hybrid" 
+            count={kpis.byServiceManagement.hybrid.count}
+            avgScore={kpis.byServiceManagement.hybrid.avgScore}
+          />
+          <MetricCard 
+            label="On-Premise" 
+            count={kpis.byServiceManagement.onPremise.count}
+            avgScore={kpis.byServiceManagement.onPremise.avgScore}
+          />
+          <MetricCard 
+            label="SaaS" 
+            count={kpis.byServiceManagement.saas.count}
+            avgScore={kpis.byServiceManagement.saas.avgScore}
+          />
         </div>
 
         {/* TABLE */}
@@ -41,43 +69,34 @@ export default async function ApplicationsPage() {
 
 function MetricCard({
   label,
-  value,
-  variant = "neutral",
+  sublabel,
+  count,
+  avgScore,
 }: {
   label: string
-  value: string | number
-  variant?: "neutral" | "success" | "warning" | "danger"
+  sublabel?: string
+  count: number
+  avgScore: number
 }) {
-  const variants = {
-    neutral: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900"
-    },
-    success: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900"
-    },
-    warning: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900"
-    },
-    danger: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900"
-    }
-  }
-  
-  const styles = variants[variant]
-
   return (
-    <div
-      className={`rounded-lg border shadow-sm ${styles.container} p-5`}
-    >
-      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-        {label}
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-5 h-[110px] flex flex-col justify-between">
+      <div className="space-y-0.5">
+        <div className="text-xs font-medium text-gray-600 uppercase tracking-wide leading-tight">
+          {label}
+        </div>
+        {sublabel && (
+          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide leading-tight">
+            {sublabel}
+          </div>
+        )}
       </div>
-      <div className={`mt-2 text-3xl font-bold ${styles.value}`}>
-        {value}
+      <div className="flex items-baseline gap-2 mt-auto">
+        <div className="text-3xl font-bold text-gray-900">
+          {count}
+        </div>
+        <div className="text-lg font-semibold text-gray-500">
+          {avgScore}%
+        </div>
       </div>
     </div>
   )
