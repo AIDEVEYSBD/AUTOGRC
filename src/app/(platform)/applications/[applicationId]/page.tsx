@@ -36,17 +36,21 @@ export default async function ApplicationDetailPage({
         {/* Header Section */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <div className="flex items-start justify-between mb-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-semibold text-gray-900">
-                  {app.name}
-                </h1>
+            <div className="space-y-4">
+              {/* Application Name */}
+              <h1 className="text-2xl font-semibold text-gray-900">
+                {app.name}
+              </h1>
+
+              {/* Status Badges - Uniform Display */}
+              <div className="flex items-center gap-3 py-1">
                 <StatusBadge status={app.status} />
                 <CriticalityBadge criticality={app.criticality} />
                 <DRLevelBadge level={app.drLevel} />
                 <LifecycleBadge status={app.lifecycleStatus} />
               </div>
 
+              {/* URL and Provider Info */}
               <div className="flex items-center gap-2 text-sm">
                 <a
                   href={app.primaryUrl}
@@ -66,6 +70,7 @@ export default async function ApplicationDetailPage({
                 <span className="text-gray-600">{app.serviceManagement}</span>
               </div>
 
+              {/* Information Classification */}
               {app.informationClassification && (
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700">

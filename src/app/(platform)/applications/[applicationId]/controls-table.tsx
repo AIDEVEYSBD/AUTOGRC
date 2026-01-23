@@ -261,7 +261,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               {evidence.title}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Collected:{" "}
+              Assessed At:{" "}
               {new Date(evidence.collectedAt).toLocaleDateString()} at{" "}
               {new Date(evidence.collectedAt).toLocaleTimeString()}
             </div>
