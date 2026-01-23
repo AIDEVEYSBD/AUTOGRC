@@ -407,7 +407,7 @@ function ControlRow({
               {/* Applicability Categories */}
               <div>
                 <label className="block text-xs font-semibold text-[#333333] mb-2">
-                  Applicability Categories
+                  Applicability
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {availableApplicabilities.map(cat => (

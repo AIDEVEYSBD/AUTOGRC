@@ -153,7 +153,7 @@ export default function ApplicationsTable({
                 >
                   Lifecycle
                 </Th>
-                <Th>Service Model</Th>
+                <Th>Hosting Type</Th>
                 <Th>Categories</Th>
                 <Th
                   onClick={() => toggleSort("status")}
