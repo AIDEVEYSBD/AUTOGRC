@@ -247,9 +247,9 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
   const [showDetails, setShowDetails] = useState(false)
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50/30 rounded-lg border border-gray-200 overflow-hidden shadow-sm">
       {/* Evidence Header */}
-      <div className="p-4 bg-gray-50 border-b border-gray-200">
+      <div className="p-4 bg-gray-50/80 backdrop-blur-sm border-b border-gray-200">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -458,7 +458,7 @@ function ScoreBadge({ score }: { score: number }) {
         score
       )}`}
     >
-      {score}%
+      {Math.round(score)}%
     </span>
   )
 }
