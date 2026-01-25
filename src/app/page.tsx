@@ -22,10 +22,6 @@ export default function LandingPage() {
                   Enter Platform
                 </button>
               </Link>
-
-              <button className="px-8 py-4 font-bold border-2 border-[#333333] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors text-lg">
-                Check Out the Deck
-              </button>
             </div>
           </div>
         </div>

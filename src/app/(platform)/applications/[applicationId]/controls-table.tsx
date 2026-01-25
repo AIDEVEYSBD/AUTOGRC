@@ -7,6 +7,95 @@ import type { ControlAssessmentRow, EvidenceRow } from "@/lib/application-detail
 
 type SortKey = "controlCode" | "domain" | "complianceScore" | "status"
 
+function FilterDropdown({
+  label,
+  value,
+  onChange,
+  onClear,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  onClear: () => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
+          value ? "text-blue-600" : "text-gray-600"
+        }`}
+        title={`Filter ${label}`}
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+          />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={`Filter ${label.toLowerCase()}...`}
+                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+              {value && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onClear()
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  title="Clear filter"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 export default function ControlsTable({
   controls,
 }: {
@@ -15,6 +104,9 @@ export default function ControlsTable({
   const [sortKey, setSortKey] = useState<SortKey>("controlCode")
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [controlIdFilter, setControlIdFilter] = useState("")
+  const [domainFilter, setDomainFilter] = useState("")
+  const [statementFilter, setStatementFilter] = useState("")
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -25,7 +117,25 @@ export default function ControlsTable({
     }
   }
 
-  const sorted = [...controls].sort((a, b) => {
+  // Apply filters
+  const filtered = controls.filter(control => {
+    const idMatch = 
+      !controlIdFilter ||
+      control.controlCode.toLowerCase().includes(controlIdFilter.toLowerCase())
+    
+    const domainMatch = 
+      !domainFilter ||
+      control.domain.toLowerCase().includes(domainFilter.toLowerCase()) ||
+      (control.subDomain && control.subDomain.toLowerCase().includes(domainFilter.toLowerCase()))
+    
+    const statementMatch = 
+      !statementFilter ||
+      control.controlStatement.toLowerCase().includes(statementFilter.toLowerCase())
+
+    return idMatch && domainMatch && statementMatch
+  })
+
+  const sorted = [...filtered].sort((a, b) => {
     // First priority: assessed controls always come before unassessed
     if (a.isAssessed && !b.isAssessed) return -1
     if (!a.isAssessed && b.isAssessed) return 1
@@ -38,204 +148,284 @@ export default function ControlsTable({
     return 0
   })
 
+  const activeFilterCount = 
+    (controlIdFilter !== "" ? 1 : 0) +
+    (domainFilter !== "" ? 1 : 0) +
+    (statementFilter !== "" ? 1 : 0)
+
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
-      <div className="max-h-[600px] overflow-y-auto scrollbar-hide">
-        <style jsx>{`
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `}</style>
-        <table className="w-full text-sm table-fixed">
-          <thead className="sticky top-0 bg-[#FFE600] border-b border-gray-200 z-10">
-            <tr>
-              <Th
-                onClick={() => toggleSort("controlCode")}
-                isActive={sortKey === "controlCode"}
-                sortDir={sortKey === "controlCode" ? sortDir : undefined}
-                width="w-28"
-              >
-                Control ID
-              </Th>
-              <Th
-                onClick={() => toggleSort("domain")}
-                isActive={sortKey === "domain"}
-                sortDir={sortKey === "domain" ? sortDir : undefined}
-                width="w-36"
-              >
-                Domain
-              </Th>
-              <Th width="flex-1">Control Statement</Th>
-              <Th
-                onClick={() => toggleSort("complianceScore")}
-                isActive={sortKey === "complianceScore"}
-                sortDir={sortKey === "complianceScore" ? sortDir : undefined}
-                width="w-24"
-              >
-                Score
-              </Th>
-              <Th width="w-28">Evidence</Th>
-              <th className="w-12"></th>
-            </tr>
-          </thead>
+    <div className="space-y-4">
+      {/* Filter Status Bar */}
+      {activeFilterCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="text-sm text-gray-600">
+            {sorted.length} of {controls.length} controls
+            {activeFilterCount > 0 && (
+              <span className="ml-2 text-gray-500">
+                • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setControlIdFilter("")
+              setDomainFilter("")
+              setStatementFilter("")
+            }}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
 
-          <tbody className="divide-y divide-gray-100">
-            {sorted.map(c => (
-              <>
-                <tr
-                  key={c.controlId}
-                  onClick={() => {
-                    // Only allow expansion for assessed controls
-                    if (c.isAssessed) {
-                      setExpandedId(expandedId === c.controlId ? null : c.controlId)
-                    }
-                  }}
-                  className={`transition-colors ${
-                    c.isAssessed 
-                      ? "cursor-pointer hover:bg-gray-50" 
-                      : "cursor-not-allowed bg-gray-50 opacity-60"
-                  }`}
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="max-h-[600px] overflow-y-auto">
+          <table className="w-full text-sm table-fixed">
+            <thead className="sticky top-0 bg-[#FFE600] border-b border-gray-200 z-10">
+              <tr>
+                <Th
+                  onClick={() => toggleSort("controlCode")}
+                  isActive={sortKey === "controlCode"}
+                  sortDir={sortKey === "controlCode" ? sortDir : undefined}
+                  width="w-28"
                 >
-                  <Td className={`font-semibold ${c.isAssessed ? "text-gray-900" : "text-gray-500"}`}>
-                    {c.controlCode}
-                  </Td>
-                  <Td>
-                    <div className="space-y-1">
-                      <div className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
-                        c.isAssessed ? "bg-gray-100 text-gray-700" : "bg-gray-200 text-gray-500"
-                      }`}>
-                        {c.domain}
+                  <div className="flex items-center gap-2">
+                    <span>Control ID</span>
+                    <FilterDropdown
+                      label="Control ID"
+                      value={controlIdFilter}
+                      onChange={setControlIdFilter}
+                      onClear={() => setControlIdFilter("")}
+                    />
+                  </div>
+                </Th>
+                <Th
+                  onClick={() => toggleSort("domain")}
+                  isActive={sortKey === "domain"}
+                  sortDir={sortKey === "domain" ? sortDir : undefined}
+                  width="w-36"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>Domain</span>
+                    <FilterDropdown
+                      label="Domain"
+                      value={domainFilter}
+                      onChange={setDomainFilter}
+                      onClear={() => setDomainFilter("")}
+                    />
+                  </div>
+                </Th>
+                <Th width="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span>Control Statement</span>
+                    <FilterDropdown
+                      label="Control Statement"
+                      value={statementFilter}
+                      onChange={setStatementFilter}
+                      onClear={() => setStatementFilter("")}
+                    />
+                  </div>
+                </Th>
+                <Th
+                  onClick={() => toggleSort("complianceScore")}
+                  isActive={sortKey === "complianceScore"}
+                  sortDir={sortKey === "complianceScore" ? sortDir : undefined}
+                  width="w-24"
+                >
+                  Score
+                </Th>
+                <Th width="w-28">Evidence</Th>
+                <th className="w-12"></th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-100">
+              {sorted.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg
+                          className="w-8 h-8 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
                       </div>
-                      {c.subDomain && (
-                        <div className={`text-xs ${c.isAssessed ? "text-gray-500" : "text-gray-400"}`}>
-                          {c.subDomain}
-                        </div>
-                      )}
+                      <p className="text-base font-semibold text-gray-900">
+                        {activeFilterCount > 0 ? "No controls match your filters" : "No controls found"}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {activeFilterCount > 0 
+                          ? "Try adjusting your filter criteria"
+                          : "No controls available for this application"}
+                      </p>
                     </div>
-                  </Td>
-                  <Td>
-                    <div className={`leading-relaxed ${c.isAssessed ? "text-gray-700" : "text-gray-500"}`}>
-                      {c.controlStatement}
-                    </div>
-                  </Td>
-                  <Td>
-                    {c.isAssessed ? (
-                      <ScoreBadge score={c.complianceScore} />
-                    ) : (
-                      <span className="inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
-                        N/A
-                      </span>
-                    )}
-                  </Td>
-                  <Td>
-                    <div className="flex items-center gap-1">
-                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${
-                        c.isAssessed 
-                          ? "border-gray-200 bg-gray-50 text-gray-700" 
-                          : "border-gray-300 bg-gray-200 text-gray-400"
-                      }`}>
-                        {c.evidence.length}
-                      </span>
-                    </div>
-                  </Td>
-                  <Td className="text-right">
-                    {c.isAssessed ? (
-                      <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${
-                          expandedId === c.controlId ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-5 h-5 text-gray-300"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                        />
-                      </svg>
-                    )}
-                  </Td>
+                  </td>
                 </tr>
-
-                {expandedId === c.controlId && c.isAssessed && (
-                  <tr className="bg-gray-50">
-                    <Td colSpan={6} className="p-6">
-                      <div className="space-y-6 max-w-6xl">
-                        {/* Testing Procedure */}
-                        {c.testingProcedure && (
-                          <div className="bg-white rounded-lg border border-gray-200 p-4">
-                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                              Testing Procedure
-                            </div>
-                            <p className="text-sm text-gray-700 leading-relaxed">
-                              {c.testingProcedure}
-                            </p>
+              ) : (
+                sorted.map(c => (
+                  <>
+                    <tr
+                      key={c.controlId}
+                      onClick={() => {
+                        // Only allow expansion for assessed controls
+                        if (c.isAssessed) {
+                          setExpandedId(expandedId === c.controlId ? null : c.controlId)
+                        }
+                      }}
+                      className={`transition-colors ${
+                        c.isAssessed 
+                          ? "cursor-pointer hover:bg-gray-50" 
+                          : "cursor-not-allowed bg-gray-50 opacity-60"
+                      }`}
+                    >
+                      <Td className={`font-semibold ${c.isAssessed ? "text-gray-900" : "text-gray-500"}`}>
+                        {c.controlCode}
+                      </Td>
+                      <Td>
+                        <div className="space-y-1">
+                          <div className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                            c.isAssessed ? "bg-gray-100 text-gray-700" : "bg-gray-200 text-gray-500"
+                          }`}>
+                            {c.domain}
                           </div>
-                        )}
-
-                        {/* Evidence Section */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                              Evidence ({c.evidence.length})
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              Assessed by: {c.assessedBy}
-                            </div>
-                          </div>
-
-                          {c.evidence.length === 0 ? (
-                            <div className="bg-white rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-500">
-                              No evidence available for this control
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              {c.evidence.map(ev => (
-                                <EvidenceCard key={ev.id} evidence={ev} />
-                              ))}
+                          {c.subDomain && (
+                            <div className={`text-xs ${c.isAssessed ? "text-gray-500" : "text-gray-400"}`}>
+                              {c.subDomain}
                             </div>
                           )}
                         </div>
-
-                        {/* Assessment Info */}
-                        {c.assessedAt && (
-                          <div className="flex items-center gap-6 text-xs text-gray-500 pt-4 border-t border-gray-200">
-                            <div className="flex items-center gap-2">
-                              <span>Assessed:</span>
-                              <span className="font-medium text-gray-900">
-                                {new Date(c.assessedAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
+                      </Td>
+                      <Td>
+                        <div className={`leading-relaxed ${c.isAssessed ? "text-gray-700" : "text-gray-500"}`}>
+                          {c.controlStatement}
+                        </div>
+                      </Td>
+                      <Td>
+                        {c.isAssessed ? (
+                          <ScoreBadge score={c.complianceScore} />
+                        ) : (
+                          <span className="inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+                            N/A
+                          </span>
                         )}
-                      </div>
-                    </Td>
-                  </tr>
-                )}
-              </>
-            ))}
-          </tbody>
-        </table>
+                      </Td>
+                      <Td>
+                        <div className="flex items-center gap-1">
+                          <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${
+                            c.isAssessed 
+                              ? "border-gray-200 bg-gray-50 text-gray-700" 
+                              : "border-gray-300 bg-gray-200 text-gray-400"
+                          }`}>
+                            {c.evidence.length}
+                          </span>
+                        </div>
+                      </Td>
+                      <Td className="text-right">
+                        {c.isAssessed ? (
+                          <svg
+                            className={`w-5 h-5 text-gray-400 transition-transform ${
+                              expandedId === c.controlId ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            className="w-5 h-5 text-gray-300"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                            />
+                          </svg>
+                        )}
+                      </Td>
+                    </tr>
+
+                    {expandedId === c.controlId && c.isAssessed && (
+                      <tr className="bg-gray-50">
+                        <Td colSpan={6} className="p-6">
+                          <div className="space-y-6 max-w-6xl">
+                            {/* Testing Procedure */}
+                            {c.testingProcedure && (
+                              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                  Testing Procedure
+                                </div>
+                                <p className="text-sm text-gray-700 leading-relaxed">
+                                  {c.testingProcedure}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Evidence Section */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                  Evidence ({c.evidence.length})
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Assessed by: {c.assessedBy}
+                                </div>
+                              </div>
+
+                              {c.evidence.length === 0 ? (
+                                <div className="bg-white rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-500">
+                                  No evidence available for this control
+                                </div>
+                              ) : (
+                                <div className="space-y-3">
+                                  {c.evidence.map(ev => (
+                                    <EvidenceCard key={ev.id} evidence={ev} />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Assessment Info */}
+                            {c.assessedAt && (
+                              <div className="flex items-center gap-6 text-xs text-gray-500 pt-4 border-t border-gray-200">
+                                <div className="flex items-center gap-2">
+                                  <span>Assessed:</span>
+                                  <span className="font-medium text-gray-900">
+                                    {new Date(c.assessedAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </Td>
+                      </tr>
+                    )}
+                  </>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

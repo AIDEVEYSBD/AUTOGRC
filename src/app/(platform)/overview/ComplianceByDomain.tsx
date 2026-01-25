@@ -28,6 +28,95 @@ type ComplianceByDomainProps = {
   onDomainChange: (domain: string) => Promise<ControlInDomain[]>
 }
 
+function FilterDropdown({
+  label,
+  value,
+  onChange,
+  onClear,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  onClear: () => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
+          value ? "text-blue-600" : "text-gray-600"
+        }`}
+        title={`Filter ${label}`}
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+          />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={`Filter ${label.toLowerCase()}...`}
+                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+              {value && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onClear()
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  title="Clear filter"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 export function ComplianceByDomain({
   domains,
   initialDomain,
@@ -37,6 +126,8 @@ export function ComplianceByDomain({
   const [selectedDomain, setSelectedDomain] = useState(initialDomain)
   const [controls, setControls] = useState(initialControls)
   const [isLoading, setIsLoading] = useState(false)
+  const [controlIdFilter, setControlIdFilter] = useState("")
+  const [statementFilter, setStatementFilter] = useState("")
 
   const handleDomainClick = async (domainName: string) => {
     if (domainName === selectedDomain) return
@@ -53,6 +144,23 @@ export function ComplianceByDomain({
       setIsLoading(false)
     }
   }
+
+  // Apply filters
+  const visibleControls = controls.filter(control => {
+    const idMatch = 
+      !controlIdFilter ||
+      control.controlCode.toLowerCase().includes(controlIdFilter.toLowerCase())
+    
+    const statementMatch = 
+      !statementFilter ||
+      control.controlStatement.toLowerCase().includes(statementFilter.toLowerCase())
+
+    return idMatch && statementMatch
+  })
+
+  const activeFilterCount = 
+    (controlIdFilter !== "" ? 1 : 0) +
+    (statementFilter !== "" ? 1 : 0)
 
   // Helper to get color based on average score
   const getScoreColor = (score: number) => {
@@ -86,6 +194,29 @@ export function ComplianceByDomain({
       </div>
 
       <div className="px-6 pb-6">
+        {/* Filter Status Bar */}
+        {activeFilterCount > 0 && (
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm mb-4">
+            <div className="text-sm text-gray-600">
+              {visibleControls.length} of {controls.length} controls
+              {activeFilterCount > 0 && (
+                <span className="ml-2 text-gray-500">
+                  • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setControlIdFilter("")
+                setStatementFilter("")
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
+
         <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
           <div className="grid grid-cols-[240px_1fr]">
             {/* Left rail: domains */}
@@ -171,11 +302,23 @@ export function ComplianceByDomain({
                     style={{ backgroundColor: "#ffe600" }}
                   >
                     <div className="grid" style={{ gridTemplateColumns }}>
-                      <div className="h-12 px-4 flex items-center font-bold text-[#333333]">
-                        Control ID
+                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
+                        <span>Control</span>
+                        <FilterDropdown
+                          label="Control ID"
+                          value={controlIdFilter}
+                          onChange={setControlIdFilter}
+                          onClear={() => setControlIdFilter("")}
+                        />
                       </div>
-                      <div className="h-12 px-4 flex items-center font-bold text-[#333333]">
-                        Control Statement
+                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
+                        <span>Control Statement</span>
+                        <FilterDropdown
+                          label="Control Statement"
+                          value={statementFilter}
+                          onChange={setStatementFilter}
+                          onClear={() => setStatementFilter("")}
+                        />
                       </div>
                       <div className="h-12 px-4 flex items-center justify-center font-bold text-[#333333] text-center">
                         Compliant
@@ -199,7 +342,7 @@ export function ComplianceByDomain({
                         </p>
                       </div>
                     </div>
-                  ) : controls.length === 0 ? (
+                  ) : visibleControls.length === 0 ? (
                     <div className="p-6">
                       <div className="flex flex-col items-center justify-center bg-[#f9f9f9] rounded p-12 border border-[#cccccc]">
                         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 border border-[#cccccc]">
@@ -218,16 +361,18 @@ export function ComplianceByDomain({
                           </svg>
                         </div>
                         <p className="text-base font-bold text-[#333333]">
-                          No controls found
+                          {activeFilterCount > 0 ? "No controls match your filters" : "No controls found"}
                         </p>
                         <p className="text-sm text-[#666666] mt-2">
-                          This domain has no controls defined
+                          {activeFilterCount > 0 
+                            ? "Try adjusting your filter criteria"
+                            : "This domain has no controls defined"}
                         </p>
                       </div>
                     </div>
                   ) : (
                     <div>
-                      {controls.map(control => (
+                      {visibleControls.map(control => (
                         <div
                           key={control.id}
                           className="border-b border-[#e5e7eb] last:border-b-0 hover:bg-[#f9f9f9] transition-colors"
@@ -261,8 +406,6 @@ export function ComplianceByDomain({
                                 {control.controlStatement}
                               </div>
                             </div>
-
-
 
                             {/* Compliant */}
                             <div className="px-4 py-4 flex items-center justify-center">

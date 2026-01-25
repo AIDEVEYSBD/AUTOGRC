@@ -11,6 +11,7 @@ import {
   getControlsByDomain,
 } from "@/lib/overview.queries"
 import { ComplianceByDomain } from "./ComplianceByDomain"
+import { ApplicationsTable } from "./ApplicationsTable"
 import { fetchControlsByDomain } from "./actions"
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -258,103 +259,7 @@ export default async function OverviewPage() {
           </p>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
-          <div 
-            className={matrix.rows.length > 10 ? "max-h-[520px] overflow-y-auto" : ""}
-            style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch',
-            }}
-          >
-            <style dangerouslySetInnerHTML={{
-              __html: `
-                .overflow-y-auto::-webkit-scrollbar {
-                  display: none;
-                }
-              `
-            }} />
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 border-b border-slate-300 z-10" style={{ backgroundColor: '#ffe600' }}>
-                <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-900" style={{ backgroundColor: '#ffe600' }}>
-                    Application
-                  </th>
-                  {matrix.frameworks.map(fw => (
-                    <th
-                      key={fw.id}
-                      className="px-4 py-3 text-center font-semibold text-slate-900 min-w-[100px]"
-                      style={{ backgroundColor: '#ffe600' }}
-                    >
-                      {fw.name}
-                    </th>
-                  ))}
-                  <th className="px-4 py-3 text-center font-semibold text-slate-900 min-w-[100px]" style={{ backgroundColor: '#ffe600' }}>
-                    Overall
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {matrix.rows.map(app => (
-                  <tr
-                    key={app.id}
-                    className="border-b border-slate-200 hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-4 py-4 bg-white sticky left-0">
-                      <div className="font-semibold text-slate-900">
-                        {app.name}
-                      </div>
-                      <div className="text-xs text-slate-500 mt-1">
-                        {app.owner}
-                      </div>
-                    </td>
-
-                    {matrix.frameworks.map(fw => {
-                      const cell = app.byFramework[fw.id]
-                      const dotColor = ringColor(cell.percent)
-                      return (
-                        <td
-                          key={fw.id}
-                          className="px-4 py-4 text-center align-middle"
-                        >
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: dotColor }}
-                              />
-                              <span className="text-base font-semibold text-slate-900">
-                                {cell.percent}%
-                              </span>
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {cell.done}/{cell.total} controls
-                            </div>
-                          </div>
-                        </td>
-                      )
-                    })}
-
-                    <td className="px-4 py-4 text-center align-middle">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: ringColor(app.overallScore) }}
-                          />
-                          <span className="text-base font-semibold text-slate-900">
-                            {app.overallScore}%
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ApplicationsTable matrix={matrix} />
       </GlassCard>
 
       {/* Compliance by Domain */}
