@@ -251,6 +251,9 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
                             {app.overallScore}%
                           </span>
                         </div>
+                        <div className="text-xs text-slate-500">
+                          aggregate score
+                        </div>
                       </div>
                     </td>
                   </tr>
