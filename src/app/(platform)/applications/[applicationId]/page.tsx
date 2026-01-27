@@ -203,12 +203,12 @@ export default async function ApplicationDetailPage({
             variant="success"
           />
           <Stat
-            label="No. of Non-Compliant"
+            label="No. of Non-Compliant Controls"
             value={nonCompliantControls}
             variant="danger"
           />
           <Stat
-            label="No. of Not-Assessed"
+            label="No. of Not-Assessed Controls"
             value={notAssessed}
             variant="neutral"
           />
