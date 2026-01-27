@@ -434,8 +434,29 @@ export default function ControlsTable({
 /* ───────────────────────────────────────────── */
 
 function formatSOCExplanation(text: string): string {
-  // Replace Framework A and Framework B
+  // First, fix character encoding issues with specific replacements
   let formatted = text
+    // Fix specific common compound words - match any non-letter characters between words
+    .replace(/real[^a-z]+time/gi, "real-time")
+    .replace(/anti[^a-z]+malware/gi, "anti-malware")
+    .replace(/network[^a-z]+based/gi, "network-based")
+    .replace(/multi[^a-z]+factor/gi, "multi-factor")
+    .replace(/two[^a-z]+factor/gi, "two-factor")
+    .replace(/end[^a-z]+to[^a-z]+end/gi, "end-to-end")
+    .replace(/up[^a-z]+to[^a-z]+date/gi, "up-to-date")
+    .replace(/third[^a-z]+party/gi, "third-party")
+    .replace(/host[^a-z]+based/gi, "host-based")
+    .replace(/cloud[^a-z]+based/gi, "cloud-based")
+    .replace(/risk[^a-z]+based/gi, "risk-based")
+    .replace(/role[^a-z]+based/gi, "role-based")
+    // Fix other encoding issues
+    .replace(/Â /g, " ")
+    .replace(/â„¢/g, "™")
+    .replace(/Â©/g, "©")
+    .replace(/Â®/g, "®")
+  
+  // Replace Framework A and Framework B
+  formatted = formatted
     .replace(/Framework A/g, "Master Framework Name")
     .replace(/Framework B/g, "SOC 2 Type 2 Report")
   
@@ -456,18 +477,25 @@ function formatSOCExplanation(text: string): string {
     .replace(/\[\s*\]/g, "")         // Remove empty brackets
     .trim()
   
-  // Bold the section headers
+  // Bold the section headers and add line breaks for paragraph separation
   const headers = [
     "Shared Concepts:",
     "Gaps Identified:",
     "Analyst Notes:",
+    "Audit Notes:",
     "Both controls",
     "SOC Evidence:",
+    "Policy Gaps:",
+    "Implementation Gaps:",
+    "Coverage:",
   ]
   
   headers.forEach(header => {
-    const regex = new RegExp(`(${header})`, "g")
-    formatted = formatted.replace(regex, "**$1**")
+    // Escape special regex characters in the header
+    const escapedHeader = header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    // Add double line break before header and make it bold
+    const regex = new RegExp(`(\\S)(\\s*)(${escapedHeader})`, "gi")
+    formatted = formatted.replace(regex, "$1\n\n**$3**")
   })
   
   return formatted
