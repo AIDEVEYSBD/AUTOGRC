@@ -1,6 +1,11 @@
 import { getApplicationsOverview } from "@/lib/applications.queries"
 import ApplicationsTable from "./applications-table"
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Applications",
+};
 /* ─────────────────────────────────────────────
    Page
 ───────────────────────────────────────────── */

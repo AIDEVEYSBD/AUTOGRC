@@ -1,8 +1,15 @@
 import "./globals.css";
+import { Metadata } from "next";
 
-export const metadata = {
-  title: "AutoGRC",
+export const metadata: Metadata = {
+  title: {
+    template: "%s | AutoGRC",
+    default: "AutoGRC",
+  },
   description: "Automated Cyber Governance Platform",
+  icons: {
+    icon: "/AutoGRC.ico",
+  },
 };
 
 export default function RootLayout({

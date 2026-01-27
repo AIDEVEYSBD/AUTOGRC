@@ -16,6 +16,11 @@ import { fetchControlsByDomain } from "./actions"
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Overview",
+};
 /* =========================
    Helpers
 ========================= */

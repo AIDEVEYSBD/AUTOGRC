@@ -10,7 +10,11 @@ type Capability = {
   status: CapabilityStatus
   icon: React.ReactNode
 }
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Capabilities",
+};
 const CAPABILITIES: Capability[] = [
   {
     key: "framework_baseliner",

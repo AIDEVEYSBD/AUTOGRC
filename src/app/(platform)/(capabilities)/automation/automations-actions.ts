@@ -28,7 +28,11 @@ import type {
 } from "@/lib/automations.types"
 
 const db = neon(process.env.DATABASE_URL!)
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Automations",
+};
 /* ───────────────────────────────────────────── */
 /* Fetch Actions                                 */
 /* ───────────────────────────────────────────── */

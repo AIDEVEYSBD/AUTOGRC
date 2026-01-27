@@ -1,7 +1,34 @@
 import { notFound } from "next/navigation"
+import { Metadata } from "next"
 import { getApplicationDetail } from "@/lib/application-detail.queries"
 import ControlsTable from "./controls-table"
 import ComplianceTrendsChart from "./compliance-trends-chart"
+
+/* ─────────────────────────────────────────────
+   Metadata Generation
+───────────────────────────────────────────── */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ applicationId: string }>
+}): Promise<Metadata> {
+  const { applicationId } = await params
+  const decodedId = decodeURIComponent(applicationId)
+  
+  try {
+    const app = await getApplicationDetail(decodedId)
+    
+    return {
+      title: app?.name || "Application Details",
+      // Browser tab will show: "Azure Portal | AutoGRC" (or whatever the app name is)
+    }
+  } catch (error) {
+    // Fallback if fetch fails
+    return {
+      title: "Application Details",
+    }
+  }
+}
 
 /* ─────────────────────────────────────────────
    Page (Server Component)
