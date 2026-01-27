@@ -99,6 +99,7 @@ export async function getAutomations(): Promise<Automation[]> {
         applicationIds: r.applicationIds || null,
         sqlText: r.sqlText,
         sourceIntegrations: r.sourceIntegrations || null,
+        answerTemplate: null, // New percentage-based system - not yet in DB
         answerPass: r.answerPass,
         answerFail: r.answerFail,
         createdAt: r.createdAt,
@@ -156,6 +157,7 @@ export async function getAutomationById(id: string): Promise<Automation | null> 
       applicationIds: r.applicationIds || null,
       sqlText: r.sqlText,
       sourceIntegrations: r.sourceIntegrations || null,
+      answerTemplate: null, // New percentage-based system - not yet in DB
       answerPass: r.answerPass,
       answerFail: r.answerFail,
       createdAt: r.createdAt,
@@ -397,6 +399,8 @@ export async function previewQuery(sqlText: string, limit: number = 10): Promise
       rows: result.rows || [],
       rowCount: result.row_count || 0,
       hasApplicationId: result.has_application_id || false,
+      hasCompliancePercentage: result.has_compliance_percentage || false,
+      previewData: result.preview_data || null,
       error: result.error || null,
     }
   } catch (error: any) {
@@ -405,6 +409,8 @@ export async function previewQuery(sqlText: string, limit: number = 10): Promise
       rows: [],
       rowCount: 0,
       hasApplicationId: false,
+      hasCompliancePercentage: false,
+      previewData: null,
       error: error.message || "Query preview failed",
     }
   }
