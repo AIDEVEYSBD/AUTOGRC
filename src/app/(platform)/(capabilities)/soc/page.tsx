@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 
-const API_BASE = (process.env.NEXT_PUBLIC_SCHEDULER_API_BASE ||
+// API routes - use Next.js API for reads (database), scheduler for writes
+const NEXTJS_API_BASE = "/api"
+const SCHEDULER_API_BASE = (process.env.NEXT_PUBLIC_SCHEDULER_API_BASE ||
   "http://localhost:3101"
 ).replace(/\/$/, "")
 
@@ -90,7 +92,8 @@ export default function SocMapperPage() {
   )
 
   const fetchRuns = async () => {
-    const data = await fetchJson<SocRun[]>(`${API_BASE}/soc-runs`)
+    // Read from database via Next.js API
+    const data = await fetchJson<SocRun[]>(`${NEXTJS_API_BASE}/soc-runs`)
     setRuns(data || [])
   }
 
@@ -144,7 +147,8 @@ export default function SocMapperPage() {
       // Backend still uses Azure_controls.json for actual mapping inputs.
       const socReportName = stripPdfExt(pdfFile.name)
 
-      await fetchJson(`${API_BASE}/soc-runs`, {
+      // Write operation still uses scheduler API
+      await fetchJson(`${SCHEDULER_API_BASE}/soc-runs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -168,8 +172,9 @@ export default function SocMapperPage() {
     setLoading(true)
 
     try {
+      // Read from database via Next.js API
       const data = await fetchJson<{ run: any; results: SocResult[] }>(
-        `${API_BASE}/soc-runs/${runId}/results`
+        `${NEXTJS_API_BASE}/soc-runs/${runId}/results`
       )
       setResults(data.results ?? [])
     } finally {
@@ -186,7 +191,8 @@ export default function SocMapperPage() {
 
   const downloadExcel = () => {
     if (!openRunId) return
-    window.open(`${API_BASE}/soc-runs/${openRunId}/report`, "_blank")
+    // Excel download still uses scheduler API
+    window.open(`${SCHEDULER_API_BASE}/soc-runs/${openRunId}/report`, "_blank")
   }
 
   const disableStart = starting || !pdfFile

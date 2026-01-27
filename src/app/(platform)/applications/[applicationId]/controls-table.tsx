@@ -433,8 +433,113 @@ export default function ControlsTable({
 
 /* ───────────────────────────────────────────── */
 
+function formatSOCExplanation(text: string): string {
+  // Replace Framework A and Framework B
+  let formatted = text
+    .replace(/Framework A/g, "Master Framework Name")
+    .replace(/Framework B/g, "SOC 2 Type 2 Report")
+  
+  // Remove TSC and CC references (e.g., "TSC CC6.1", "CC6", "CC6.6")
+  formatted = formatted
+    .replace(/\bTSC\s+CC\d+\.?\d*\b/gi, "")
+    .replace(/\bCC\d+\.?\d*\b/gi, "")
+  
+  // Clean up extra spaces, commas, and punctuation left behind
+  formatted = formatted
+    .replace(/\s+,/g, ",")           // Remove space before comma
+    .replace(/,\s*,/g, ",")          // Remove duplicate commas
+    .replace(/\s{2,}/g, " ")         // Replace multiple spaces with single space
+    .replace(/,\s*;/g, ";")          // Clean up comma-semicolon combinations
+    .replace(/;\s*,/g, ";")          // Clean up semicolon-comma combinations
+    .replace(/\s+\./g, ".")          // Remove space before period
+    .replace(/\(\s*\)/g, "")         // Remove empty parentheses
+    .replace(/\[\s*\]/g, "")         // Remove empty brackets
+    .trim()
+  
+  // Bold the section headers
+  const headers = [
+    "Shared Concepts:",
+    "Gaps Identified:",
+    "Analyst Notes:",
+    "Both controls",
+    "SOC Evidence:",
+  ]
+  
+  headers.forEach(header => {
+    const regex = new RegExp(`(${header})`, "g")
+    formatted = formatted.replace(regex, "**$1**")
+  })
+  
+  return formatted
+}
+
+function cleanOCRText(text: string): string {
+  let cleaned = text
+  
+  // Remove @ symbols that appear to be OCR artifacts
+  cleaned = cleaned.replace(/@/g, '')
+  
+  // Remove single isolated letters that appear between words (OCR artifacts)
+  // Look for patterns like " a " or " h " where single letters appear alone
+  cleaned = cleaned.replace(/\s+[a-z]\s+(?=[a-z])/gi, ' ')
+  
+  // Clean up multiple spaces
+  cleaned = cleaned.replace(/\s{2,}/g, ' ')
+  
+  // Add line breaks after periods followed by capital letters (sentence boundaries)
+  cleaned = cleaned.replace(/\.\s+([A-Z])/g, '.\n\n$1')
+  
+  // Add line breaks after "noted." which seems to be a common pattern
+  cleaned = cleaned.replace(/noted\.\s+/gi, 'noted.\n\n')
+  
+  // Add line breaks before "No deviations" patterns
+  cleaned = cleaned.replace(/\s+(No deviations)/gi, '\n\n$1')
+  
+  // Clean up any leading/trailing whitespace
+  cleaned = cleaned.trim()
+  
+  return cleaned
+}
+
+function formatFieldName(key: string): string {
+  // Convert snake_case to Title Case
+  return key
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+function parseSOCEvidenceData(jsonString: string): { key: string; value: string; cleanedValue: string }[] | null {
+  try {
+    const data = JSON.parse(jsonString)
+    if (typeof data !== "object" || data === null) return null
+    
+    return Object.entries(data).map(([key, value]) => {
+      const stringValue = String(value)
+      return {
+        key: formatFieldName(key),
+        value: stringValue,
+        cleanedValue: cleanOCRText(stringValue),
+      }
+    })
+  } catch {
+    return null
+  }
+}
+
 function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
   const [showDetails, setShowDetails] = useState(false)
+  const isSOCReport = evidence.sourceType === "SOC Report"
+
+  // Process explanation for SOC reports
+  const processedExplanation = isSOCReport && evidence.explanation
+    ? formatSOCExplanation(evidence.explanation)
+    : evidence.explanation
+
+  // Parse evidence data for SOC reports
+  const socEvidenceTable = isSOCReport && evidence.evidenceData
+    ? parseSOCEvidenceData(evidence.evidenceData)
+    : null
 
   return (
     <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50/30 rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -470,7 +575,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
       {/* Evidence Details (Expandable) */}
       {showDetails && (
         <div className="p-4 space-y-4">
-          {evidence.explanation && (
+          {processedExplanation && (
             <div>
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Explanation
@@ -515,7 +620,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
                     ),
                   }}
                 >
-                  {evidence.explanation}
+                  {processedExplanation}
                 </ReactMarkdown>
               </div>
             </div>
@@ -526,55 +631,84 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Evidence Data
               </div>
-              <div className="bg-gray-50 rounded p-3 border border-gray-200 overflow-x-auto">
-                <div className="prose prose-sm max-w-none">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      table: ({ children }) => (
-                        <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
-                          {children}
-                        </table>
-                      ),
-                      thead: ({ children }) => (
-                        <thead className="bg-gray-100">
-                          {children}
-                        </thead>
-                      ),
-                      tbody: ({ children }) => (
-                        <tbody className="divide-y divide-gray-200 bg-white">
-                          {children}
-                        </tbody>
-                      ),
-                      tr: ({ children }) => (
-                        <tr>
-                          {children}
-                        </tr>
-                      ),
-                      th: ({ children }) => (
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900 border-r border-gray-300 last:border-r-0">
-                          {children}
+              {isSOCReport && socEvidenceTable ? (
+                <div className="bg-gray-50 rounded p-3 border border-gray-200 overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900 border-r border-gray-300 w-48">
+                          Field
                         </th>
-                      ),
-                      td: ({ children }) => (
-                        <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-200 last:border-r-0">
-                          {children}
-                        </td>
-                      ),
-                      p: ({ children }) => <p className="mb-2 last:mb-0 text-xs">{children}</p>,
-                      code: ({ children }) => (
-                        <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
-                          {children}
-                        </code>
-                      ),
-                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                      em: ({ children }) => <em className="italic">{children}</em>,
-                    }}
-                  >
-                    {evidence.evidenceData}
-                  </ReactMarkdown>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900">
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {socEvidenceTable.map((row, idx) => (
+                        <tr key={idx} className="align-top">
+                          <td className="px-3 py-2 text-xs font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap">
+                            {row.key}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                            {row.cleanedValue}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-gray-50 rounded p-3 border border-gray-200 overflow-x-auto">
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        table: ({ children }) => (
+                          <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
+                            {children}
+                          </table>
+                        ),
+                        thead: ({ children }) => (
+                          <thead className="bg-gray-100">
+                            {children}
+                          </thead>
+                        ),
+                        tbody: ({ children }) => (
+                          <tbody className="divide-y divide-gray-200 bg-white">
+                            {children}
+                          </tbody>
+                        ),
+                        tr: ({ children }) => (
+                          <tr>
+                            {children}
+                          </tr>
+                        ),
+                        th: ({ children }) => (
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900 border-r border-gray-300 last:border-r-0">
+                            {children}
+                          </th>
+                        ),
+                        td: ({ children }) => (
+                          <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-200 last:border-r-0">
+                            {children}
+                          </td>
+                        ),
+                        p: ({ children }) => <p className="mb-2 last:mb-0 text-xs">{children}</p>,
+                        code: ({ children }) => (
+                          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
+                            {children}
+                          </code>
+                        ),
+                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        em: ({ children }) => <em className="italic">{children}</em>,
+                      }}
+                    >
+                      {evidence.evidenceData}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
