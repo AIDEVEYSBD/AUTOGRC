@@ -25,6 +25,7 @@ export interface Automation {
   lastRunStatus: string | null
   totalRuns: number
   successfulRuns: number
+  failedRuns: number
 }
 
 export interface AutomationRun {
@@ -35,6 +36,7 @@ export interface AutomationRun {
   startedAt: string
   finishedAt: string | null
   errorMessage: string | null
+  appsProcessed: number | null
 }
 
 export interface ControlOption {
@@ -42,6 +44,7 @@ export interface ControlOption {
   controlCode: string
   title: string
   statement: string | null
+  frameworkName: string
 }
 
 export interface ApplicabilityCategoryOption {
@@ -58,9 +61,9 @@ export interface ApplicationOption {
 }
 
 export interface IntegrationTableOption {
-  tableName: string
+  integrationId: string
   integrationName: string
-  description: string | null
+  tableName: string
 }
 
 export interface TableColumn {
@@ -78,7 +81,6 @@ export interface QueryPreviewResult {
   previewData: {
     averageCompliance: number
     predictedStatus: string
-    // FIX: Added rowCounts object to resolve TS2339 error
     rowCounts: {
       totalRows: number
       compliantRows: number
