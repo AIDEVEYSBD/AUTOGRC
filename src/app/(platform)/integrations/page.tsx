@@ -296,6 +296,21 @@ export default function IntegrationsPage() {
     setCollapsedCategories(newCollapsed)
   }
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    const hasModalOpen = showMarketplace || configuring || showColumnSelection || showScheduleModal || resultsIntegration
+    
+    if (hasModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showMarketplace, configuring, showColumnSelection, showScheduleModal, resultsIntegration])
+
   useEffect(() => {
     loadIntegrations()
   }, [])
@@ -344,6 +359,22 @@ export default function IntegrationsPage() {
         return newSet
       })
     }
+  }
+
+  function expandAll() {
+    const allIds = activeIntegrations.map(i => i.id)
+    setExpandedCards(new Set(allIds))
+    
+    // Load runs for all cards that don't have data yet
+    allIds.forEach(id => {
+      if (!cardRuns.has(id)) {
+        loadRunsForCard(id)
+      }
+    })
+  }
+
+  function collapseAll() {
+    setExpandedCards(new Set())
   }
 
   // Filter integrations
@@ -598,15 +629,34 @@ export default function IntegrationsPage() {
 
       {/* Connected tools */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-bold text-[#333333]">
-            Active security tool integrations
-          </h2>
-          <p className="mt-1 text-base text-[#666666] max-w-4xl">
-            Following section lists all cybersecurity tools currently integrated with the 
-            platform. Configure API endpoints, execute automated assessments, and manage 
-            integration lifecycles for each connected tool.
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-[#333333]">
+              Active security tool integrations
+            </h2>
+            <p className="mt-1 text-base text-[#666666] max-w-4xl">
+              Following section lists all cybersecurity tools currently integrated with the 
+              platform. Configure API endpoints, execute automated assessments, and manage 
+              integration lifecycles for each connected tool.
+            </p>
+          </div>
+          
+          {activeIntegrations.length > 0 && (
+            <div className="flex gap-2">
+              <button
+                onClick={expandAll}
+                className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium whitespace-nowrap"
+              >
+                Expand All
+              </button>
+              <button
+                onClick={collapseAll}
+                className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium whitespace-nowrap"
+              >
+                Collapse All
+              </button>
+            </div>
+          )}
         </div>
 
         {activeIntegrations.length === 0 ? (
@@ -1221,8 +1271,8 @@ export default function IntegrationsPage() {
 
       {/* Results Modal */}
       {resultsIntegration && resultsData && (
-        <Modal onClose={() => { setResultsIntegration(null); setResultsData(null) }} wide>
-          <div className="mb-6">
+        <Modal onClose={() => { setResultsIntegration(null); setResultsData(null) }} wide noScroll>
+          <div className="mb-4">
             <h3 className="text-2xl font-bold text-[#333333]">
               {resultsIntegration.displayName} - Assessment Results
             </h3>
@@ -1231,37 +1281,41 @@ export default function IntegrationsPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-auto max-h-[calc(90vh-180px)] border border-[#cccccc] rounded">
             {resultsData.length === 0 ? (
               <div className="text-center py-12 text-[#666666]">
                 No results available yet. Execute an assessment to populate data.
               </div>
             ) : (
-              <table className="min-w-full border border-[#cccccc] text-sm">
-                <thead className="bg-[#f9f9f9]">
+              <table className="min-w-full border-collapse text-sm">
+                <thead className="bg-[#f9f9f9] sticky top-0">
                   <tr>
-                    {Object.keys(resultsData[0]).map(key => (
-                      <th key={key} className="border border-[#cccccc] px-4 py-3 text-left font-bold text-[#333333]">
-                        {key}
-                      </th>
-                    ))}
+                    {Object.keys(resultsData[0])
+                      .filter(key => key !== 'integration_run_id')
+                      .map(key => (
+                        <th key={key} className="border border-[#cccccc] px-4 py-3 text-left font-bold text-[#333333]">
+                          {key}
+                        </th>
+                      ))}
                   </tr>
                 </thead>
                 <tbody>
                   {resultsData.map((row, i) => (
                     <tr key={i} className="odd:bg-white even:bg-[#fafafa] hover:bg-[#f5f5f5]">
-                      {Object.values(row).map((val, j) => (
-                        <td key={j} className="border border-[#e5e7eb] px-4 py-3 text-[#666666]">
-                          {val === null || val === undefined 
-                            ? "—" 
-                            : typeof val === "boolean"
-                            ? val ? "Yes" : "No"
-                            : typeof val === "object"
-                            ? JSON.stringify(val)
-                            : String(val)
-                          }
-                        </td>
-                      ))}
+                      {Object.entries(row)
+                        .filter(([key]) => key !== 'integration_run_id')
+                        .map(([key, val], j) => (
+                          <td key={j} className="border border-[#e5e7eb] px-4 py-3 text-[#666666]">
+                            {val === null || val === undefined 
+                              ? "—" 
+                              : typeof val === "boolean"
+                              ? val ? "Yes" : "No"
+                              : typeof val === "object"
+                              ? JSON.stringify(val)
+                              : String(val)
+                            }
+                          </td>
+                        ))}
                     </tr>
                   ))}
                 </tbody>
@@ -1295,10 +1349,12 @@ function Modal({
   children,
   onClose,
   wide,
+  noScroll,
 }: {
   children: React.ReactNode
   onClose: () => void
   wide?: boolean
+  noScroll?: boolean
 }) {
   return (
     <div 
@@ -1309,7 +1365,7 @@ function Modal({
         className={[
           "relative bg-white rounded-lg shadow-lg w-full",
           wide ? "max-w-5xl" : "max-w-xl",
-          "max-h-[90vh] flex flex-col",
+          noScroll ? "max-h-[90vh] flex flex-col" : "max-h-[90vh] flex flex-col",
         ].join(" ")}
         onClick={(e) => e.stopPropagation()}
       >
@@ -1321,7 +1377,7 @@ function Modal({
           ×
         </button>
 
-        <div className="overflow-y-auto p-6">{children}</div>
+        <div className={noScroll ? "p-6" : "overflow-y-auto p-6"}>{children}</div>
       </div>
     </div>
   )
