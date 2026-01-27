@@ -79,7 +79,7 @@ function MetricCard({
   avgScore: number
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-5 h-[110px] flex flex-col justify-between">
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-4 h-[130px] flex flex-col justify-between">
       <div className="space-y-0.5">
         <div className="text-xs font-medium text-gray-600 uppercase tracking-wide leading-tight">
           {label}
@@ -90,12 +90,17 @@ function MetricCard({
           </div>
         )}
       </div>
-      <div className="flex items-baseline gap-2 mt-auto">
-        <div className="text-3xl font-bold text-gray-900">
+      <div className="mt-auto w-full">
+        <div className="text-3xl font-bold text-gray-900 mb-2">
           {count}
         </div>
-        <div className="text-lg font-semibold text-gray-500">
-          {avgScore}%
+        <div className="flex items-center justify-between w-full">
+          <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">
+            Avg Compliance
+          </div>
+          <div className="text-sm font-semibold text-gray-500">
+            {avgScore}%
+          </div>
         </div>
       </div>
     </div>

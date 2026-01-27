@@ -30,6 +30,15 @@ export default async function ApplicationDetailPage({
   const previousMonthScore = trendData[trendData.length - 2].score
   const scoreChange = app.overallScore - previousMonthScore
 
+  // Calculate derived metrics
+  const assessedControls =
+    app.summary.compliant +
+    app.summary.partialGap +
+    app.summary.notCompliant +
+    app.summary.notApplicable
+  const notAssessed = app.summary.total - assessedControls
+  const nonCompliantControls = app.summary.notCompliant + app.summary.partialGap
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-full px-8 py-8 space-y-6">
@@ -42,12 +51,52 @@ export default async function ApplicationDetailPage({
                 {app.name}
               </h1>
 
-              {/* Status Badges - Uniform Display */}
-              <div className="flex items-center gap-3 py-1">
-                <StatusBadge status={app.status} />
-                <CriticalityBadge criticality={app.criticality} />
-                <DRLevelBadge level={app.drLevel} />
-                <LifecycleBadge status={app.lifecycleStatus} />
+              {/* Status Badges - Grouped Display */}
+              <div className="flex items-start gap-6 py-1">
+                {/* Service Criticality */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                    Service Criticality
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CriticalityBadge criticality={app.criticality} />
+                    <DRLevelBadge level={app.drLevel} />
+                  </div>
+                </div>
+
+                {/* Info Classification */}
+                {app.informationClassification && (
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                      Info Classification
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                        {app.informationClassification}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Compliance Status */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                    Compliance Status
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={app.status} />
+                  </div>
+                </div>
+
+                {/* Asset Lifecycle Status */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                    Asset Lifecycle Status
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <LifecycleBadge status={app.lifecycleStatus} />
+                  </div>
+                </div>
               </div>
 
               {/* URL and Provider Info */}
@@ -69,15 +118,6 @@ export default async function ApplicationDetailPage({
                 <span className="text-gray-400">•</span>
                 <span className="text-gray-600">{app.serviceManagement}</span>
               </div>
-
-              {/* Information Classification */}
-              {app.informationClassification && (
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700">
-                    {app.informationClassification}
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Overall Score Display */}
@@ -153,23 +193,23 @@ export default async function ApplicationDetailPage({
             variant="neutral"
           />
           <Stat
-            label="Compliant"
+            label="No. of Assessed Controls"
+            value={assessedControls}
+            variant="neutral"
+          />
+          <Stat
+            label="No. of Compliant Controls"
             value={app.summary.compliant}
             variant="success"
           />
           <Stat
-            label="Partial Gap"
-            value={app.summary.partialGap}
-            variant="warning"
-          />
-          <Stat
-            label="Not Compliant"
-            value={app.summary.notCompliant}
+            label="No. of Non-Compliant"
+            value={nonCompliantControls}
             variant="danger"
           />
           <Stat
-            label="Not Applicable"
-            value={app.summary.notApplicable}
+            label="No. of Not-Assessed"
+            value={notAssessed}
             variant="neutral"
           />
         </div>
