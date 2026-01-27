@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 
 // API routes - use Next.js API for reads (database), scheduler for writes
 const NEXTJS_API_BASE = "/api"
@@ -71,6 +72,7 @@ function clamp(v: number, lo: number, hi: number) {
 }
 
 export default function SocMapperPage() {
+  const router = useRouter()
   const [runs, setRuns] = useState<SocRun[]>([])
   const [showInstructions, setShowInstructions] = useState(false)
 
@@ -213,12 +215,29 @@ export default function SocMapperPage() {
   return (
     <div className="space-y-8 p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-[#333333]">SOC Mapper</h1>
-        <p className="text-base text-[#666666] max-w-3xl mt-2">
-          Upload the SOC report PDF and run the SOC mapping. Then review per-control results (Met, Partially Met, Not Met),
-          download the canonical Excel report, and keep a run history.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold text-[#333333]">SOC Mapper</h1>
+          <p className="text-base text-[#666666] max-w-3xl mt-2">
+            Upload the SOC report PDF and run the SOC mapping. Then review per-control results (Met, Partially Met, Not Met),
+            download the canonical Excel report, and keep a run history.
+          </p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => router.push("/framework")}
+            className="px-4 py-2 text-sm font-bold rounded border transition-colors bg-white text-[#333333] border-[#cccccc] hover:bg-[#f9f9f9]"
+          >
+            Framework
+          </button>
+          <button
+            className="px-4 py-2 text-sm font-bold rounded border transition-colors bg-[#333333] text-white border-[#333333]"
+          >
+            SOC
+          </button>
+        </div>
       </div>
 
       {/* Create New SOC Run */}
