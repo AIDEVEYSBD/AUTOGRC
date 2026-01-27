@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react"
 
-const API_BASE = (process.env.NEXT_PUBLIC_SCHEDULER_API_BASE ||
+// API routes - use Next.js API for reads (database), scheduler for writes
+const NEXTJS_API_BASE = "/api"
+const SCHEDULER_API_BASE = (process.env.NEXT_PUBLIC_SCHEDULER_API_BASE ||
   "http://localhost:3101"
 ).replace(/\/$/, "")
 
@@ -125,17 +127,20 @@ export default function FrameworkBaselinerPage() {
   )
 
   const fetchFrameworks = async () => {
-    const data = await fetchJson<Framework[]>(`${API_BASE}/frameworks`)
+    // Still use scheduler API for frameworks list
+    const data = await fetchJson<Framework[]>(`${SCHEDULER_API_BASE}/frameworks`)
     setFrameworks(data || [])
   }
 
   const fetchRuns = async () => {
-    const data = await fetchJson<Run[]>(`${API_BASE}/framework-map-runs`)
+    // Read from database via Next.js API
+    const data = await fetchJson<Run[]>(`${NEXTJS_API_BASE}/framework-map-runs`)
     setRuns(data || [])
   }
 
   const fetchSocRuns = async () => {
-    const data = await fetchJson<SocRun[]>(`${API_BASE}/soc-runs`)
+    // Read from database via Next.js API
+    const data = await fetchJson<SocRun[]>(`${NEXTJS_API_BASE}/soc-runs`)
     setSocRuns(data || [])
   }
 
@@ -167,7 +172,8 @@ export default function FrameworkBaselinerPage() {
     if (!source || !target || source === target) return
     setStarting(true)
     try {
-      await fetchJson(`${API_BASE}/framework-map-runs`, {
+      // Write operation uses scheduler API
+      await fetchJson(`${SCHEDULER_API_BASE}/framework-map-runs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -189,8 +195,9 @@ export default function FrameworkBaselinerPage() {
     setOpenRunId(runId)
     setLoading(true)
     try {
+      // Read from database via Next.js API
       const data = await fetchJson<{ run: any; summary: RunSummary; mappings: Mapping[] }>(
-        `${API_BASE}/framework-map-runs/${runId}/results`
+        `${NEXTJS_API_BASE}/framework-map-runs/${runId}/results`
       )
       setMappings(data.mappings ?? [])
       setSummary(data.summary ?? null)
@@ -208,14 +215,16 @@ export default function FrameworkBaselinerPage() {
 
   const downloadExcel = () => {
     if (!openRunId) return
-    window.open(`${API_BASE}/framework-map-runs/${openRunId}/report`, "_blank")
+    // Excel download uses scheduler API
+    window.open(`${SCHEDULER_API_BASE}/framework-map-runs/${openRunId}/report`, "_blank")
   }
 
   const startSocRun = async () => {
     if (!azureControlsPath.trim()) return
     setSocStarting(true)
     try {
-      await fetchJson(`${API_BASE}/soc-runs`, {
+      // Write operation uses scheduler API
+      await fetchJson(`${SCHEDULER_API_BASE}/soc-runs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -235,8 +244,9 @@ export default function FrameworkBaselinerPage() {
     setSocOpenRunId(socRunId)
     setSocLoading(true)
     try {
+      // Read from database via Next.js API
       const data = await fetchJson<{ run: any; results: SocResult[] }>(
-        `${API_BASE}/soc-runs/${socRunId}/results`
+        `${NEXTJS_API_BASE}/soc-runs/${socRunId}/results`
       )
       setSocResults(data.results ?? [])
     } finally {
@@ -252,7 +262,8 @@ export default function FrameworkBaselinerPage() {
 
   const downloadSocExcel = () => {
     if (!socOpenRunId) return
-    window.open(`${API_BASE}/soc-runs/${socOpenRunId}/report`, "_blank")
+    // Excel download uses scheduler API
+    window.open(`${SCHEDULER_API_BASE}/soc-runs/${socOpenRunId}/report`, "_blank")
   }
 
   const disableStart = starting || !source || !target || source === target
