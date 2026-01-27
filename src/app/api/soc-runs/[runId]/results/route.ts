@@ -31,10 +31,10 @@ type ResultRow = {
 
 export async function GET(
   request: Request,
-  { params }: { params: { runId: string } }
+  { params }: { params: Promise<{ runId: string }> }
 ) {
   try {
-    const runId = params.runId
+    const { runId } = await params
 
     // Fetch the run metadata
     const runs = await db<SocRunRow[]>`
