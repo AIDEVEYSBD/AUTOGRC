@@ -21,10 +21,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {/* Global background grid */}
-        <div className="app-background" />
+        <div className="" />
 
         {/* Global page wrapper */}
-        <div className="relative mx-auto max-w-6xl px-6 py-24 text-[#333333]">
+        <div className="relative ">
           {children}
         </div>
       </body>
