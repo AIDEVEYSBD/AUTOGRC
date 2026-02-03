@@ -48,7 +48,7 @@ export default function Home() {
       </nav>
 
       {/* HERO */}
-      <section className="pt-36 pb-28 px-6">
+      <section className="pt-10 px-6">
         <div className="mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6 hover:text-yellow-400 
@@ -70,117 +70,187 @@ export default function Home() {
 
              
             </div>
+            
           </div>
-
+          <div className="pl-20">
+  <iframe
+    src="https://lottie.host/embed/ec5d151d-7ea6-4ea6-b921-66c2b093773b/DSP6wFNJzB.lottie"
+    className="w-[800px] h-[800px] border-0"
+    allowFullScreen
+  />
+</div>
           {/* Hero Visual */}
 
         </div>
       </section>
 
-      {/* PROBLEM */}
-      <section id="problem" className="py-55 px-6 ">
-      <FlipCard 
-            frontTitle="The Compliance Challenge"
-            frontContent="Why traditional compliance programs fail at scale"
-            backTitle="Common Pain Points"
-            backContent={[
-              "Manual control mapping across frameworks",
-              "Inconsistent assessment procedures",
-              "Audit fatigue from repetitive evidence",
-              "Weeks to generate compliance reports",
-              "Limited real-time compliance visibility",
-            ]}
-          />
-      </section>
+ {/* PROBLEM */}
+<section
+  id="problem"
+  className="relative min-h-[80vh] flex items-start justify-center pt-32 pb-20 overflow-hidden"
+>
+  {/* Background Lottie */}
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <iframe
+      src="https://lottie.host/embed/2b2d1543-a10d-4449-8d72-cfab68d224ee/nepbhAWZd5.lottie"
+      className="w-[700px] h-[700px] opacity-30"
+    />
+  </div>
+
+  {/* Foreground Content */}
+  <div className="relative z-10 max-w-5xl text-center px-6">
+    <h2 className="text-5xl font-bold mb-6 hover:text-yellow-400 hover:-translate-y-1">
+      The Compliance Challenge
+    </h2>
+
+    <p className="text-2xl text-gray-300 mb-12 max-w-3xl mx-auto hover:text-yellow-400 hover:-translate-y-1">
+      T   raditional compliance programs weren’t built for modern, fast-moving
+      organizations. Teams are stuck fighting complexity instead of reducing risk.
+    </p>
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <Benefit title="Manual control mapping across frameworks" description="" />
+      <Benefit title="Inconsistent assessment procedures" description="" />
+      <Benefit title="Audit fatigue from repetitive evidence" description="" />
+      <Benefit title="Weeks to generate compliance reports" description="" />
+      <Benefit title="Limited real-time compliance visibility" description="" />
+      <Benefit title="Limited real-time compliance visibility" description="" />
+    </div>
+  </div>
+</section>
+
+
 
       {/* SOLUTION */}
       <section
-        id="solution"
-        className="pt-90 px-6 bg-black/60 "
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold mb-4 hover:text-yellow-400 hover:-translate-y-1">
-            The AutoGRC Solution
-            </h2>
-            <p className="text-2xl text-gray-300 max-w-3xl mx-auto hover:text-yellow-400 hover:-translate-y-1">
-            A unified platform that establishes your controls foundation, automates testing, and delivers real-time, defensible reporting across all frameworks.
-            </p>
-          </div>
+  id="solution"
+  className="relative min-h-[80vh] flex items-start justify-center pt-32 pb-20 overflow-hidden"
+>
+  {/* Background Lottie */}
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <iframe
+      src="https://lottie.host/embed/a5a4efe0-348b-45c4-8dfa-48507c76cb8a/Qu0x21P2uK.lottie"
+      className="w-[750px] h-[750px] opacity-25"
+    />
+  </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Benefit title="Unified Controls Foundation" description="Establish a single source of truth for your controls framework with AI-powered mapping to industry standards" />
-            <Benefit title="Continuous Automation" description="Reduce manual effort by 80% with automated control testing and evidence collection" />
-            <Benefit title="Real-Time Visibility" description="Get instant compliance insights across all frameworks with dynamic dashboards and reporting" />
-          </div>
-        </div>
-      </section>
+  {/* Foreground Content */}
+  <div className="relative z-10 max-w-7xl mx-auto px-6">
+    <div className="text-center mb-20">
+      <h2 className="text-5xl font-bold mb-6 hover:text-yellow-400 hover:-translate-y-1">
+        The AutoGRC Solution
+      </h2>
+
+      <p className="text-2xl text-gray-300 max-w-3xl mx-auto hover:text-yellow-400 hover:-translate-y-1">
+        A unified platform that establishes your controls foundation, automates
+        testing, and delivers real-time, defensible reporting across all
+        frameworks.
+      </p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <Benefit
+        title="Unified Controls Foundation"
+        description="Establish a single source of truth for your controls framework with AI-powered mapping to industry standards"
+      />
+      <Benefit
+        title="Continuous Automation"
+        description="Reduce manual effort by 80% with automated control testing and evidence collection"
+      />
+      <Benefit
+        title="Real-Time Visibility"
+        description="Get instant compliance insights across all frameworks with dynamic dashboards and reporting"
+      />
+    </div>
+  </div>
+</section>
+
 
       {/* CAPABILITIES */}
-      <section className="pt-50 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold mb-4 hover:text-yellow-400 hover:-translate-y-1">Core Capabilities</h2>
-            <p className="text-2xl text-gray-300 max-w-2xl mx-auto hover:text-yellow-400 hover:-translate-y-1">
-            Three powerful modules working together to transform your compliance operation
-            </p>
-          </div>
+      <section className="pt-20 px-6">
+  <div className="max-w-7xl mx-auto">
 
-          <div className="space-y-12">
-          <Capability
-  number="01"
-  title="Framework Baselining & Mapping"
-  description="AI-powered control mapping between your internal framework and industry standards (NIST, CIS, ISO 27001, NIS2, SOC 2, and more). Identify overlaps, gaps, and opportunities for consolidation."
-  keyFeatures={[
-    "Intelligent control-to-control mapping with confidence scores",
-    "Support for 15+ major frameworks and regulations",
-    "Gap analysis and coverage reporting",
-    "Bidirectional mapping for evidence reuse",
-  ]}
-  businessOutcomes={[
-    "Reduce mapping time from weeks to hours",
-    "Achieve 90%+ mapping accuracy",
-    "Eliminate duplicate control assessments",
-  ]}
-/>
-<Capability
-  number="02"
-  title="Automated Controls Testing"
-  description="Continuous, automated control testing across your entire application portfolio. Connect to existing tools, define test procedures, and let AutoGRC handle the execution and evidence collection."
-  keyFeatures={[
-    "Integration with security tools and APIs",
-    "Configurable test schedules and sampling",
-    "Automated evidence collection and storage",
-    "Risk-based prioritization and scoping",
-  ]}
-  businessOutcomes={[
-    "80% reduction in manual testing effort",
-    "Continuous compliance monitoring",
-    "Real-time control effectiveness visibility",
-  ]}
-/>
+    {/* HEADER WITH BACKGROUND LOTTIE */}
+    <div className="relative text-center mb-24 overflow-hidden min-h-[420px] flex items-center justify-center">
 
-<Capability
-  number="03"
-  title="Compliance Reporting & Analytics"
-  description="Generate audit-ready reports instantly. Track compliance posture across frameworks, applications, and business units with dynamic dashboards and exportable reports."
-  keyFeatures={[
-    "Real-time compliance dashboards",
-    "Custom report templates for any framework",
-    "Automated report generation and scheduling",
-    "Export to Excel, PDF, and audit portals",
-  ]}
-  businessOutcomes={[
-    "Generate reports in minutes, not weeks",
-    "Audit-ready evidence packages",
-    "Executive-level compliance insights",
-  ]}
-/>
+  {/* Background Lottie */}
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <iframe
+      src="https://lottie.host/embed/63fccdc0-8c79-46ca-b869-3b10f96670b9/6r4wdP8cDX.lottie"
+      className="w-[700px] h-[700px] opacity-25"
+    />
+  </div>
 
+  {/* Heading Content */}
+  <div className="relative z-10 px-6">
+    <h2 className="text-5xl font-bold mb-4 hover:text-yellow-400 hover:-translate-y-1">
+      Core Capabilities
+    </h2>
 
-          </div>
-        </div>
-      </section>
+    <p className="text-2xl text-gray-300 max-w-2xl mx-auto hover:text-yellow-400 hover:-translate-y-1">
+      Three powerful modules working together to transform your compliance
+      operation
+    </p>
+  </div>
+</div>
+
+    {/* CAPABILITIES (NO LOTTIE BEHIND) */}
+    <div className="space-y-12">
+      <Capability
+        number="01"
+        title="Framework Baselining & Mapping"
+        description="AI-powered control mapping between your internal framework and industry standards (NIST, CIS, ISO 27001, NIS2, SOC 2, and more). Identify overlaps, gaps, and opportunities for consolidation."
+        keyFeatures={[
+          "Intelligent control-to-control mapping with confidence scores",
+          "Support for 15+ major frameworks and regulations",
+          "Gap analysis and coverage reporting",
+          "Bidirectional mapping for evidence reuse",
+        ]}
+        businessOutcomes={[
+          "Reduce mapping time from weeks to hours",
+          "Achieve 90%+ mapping accuracy",
+          "Eliminate duplicate control assessments",
+        ]}
+      />
+
+      <Capability
+        number="02"
+        title="Automated Controls Testing"
+        description="Continuous, automated control testing across your entire application portfolio. Connect to existing tools, define test procedures, and let AutoGRC handle the execution and evidence collection."
+        keyFeatures={[
+          "Integration with security tools and APIs",
+          "Configurable test schedules and sampling",
+          "Automated evidence collection and storage",
+          "Risk-based prioritization and scoping",
+        ]}
+        businessOutcomes={[
+          "80% reduction in manual testing effort",
+          "Continuous compliance monitoring",
+          "Real-time control effectiveness visibility",
+        ]}
+      />
+
+      <Capability
+        number="03"
+        title="Compliance Reporting & Analytics"
+        description="Generate audit-ready reports instantly. Track compliance posture across frameworks, applications, and business units with dynamic dashboards and exportable reports."
+        keyFeatures={[
+          "Real-time compliance dashboards",
+          "Custom report templates for any framework",
+          "Automated report generation and scheduling",
+          "Export to Excel, PDF, and audit portals",
+        ]}
+        businessOutcomes={[
+          "Generate reports in minutes, not weeks",
+          "Audit-ready evidence packages",
+          "Executive-level compliance insights",
+        ]}
+      />
+    </div>
+
+  </div>
+</section>
+
 
 
       {/* FOOTER */}

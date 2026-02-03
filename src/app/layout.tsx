@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   },
   description: "Automated Cyber Governance Platform",
   icons: {
-    icon: "/AutoGRC.ico",
+    icon: "/AutoGRC.ico", 
   },
 };
 
@@ -24,7 +24,8 @@ export default function RootLayout({
         <div className="" />
 
         {/* Global page wrapper */}
-        <div className="relative ">
+        <div className="relative "> 
+          
           {children}
         </div>
       </body>
