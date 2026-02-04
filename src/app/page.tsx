@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FlipCard } from "@/components/flip-card";
+import Navbar from "@/components/Navbar";
 import {Capability} from "@/components/capability";
 import Image from "next/image";
 export default function Home() {
@@ -16,36 +16,8 @@ export default function Home() {
       </div>
 
       {/* NAV */}
-      <nav className="fixed inset-x-0 top-5 z-50 px-4">
-        <div
-          className="glass-dark
-           
-               px-6 py-3
-               flex items-center justify-between
-               rounded-xl
-               transition-all duration-600 ease-out
-    hover:bg-white/15
-    hover:border-yellow-400/60
-    hover:shadow-[0_0_0_1px_rgba(250,204,21,0.4),0_24px_70px_rgba(250,204,21,0.18)]
-    hover:-translate-y-1"
-               
-        >
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-           <Image src="/AutoGRC.ico" alt="AutoGRC" width={50} height={50} />
-            <span className="hidden sm:inline text-4xl font-bold hover:text-yellow-400">AutoGRC</span>
-          </Link>
-          <Link href='/' className="text-lg">
-          Home
-          </Link>
-          <Link href='/' className="text-lg">
-          Home
-          </Link>
-       
-          <Link href="/overview">
-            <Button className="button">Get Started</Button>
-          </Link>
-        </div>
-      </nav>
+      
+      <Navbar variant="landing" />
 
       {/* HERO */}
       <section className="pt-10 px-6">
@@ -124,7 +96,7 @@ export default function Home() {
       {/* SOLUTION */}
       <section
   id="solution"
-  className="relative min-h-[80vh] flex items-start justify-center pt-32 pb-20 overflow-hidden"
+  className="relative min-h-[80vh] flex items-start justify-center pt-10 pb-10 overflow-hidden"
 >
   {/* Background Lottie */}
   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -167,7 +139,7 @@ export default function Home() {
 
 
       {/* CAPABILITIES */}
-      <section className="pt-20 px-6">
+      <section className="pt-10 px-6">
   <div className="max-w-7xl mx-auto">
 
     {/* HEADER WITH BACKGROUND LOTTIE */}
@@ -188,8 +160,7 @@ export default function Home() {
     </h2>
 
     <p className="text-2xl text-gray-300 max-w-2xl mx-auto hover:text-yellow-400 hover:-translate-y-1">
-      Three powerful modules working together to transform your compliance
-      operation
+      Modular platform based on microservice architecture for quick deployment and granular customization.
     </p>
   </div>
 </div>

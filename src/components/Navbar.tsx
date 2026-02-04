@@ -2,121 +2,141 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+type NavbarProps = {
+  variant?: "landing" | "app";
+};
 
-export default function Navbar() {
+export default function Navbar({ variant = "app" }: NavbarProps) {
   const pathname = usePathname();
-
-  const [hidden, setHidden] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setHidden(true);
-        setMobileOpen(false);
-      } else {
-        setHidden(false);
-      }
-
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  const isLanding = variant === "landing";
 
   return (
-    <nav
-      className={`
-        fixed top-0 left-0 right-0 z-50
-        transition-transform duration-300 ease-in-out
-        ${hidden ? "-translate-y-full" : "translate-y-0"}
-        bg-[#111111] border-b border-[#333333]
-      `}
-    >
-      <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <div className="text-white font-extrabold text-lg tracking-tight">
-          AutoGRC
-        </div>
+    <nav className="fixed inset-x-0 top-5 z-50 px-4">
+      <div
+        className="
+          glass-dark
+          mx-auto max-w-6xl
+          px-6 py-3
+          flex items-center justify-between
+          rounded-xl
+          border border-white/10
+          transition-all duration-500 ease-out
+          hover:bg-white/15
+          hover:border-yellow-400/60
+          hover:shadow-[0_0_0_1px_rgba(250,204,21,0.4),0_24px_70px_rgba(250,204,21,0.18)]
+          hover:-translate-y-1
+        "
+      >
+        {/* LOGO (always visible) */}
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/AutoGRC.ico" alt="AutoGRC" width={40} height={40} />
+          <span className="hidden sm:inline text-2xl font-bold hover:text-yellow-400">
+            AutoGRC
+          </span>
+        </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex gap-8 text-base font-semibold">
-          <NavLink href="/overview" label="Overview" activePath={pathname} />
-          <NavLink href="/frameworks" label="Frameworks" activePath={pathname} />
-          <NavLink href="/applications" label="Applications" activePath={pathname} />
-          <NavLink href="/integrations" label="Integrations" activePath={pathname} />
-          <NavLink href="/landing" label="Capabilities" activePath={pathname} />
-        </div>
-
-        {/* Right Controls */}
-        <div className="flex items-center gap-4">
-          <button
-            className="md:hidden text-base font-semibold text-[#cccccc]"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? "Close" : "Menu"}
-          </button>
-
-          <div className="hidden md:flex items-center gap-2 text-sm text-[#cccccc]">
-            <span className="font-medium">Jai Verma</span>
-            <Image
-              src="/images/avatar-placeholder.jpg"
-              alt="User Avatar"
-              width={32}
-              height={32}
-              className="rounded-full border border-[#333333]"
-            />
+        {/* APP LINKS (app only) */}
+        {!isLanding && (
+          <div className="hidden md:flex items-center gap-8 text-lg font-medium">
+            <NavLink href="/overview" label="Overview" activePath={pathname} />
+            <NavLink href="/frameworks" label="Frameworks" activePath={pathname} />
+            <NavLink href="/applications" label="Applications" activePath={pathname} />
+            <NavLink href="/integrations" label="Integrations" activePath={pathname} />
           </div>
+        )}
+
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-4">
+          {/* LANDING CTA */}
+          {isLanding && (
+            <Link
+              href="/overview"
+              className="px-5 py-2 rounded-lg font-semibold
+                         bg-white text-black hover:bg-yellow-400 transition"
+            >
+              Get Started
+            </Link>
+          )}
+
+          {/* APP USER PROFILE */}
+          {/* APP USER PROFILE */}
+{!isLanding && (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <button className="flex items-center gap-3 rounded-lg px-2 py-1 hover:bg-white/10 transition focus:outline-none">
+        <Image
+          src="/profile.jfif"
+          alt="Profile"
+          width={36}
+          height={36}
+          className="rounded-full border border-white/20"
+        />
+        <span className="hidden sm:inline font-semibold">
+          Chandresh
+        </span>
+      </button>
+    </DropdownMenuTrigger>
+
+    <DropdownMenuContent
+      align="center"
+      sideOffset={12}
+      className="
+        w-56
+        glass-dark
+        border border-white/10
+        rounded-xl
+        shadow-xl
+      "
+    >
+     
+
+      
+
+      <DropdownMenuItem className="cursor-pointer hover:bg-white/10">
+        Settings
+      </DropdownMenuItem>
+
+      <DropdownMenuItem className="cursor-pointer hover:bg-white/10">
+        Manage Account
+      </DropdownMenuItem>
+
+      <DropdownMenuItem className="cursor-pointer hover:bg-white/10">
+        Billing
+      </DropdownMenuItem>
+
+      <DropdownMenuSeparator className="bg-white/10" />
+
+      <DropdownMenuItem className="cursor-pointer text-red-400 hover:bg-red-400/10">
+        Log out
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+)}
+
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-[#333333] bg-[#111111]">
-          <div className="flex flex-col gap-5 px-6 py-4 text-base font-semibold">
-            <NavLink href="/overview" label="Overview" activePath={pathname} onClick={() => setMobileOpen(false)} />
-            <NavLink href="/frameworks" label="Frameworks" activePath={pathname} onClick={() => setMobileOpen(false)} />
-            <NavLink href="/applications" label="Applications" activePath={pathname} onClick={() => setMobileOpen(false)} />
-            <NavLink href="/integrations" label="Integrations" activePath={pathname} onClick={() => setMobileOpen(false)} />
-            <NavLink href="/landing" label="Capabilities" activePath={pathname} onClick={() => setMobileOpen(false)} />
-
-            <div className="mt-4 pt-4 border-t border-[#333333] flex items-center gap-3">
-              <Image
-                src="/images/avatar-placeholder.png"
-                alt="User Avatar"
-                width={36}
-                height={36}
-                className="rounded-full border border-[#333333]"
-              />
-              <span className="text-sm font-medium text-[#cccccc]">
-                Demo User
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
 
-/* ——— Helper ——— */
-
+/* NavLink helper */
 function NavLink({
   href,
   label,
   activePath,
-  onClick,
 }: {
   href: string;
   label: string;
   activePath: string;
-  onClick?: () => void;
 }) {
   const isActive =
     activePath === href || activePath.startsWith(href + "/");
@@ -124,16 +144,13 @@ function NavLink({
   return (
     <Link
       href={href}
-      onClick={onClick}
-      className={`
-        relative transition-colors
-        ${isActive ? "text-white" : "text-[#cccccc] hover:text-white"}
-      `}
+      className={`relative transition-colors ${
+        isActive ? "text-white" : "text-[#cccccc] hover:text-white"
+      }`}
     >
       {label}
-
       {isActive && (
-        <span className="absolute -bottom-2 left-0 right-0 h-[2px] bg-white rounded-full" />
+        <span className="absolute -bottom-2 left-0 right-0 h-[2px] bg-yellow-400 rounded-full" />
       )}
     </Link>
   );

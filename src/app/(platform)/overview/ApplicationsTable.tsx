@@ -1,6 +1,34 @@
 "use client"
 
 import { useState } from "react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { ChevronDown } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+/* ================= TYPES ================= */
+
+type FilterMode = "contains" | "startsWith" | "equals"
+
+type ColumnFilter = {
+  value: string
+  mode: FilterMode
+}
 
 type ApplicationsMatrixData = {
   frameworks: { id: string; name: string }[]
@@ -9,260 +37,282 @@ type ApplicationsMatrixData = {
     name: string
     owner: string
     overallScore: number
-    byFramework: Record<string, { percent: number; done: number; total: number }>
+    byFramework: Record<
+      string,
+      { percent: number; done: number; total: number }
+    >
   }[]
 }
 
-function ringColor(p: number) {
-  if (p >= 70) return "#22c55e"
-  if (p >= 40) return "#f59e0b"
-  return "#ef4444"
+/* ================= HELPERS ================= */
+
+function ringColorClass(p: number) {
+  if (p >= 70) return "bg-green-500"
+  if (p >= 40) return "bg-yellow-400"
+  return "bg-red-500"
 }
 
-function FilterDropdown({
-  label,
-  value,
-  onChange,
-  onClear,
+function applyFilter(
+  text: string,
+  filter?: ColumnFilter
+) {
+  if (!filter || !filter.value) return true
+
+  const t = text.toLowerCase()
+  const v = filter.value.toLowerCase()
+
+  if (filter.mode === "contains") return t.includes(v)
+  if (filter.mode === "startsWith") return t.startsWith(v)
+  return t === v
+}
+
+/* ================= COMPONENT ================= */
+
+export function ApplicationsTable({
+  matrix,
 }: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  onClear: () => void
+  matrix: ApplicationsMatrixData
 }) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [filters, setFilters] = useState<
+    Record<string, ColumnFilter>
+  >({})
+
+  const [sort, setSort] = useState<{
+    key: string
+    dir: "asc" | "desc"
+  } | null>(null)
+
+  /* ---------- FILTER + SORT ---------- */
+
+  let visibleRows = matrix.rows.filter((row) =>
+    applyFilter(row.name, filters["name"]) &&
+    applyFilter(row.owner, filters["owner"])
+  )
+
+  if (sort) {
+    visibleRows = [...visibleRows].sort((a, b) => {
+      const aVal =
+        sort.key === "overall"
+          ? a.overallScore
+          : a.byFramework[sort.key]?.percent ?? 0
+
+      const bVal =
+        sort.key === "overall"
+          ? b.overallScore
+          : b.byFramework[sort.key]?.percent ?? 0
+
+      return sort.dir === "asc" ? aVal - bVal : bVal - aVal
+    })
+  }
+
+  /* ================= RENDER ================= */
 
   return (
-    <div className="relative">
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          setIsOpen(!isOpen)
-        }}
-        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
-          value ? "text-blue-600" : "text-gray-600"
-        }`}
-        title={`Filter ${label}`}
-      >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-          />
-        </svg>
-      </button>
+    <div className="rounded-xl border border-white/10 glass-dark hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.35)] transition">
+      <Table>
 
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={`Filter ${label.toLowerCase()}...`}
-                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
-                autoFocus
-                onClick={(e) => e.stopPropagation()}
+        {/* ================= HEADER ================= */}
+
+        <TableHeader>
+          <TableRow className="border-b border-white/10">
+
+            {/* APPLICATIONS HEADER */}
+            <TableHead className="text-white font-semibold">
+              <HeaderMenu
+                title="Applications"
+                onSort={(dir) => setSort({ key: "name", dir })}
+                filter={filters["name"]}
+                onFilterChange={(f) =>
+                  setFilters({ ...filters, name: f })
+                }
               />
-              {value && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onClear()
-                  }}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-                  title="Clear filter"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
+            </TableHead>
+
+            {/* FRAMEWORK HEADERS */}
+            {matrix.frameworks.map((fw) => (
+              <TableHead key={fw.id} className="text-center">
+                <HeaderMenu
+                  title={fw.name}
+                  center
+                  onSort={(dir) =>
+                    setSort({ key: fw.id, dir })
+                  }
+                />
+              </TableHead>
+            ))}
+
+            {/* OVERALL */}
+            <TableHead className="text-center">
+              <HeaderMenu
+                title="Overall"
+                center
+                onSort={(dir) =>
+                  setSort({ key: "overall", dir })
+                }
+              />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        {/* ================= BODY ================= */}
+
+        <TableBody>
+          {visibleRows.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={matrix.frameworks.length + 2}
+                className="text-center py-10 text-white/60"
+              >
+                No applications found
+              </TableCell>
+            </TableRow>
+          ) : (
+            visibleRows.map((app) => (
+              <TableRow
+                key={app.id}
+                className="border-b border-white/5 hover:bg-white/5 transition"
+              >
+                {/* APPLICATION */}
+                <TableCell>
+                  <div className="font-semibold text-white hover:text-yellow-400">
+                    {app.name}
+                  </div>
+                  <div className="text-xs text-white/50">
+                    {app.owner}
+                  </div>
+                </TableCell>
+
+                {/* FRAMEWORK CELLS */}
+                {matrix.frameworks.map((fw) => {
+                  const cell = app.byFramework[fw.id]
+                  return (
+                    <TableCell key={fw.id} className="text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "h-3 w-3 rounded-full",
+                              ringColorClass(cell.percent)
+                            )}
+                          />
+                          <span className="text-white font-medium">
+                            {cell.percent}%
+                          </span>
+                        </div>
+                        <span className="text-xs text-white/50">
+                          {cell.done}/{cell.total}
+                        </span>
+                      </div>
+                    </TableCell>
+                  )
+                })}
+
+                {/* OVERALL */}
+                <TableCell className="text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <span
+                      className={cn(
+                        "h-3 w-3 rounded-full",
+                        ringColorClass(app.overallScore)
+                      )}
                     />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+                    <span className="text-white font-semibold">
+                      {app.overallScore}%
+                    </span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   )
 }
 
-export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }) {
-  const [applicationFilter, setApplicationFilter] = useState("")
+/* ================= HEADER DROPDOWN ================= */
 
-  // Apply filters
-  const visibleRows = matrix.rows.filter(app => {
-    // Application filter (name or owner)
-    return (
-      !applicationFilter ||
-      app.name.toLowerCase().includes(applicationFilter.toLowerCase()) ||
-      app.owner.toLowerCase().includes(applicationFilter.toLowerCase())
-    )
-  })
-
-  const activeFilterCount = applicationFilter !== "" ? 1 : 0
+function HeaderMenu({
+  title,
+  center,
+  onSort,
+  filter,
+  onFilterChange,
+}: {
+  title: string
+  center?: boolean
+  onSort?: (dir: "asc" | "desc") => void
+  filter?: ColumnFilter
+  onFilterChange?: (f: ColumnFilter) => void
+}) {
+  const [value, setValue] = useState(filter?.value ?? "")
+  const [mode, setMode] = useState<FilterMode>(
+    filter?.mode ?? "contains"
+  )
 
   return (
-    <div className="space-y-4">
-      {/* Filter Status Bar */}
-      {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="text-sm text-gray-600">
-            {visibleRows.length} of {matrix.rows.length} applications
-            {activeFilterCount > 0 && (
-              <span className="ml-2 text-gray-500">
-                • 1 filter active
-              </span>
-            )}
-          </div>
-          <button
-            onClick={() => setApplicationFilter("")}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Clear filter
-          </button>
-        </div>
-      )}
-
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
-        <div 
-          className={matrix.rows.length > 10 ? "max-h-[520px] overflow-y-auto" : ""}
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
-          }}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            "flex items-center gap-1 text-white font-medium hover:text-yellow-400",
+            center && "mx-auto"
+          )}
         >
-          <style dangerouslySetInnerHTML={{
-            __html: `
-              .overflow-y-auto::-webkit-scrollbar {
-                display: none;
+          {title}
+          <ChevronDown className="h-4 w-4 opacity-70" />
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent
+        className="w-56 bg-black border border-white/10 glass-dark"
+        align="start"
+      >
+        {onSort && (
+          <>
+            <DropdownMenuItem onClick={() => onSort("asc")}>
+              Sort ascending
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSort("desc")}>
+              Sort descending
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {onFilterChange && (
+          <div className="px-3 py-2 space-y-2">
+            <select
+              value={mode}
+              onChange={(e) =>
+                setMode(e.target.value as FilterMode)
               }
-            `
-          }} />
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 border-b border-slate-300 z-10" style={{ backgroundColor: '#ffe600' }}>
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-slate-900" style={{ backgroundColor: '#ffe600' }}>
-                  <div className="flex items-center gap-2">
-                    <span>Application</span>
-                    <FilterDropdown
-                      label="Application"
-                      value={applicationFilter}
-                      onChange={setApplicationFilter}
-                      onClear={() => setApplicationFilter("")}
-                    />
-                  </div>
-                </th>
-                {matrix.frameworks.map(fw => (
-                  <th
-                    key={fw.id}
-                    className="px-4 py-3 text-center font-semibold text-slate-900 min-w-[100px]"
-                    style={{ backgroundColor: '#ffe600' }}
-                  >
-                    {fw.name}
-                  </th>
-                ))}
-                <th className="px-4 py-3 text-center font-semibold text-slate-900 min-w-[100px]" style={{ backgroundColor: '#ffe600' }}>
-                  Overall
-                </th>
-              </tr>
-            </thead>
+              className="w-full rounded bg-black border border-white/10 text-white text-sm px-2 py-1"
+            >
+              <option value="contains">Contains</option>
+              <option value="startsWith">Starts with</option>
+              <option value="equals">Equals</option>
+            </select>
 
-            <tbody>
-              {visibleRows.length === 0 ? (
-                <tr>
-                  <td colSpan={matrix.frameworks.length + 2} className="px-4 py-8 text-center text-sm text-slate-600">
-                    {activeFilterCount > 0
-                      ? "No applications match your filters."
-                      : "No applications found."}
-                  </td>
-                </tr>
-              ) : (
-                visibleRows.map(app => (
-                  <tr
-                    key={app.id}
-                    className="border-b border-slate-200 hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-4 py-4 bg-white sticky left-0">
-                      <div className="font-semibold text-slate-900">
-                        {app.name}
-                      </div>
-                      <div className="text-xs text-slate-500 mt-1">
-                        {app.owner}
-                      </div>
-                    </td>
+            <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Filter value"
+              className="bg-black border-white/10 text-white"
+            />
 
-                    {matrix.frameworks.map(fw => {
-                      const cell = app.byFramework[fw.id]
-                      const dotColor = ringColor(cell.percent)
-                      return (
-                        <td
-                          key={fw.id}
-                          className="px-4 py-4 text-center align-middle"
-                        >
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: dotColor }}
-                              />
-                              <span className="text-base font-semibold text-slate-900">
-                                {cell.percent}%
-                              </span>
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {cell.done}/{cell.total} controls
-                            </div>
-                          </div>
-                        </td>
-                      )
-                    })}
-
-                    <td className="px-4 py-4 text-center align-middle">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: ringColor(app.overallScore) }}
-                          />
-                          <span className="text-base font-semibold text-slate-900">
-                            {app.overallScore}%
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          aggregate score
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+            <Button
+              size="sm"
+              className="w-full bg-yellow-400 text-black hover:bg-yellow-300"
+              onClick={() =>
+                onFilterChange({ value, mode })
+              }
+            >
+              Apply
+            </Button>
+          </div>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

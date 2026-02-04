@@ -8,11 +8,6 @@ export default function PlatformLayout({
   return (
     <>
       <Navbar />
-
-      {/* 
-        Stable top padding so content never jumps.
-        Navbar height = h-16 (64px) → pt-20 gives breathing room.
-      */}
       <main className="pt-20">
         {children}
       </main>
