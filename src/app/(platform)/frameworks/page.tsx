@@ -5,15 +5,28 @@ import {
   getFrameworkComparisonData,
   getUnmappedControlsData,
 } from "@/lib/frameworks.queries"
+
 import { DeactivatedFrameworksProvider } from "./deactivated-context"
 import { FrameworkCard } from "./framework-card"
-import { ComparisonTable, UnmappedControlsTable } from "./frameworks-tables"
+import {
+  ComparisonTable,
+} from "./frameworks-tables"
 
-import { Metadata } from "next";
+import { Metadata } from "next"
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
   title: "Frameworks",
-};
+}
+
 export default async function FrameworksPage({
   searchParams,
 }: {
@@ -21,16 +34,14 @@ export default async function FrameworksPage({
 }) {
   const sp = (await searchParams) ?? {}
 
-  const domainParamRaw = sp.domain
   const selectedDomain =
-    typeof domainParamRaw === "string" && domainParamRaw.trim().length > 0
-      ? domainParamRaw
+    typeof sp.domain === "string" && sp.domain.trim().length > 0
+      ? sp.domain
       : null
 
-  const gapFrameworkRaw = sp.gapFramework
   const selectedGapFramework =
-    typeof gapFrameworkRaw === "string" && gapFrameworkRaw.trim().length > 0
-      ? gapFrameworkRaw
+    typeof sp.gapFramework === "string" && sp.gapFramework.trim().length > 0
+      ? sp.gapFramework
       : null
 
   const [data, comparison, gaps] = await Promise.all([
@@ -41,77 +52,126 @@ export default async function FrameworksPage({
 
   return (
     <DeactivatedFrameworksProvider>
-      <div className="space-y-8 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="p-10 space-y-16 text-white">
+
+        {/* HEADER */}
+        <div className="flex items-start justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold text-[#333333]">
-              Compliance Frameworks
-            </h1>
-            <p className="mt-1 text-base text-[#666666] max-w-4xl">
-              Following section gives an overview of controls frameworks
-              activated on the platform. AutoGRC also maps uploaded controls
-              frameworks with the internal controls framework of the
-              organization (master framework).
-            </p>
+            
           </div>
 
-          <button className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white">
+          <Button className="bg-yellow-400 text-black font-bold px-6 py-2.5 hover:bg-yellow-300">
             Upload Framework
-          </button>
+          </Button>
         </div>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <KpiCard title="Total Frameworks" value={data.totalFrameworks} />
-          <KpiCard
-            title="Total Controls"
-            value={data.totalControls.toLocaleString()}
-          />
-          <KpiCard
-            title="Master Framework"
-            value={data.masterFramework?.name ?? "None"}
-          />
+        {/* KPI GRID */}
+        {/* TOP SPLIT SECTION */}
+<div className="grid grid-cols-2 gap-6 max-h-[520px]  pr-2">
+
+{/* LEFT: COMPLIANCE FRAMEWORKS (KPIs + INFO) */}
+<div className="space-y-6">
+
+  <h2 className="text-3xl font-bold hover:text-yellow-400 transition">
+    Compliance Frameworks
+  </h2>
+
+  <p className="text-white/60 max-w-xl hover:text-white transition">
+    High-level overview of control frameworks enabled on the platform and
+    their relationship with the internal master framework.
+  </p>
+
+  <div className="grid grid-cols-2 gap-6">
+    <MetricCard title="Total Frameworks">
+      {data.totalFrameworks}
+    </MetricCard>
+
+    <MetricCard title="Total Controls">
+      {data.totalControls.toLocaleString()}
+    </MetricCard>
+
+    <MetricCard title="Master Framework ">
+      {data.masterFramework?.name ?? "None"}
+    </MetricCard>
+  </div>
+</div>
+
+{/* RIGHT: ACTIVE FRAMEWORKS */}
+<div className="space-y-6">
+
+  <h2 className="text-3xl font-bold hover:text-yellow-400 transition">
+    Active Frameworks
+  </h2>
+
+  <div className="grid grid-cols-2 gap-6 max-h-[520px] pr-2">
+    {data.frameworks.map((fw) => (
+      <FrameworkCard key={fw.id} framework={fw} />
+    ))}
+  </div>
+</div>
+</div>
+
+        {/* FRAMEWORK COMPARISON */}
+        <div>
+          <h2 className="text-3xl font-bold mb-4 pt-20 hover:text-yellow-400 transition">
+            Framework Control Comparison
+          </h2>
+
+          
+
+          <Card className="glass-dark hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.35)] transition">
+            <CardContent className="p-0">
+              <ComparisonTable
+                comparison={comparison}
+                activeDomain={selectedDomain}
+                selectedGapFramework={selectedGapFramework}
+              />
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Framework cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {data.frameworks.map(f => (
-            <FrameworkCard key={f.id} framework={f} />
-          ))}
-        </div>
+        {/* UNMAPPED CONTROLS */}
+        {/* <div>
+          <h2 className="text-3xl font-bold mb-4 hover:text-yellow-400 transition">
+            Unmapped Controls
+          </h2>
 
-        {/* Framework Control Comparison */}
-        <ComparisonTable
-          comparison={comparison}
-          activeDomain={selectedDomain}
-          selectedGapFramework={selectedGapFramework}
-        />
-
-        {/* Unmapped Controls */}
-        <UnmappedControlsTable
-          gaps={gaps}
-          activeDomain={selectedDomain}
-          selectedGapFramework={selectedGapFramework}
-        />
+          <Card className="glass-dark">
+            <CardContent className="p-0">
+              <UnmappedControlsTable
+                gaps={gaps}
+                activeDomain={selectedDomain}
+                selectedGapFramework={selectedGapFramework}
+              />
+            </CardContent>
+          </Card>
+        </div> */}
       </div>
     </DeactivatedFrameworksProvider>
   )
 }
 
-function KpiCard({
+/* ---------------------------------
+ Reusable KPI Card (same language as Overview)
+---------------------------------- */
+
+function MetricCard({
   title,
-  value,
+  children,
 }: {
   title: string
-  value: string | number
+  children: React.ReactNode
 }) {
   return (
-    <div className="rounded-lg border border-[#cccccc] bg-white p-6 shadow-sm">
-      <div className="text-sm font-medium text-[#666666] uppercase tracking-wide">
-        {title}
-      </div>
-      <div className="mt-3 text-4xl font-bold text-[#333333]">{value}</div>
-    </div>
+    <Card className="glass-dark text-center transition-all hover:shadow-[0_0_0_1px_rgba(250,204,21,0.5),0_20px_60px_rgba(250,204,21,0.25)]">
+      <CardHeader>
+        <CardDescription className="uppercase tracking-wide text-xs text-white/60 hover:text-white transition">
+          {title}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="text-4xl font-bold hover:text-yellow-400 transition">
+        {children}
+      </CardContent>
+    </Card>
   )
 }
