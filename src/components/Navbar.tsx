@@ -74,7 +74,7 @@ export default function Navbar({ variant = "app" }: NavbarProps) {
     <DropdownMenuTrigger asChild>
       <button className="flex items-center gap-3 rounded-lg px-2 py-1 hover:bg-white/10 transition focus:outline-none">
         <Image
-          src="/profile.jfif"
+          src="/profile.png"
           alt="Profile"
           width={36}
           height={36}
