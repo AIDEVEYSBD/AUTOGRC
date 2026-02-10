@@ -152,12 +152,14 @@ export default async function OverviewPage() {
 
 
       {/* COMPLIANCE BY DOMAIN */}
+      
       <ComplianceByDomain
         domains={domains}
         initialDomain={initialDomain}
         initialControls={initialControls}
         onDomainChange={handleDomainChange}
       />
+     
     </div>
   )
 }

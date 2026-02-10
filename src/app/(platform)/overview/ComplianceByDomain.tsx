@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
@@ -45,7 +45,9 @@ function useResizableColumns(initial: number[]) {
     function onMove(ev: MouseEvent) {
       const delta = ev.clientX - startX
       setWidths(w =>
-        w.map((v, i) => (i === index ? Math.max(120, startWidth + delta) : v))
+        w.map((v, i) =>
+          i === index ? Math.max(120, startWidth + delta) : v
+        )
       )
     }
 
@@ -75,14 +77,17 @@ function ColumnFilter({
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="relative">
+    <div className="relative ml-2">
       <button onClick={() => setOpen(!open)}>
-        <ChevronDown size={14} className="ml-2 text-white/60 hover:text-white" />
+        <ChevronDown size={14} className="text-white/60 hover:text-white" />
       </button>
 
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setOpen(false)}
+          />
           <div className="absolute z-20 mt-2 w-56 glass-dark border border-white/10 rounded-lg p-3">
             <input
               autoFocus
@@ -119,51 +124,20 @@ export function ComplianceByDomain({
   const [loading, setLoading] = useState(false)
   const [idFilter, setIdFilter] = useState("")
   const [statementFilter, setStatementFilter] = useState("")
-  const gridTemplateRef = useRef<string | null>(null)
 
   const columns = [
     { id: "control", label: "Control", min: 200 },
-    {
-      id: "statement",
-      label: "Statement",
-      min: 360,
-      responsive: {
-        base: "minmax(360px, 1fr)",
-        md: "minmax(420px, 35vw)",
-        lg: "minmax(520px, 45vw)",
-        xl: "minmax(600px, 50vw)",
-      },
-    },
+    { id: "statement", label: "Statement", min: 420 },
     { id: "compliant", label: "Compliant", min: 120 },
     { id: "noncompliant", label: "Non-Compliant", min: 140 },
-    { id: "avg", label: "Avg Score", min: 80 },
+    { id: "avg", label: "Avg Score", min: 100 },
   ]
-
-  function statementTemplate() {
-    if (typeof window === "undefined") return "minmax(420px, 1fr)"
-  
-    const w = window.innerWidth
-    if (w < 768) return "minmax(360px, 1fr)"     // mobile
-    if (w < 1024) return "minmax(420px, 35vw)"   // tablet
-    if (w < 1280) return "minmax(520px, 45vw)"   // laptop
-    return "minmax(600px, 50vw)"                 // desktop
-  }
-  
 
   const { widths, startResize } = useResizableColumns(
     columns.map(c => c.min)
   )
 
-  if (!gridTemplateRef.current) {
-    gridTemplateRef.current = widths
-      .map((w, i) =>
-        columns[i].id === "statement"
-          ? statementTemplate()
-          : `${w}px`
-      )
-      .join(" ")
-  }
-  const minWidth = widths.reduce((a, b) => a + b, 0)
+  const gridTemplate = widths.map(w => `${w}px`).join(" ")
 
   const filtered = controls.filter(c =>
     c.controlCode.toLowerCase().includes(idFilter.toLowerCase()) &&
@@ -182,7 +156,7 @@ export function ComplianceByDomain({
   }
 
   return (
-    <div className="rounded-xl border border-white/10 glass-dark p-6 hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.35)] transition">
+    <div className="rounded-xl border border-white/10 glass-dark p-6 overflow-hidden transition hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.35)]">
       <h2 className="text-2xl font-bold text-white mb-4">
         Compliance by Domain
       </h2>
@@ -210,20 +184,24 @@ export function ComplianceByDomain({
         </aside>
 
         {/* TABLE */}
-        <div className="relative">
-          <div style={{ minWidth }}>
-            <ScrollArea className="h-[600px]">
+        <div className="relative overflow-hidden">
+          <ScrollArea className="h-[600px] w-full">
+            <div>
               {/* HEADER */}
               <div
                 className="sticky top-0 z-10 glass-dark border-b border-white/10"
-                style={{ display: "grid", gridTemplateColumns: gridTemplateRef.current! }}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: gridTemplate,
+                }}
               >
                 {columns.map((c, i) => (
                   <div
                     key={c.id}
-                    className="relative h-12 px-4 flex items-center font-bold text-white"
+                    className="relative h-12 px-4 flex items-center font-bold text-white whitespace-nowrap"
                   >
                     {c.label}
+
                     {c.id === "control" && (
                       <ColumnFilter
                         value={idFilter}
@@ -231,6 +209,7 @@ export function ComplianceByDomain({
                         onClear={() => setIdFilter("")}
                       />
                     )}
+
                     {c.id === "statement" && (
                       <ColumnFilter
                         value={statementFilter}
@@ -238,6 +217,7 @@ export function ComplianceByDomain({
                         onClear={() => setStatementFilter("")}
                       />
                     )}
+
                     <div
                       onMouseDown={e => startResize(i, e)}
                       className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-yellow-400"
@@ -260,7 +240,10 @@ export function ComplianceByDomain({
                   <div
                     key={c.id}
                     className="border-b border-white/5 hover:bg-white/5 transition"
-                    style={{ display: "grid", gridTemplateColumns: gridTemplateRef.current! }}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: gridTemplate,
+                    }}
                   >
                     <div className="px-4 py-4">
                       <div className="font-semibold text-white">
@@ -292,7 +275,10 @@ export function ComplianceByDomain({
 
                     <div className="px-4 py-4 flex items-center justify-center gap-2">
                       <span
-                        className={cn("h-3 w-3 rounded-full", scoreColor(c.avgScore))}
+                        className={cn(
+                          "h-3 w-3 rounded-full",
+                          scoreColor(c.avgScore)
+                        )}
                       />
                       <span className="font-bold text-white">
                         {c.avgScore}%
@@ -301,8 +287,8 @@ export function ComplianceByDomain({
                   </div>
                 ))
               )}
-            </ScrollArea>
-          </div>
+            </div>
+          </ScrollArea>
         </div>
       </div>
     </div>
