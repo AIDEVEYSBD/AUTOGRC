@@ -1,69 +1,71 @@
 import { getApplicationsOverview } from "@/lib/applications.queries"
 import ApplicationsTable from "./applications-table"
 
-import { Metadata } from "next";
+import { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Applications",
-};
+}
+
 /* ─────────────────────────────────────────────
    Page
 ───────────────────────────────────────────── */
 export const dynamic = "force-dynamic"
+
 export default async function ApplicationsPage() {
   const { kpis, rows } = await getApplicationsOverview()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-full px-8 py-8 space-y-6">
-        {/* HEADER */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold text-gray-900">Applications</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Monitor security posture and compliance across all your applications.
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50 w-full">
+      {/* HEADER */}
+      <section className="w-full bg-white border-b border-gray-200 p-6 shadow-sm">
+        <h1 className="text-2xl font-semibold text-gray-900">Applications</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Monitor security posture and compliance across all your applications.
+        </p>
+      </section>
 
-        {/* KPI METRICS - BY SERVICE MANAGEMENT TYPE */}
-        <div className="grid grid-cols-6 gap-4">
-          <MetricCard 
-            label="Total" 
-            sublabel="Applications"
-            count={kpis.totalApplications}
-            avgScore={kpis.totalAvgScore}
-          />
-          <MetricCard 
-            label="Vendor" 
-            sublabel="Managed Cloud"
-            count={kpis.byServiceManagement.vendorManagedCloud.count}
-            avgScore={kpis.byServiceManagement.vendorManagedCloud.avgScore}
-          />
-          <MetricCard 
-            label="Org-Managed" 
-            sublabel="Cloud"
-            count={kpis.byServiceManagement.orgManagedCloud.count}
-            avgScore={kpis.byServiceManagement.orgManagedCloud.avgScore}
-          />
-          <MetricCard 
-            label="Hybrid" 
-            count={kpis.byServiceManagement.hybrid.count}
-            avgScore={kpis.byServiceManagement.hybrid.avgScore}
-          />
-          <MetricCard 
-            label="On-Premise" 
-            count={kpis.byServiceManagement.onPremise.count}
-            avgScore={kpis.byServiceManagement.onPremise.avgScore}
-          />
-          <MetricCard 
-            label="SaaS" 
-            count={kpis.byServiceManagement.saas.count}
-            avgScore={kpis.byServiceManagement.saas.avgScore}
-          />
-        </div>
+      {/* KPI METRICS */}
+      <section className="w-full grid grid-cols-6 gap-4 p-6 bg-gray-50">
+        <MetricCard 
+          label="Total" 
+          sublabel="Applications"
+          count={kpis.totalApplications}
+          avgScore={kpis.totalAvgScore}
+        />
+        <MetricCard 
+          label="Vendor" 
+          sublabel="Managed Cloud"
+          count={kpis.byServiceManagement.vendorManagedCloud.count}
+          avgScore={kpis.byServiceManagement.vendorManagedCloud.avgScore}
+        />
+        <MetricCard 
+          label="Org-Managed" 
+          sublabel="Cloud"
+          count={kpis.byServiceManagement.orgManagedCloud.count}
+          avgScore={kpis.byServiceManagement.orgManagedCloud.avgScore}
+        />
+        <MetricCard 
+          label="Hybrid" 
+          count={kpis.byServiceManagement.hybrid.count}
+          avgScore={kpis.byServiceManagement.hybrid.avgScore}
+        />
+        <MetricCard 
+          label="On-Premise" 
+          count={kpis.byServiceManagement.onPremise.count}
+          avgScore={kpis.byServiceManagement.onPremise.avgScore}
+        />
+        <MetricCard 
+          label="SaaS" 
+          count={kpis.byServiceManagement.saas.count}
+          avgScore={kpis.byServiceManagement.saas.avgScore}
+        />
+      </section>
 
-        {/* TABLE */}
+      {/* TABLE */}
+      <section className="w-full p-6 bg-gray-50">
         <ApplicationsTable rows={rows} />
-      </div>
+      </section>
     </div>
   )
 }
@@ -71,7 +73,6 @@ export default async function ApplicationsPage() {
 /* ─────────────────────────────────────────────
    Components
 ───────────────────────────────────────────── */
-
 function MetricCard({
   label,
   sublabel,
