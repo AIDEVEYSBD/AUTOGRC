@@ -27,7 +27,10 @@ export default function RootLayout({
 
 
         {/* Global page wrapper */}
-        <div className="relative mx-auto max-w-6xl px-6 py-24 text-[#333333]">
+        <div className="relative w-full text-[#333333]">
+  {children}
+</div>
+
           {children}
         </div>
       </body>
