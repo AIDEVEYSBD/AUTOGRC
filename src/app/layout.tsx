@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Metadata } from "next";
-
+import ChatBubble from "@/components/Chatbot/ChatBubble";
 
 export const metadata: Metadata = {
   title: {
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: {
@@ -21,19 +20,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {/* Global background grid */}
-        <div className="app-background" />
-
-
-        {/* Global page wrapper */}
-        <div className="relative w-full text-[#333333]">
-  {children}
-</div>
-
+      <body className="bg-white">
+        {/* Global page wrapper - full width, responsive */}
+        <div className="relative w-full min-h-screen text-[#333333]">
           {children}
         </div>
+
+        {/* Global chatbot */}
+        <ChatBubble />
       </body>
     </html>
   );
-} 
+}
