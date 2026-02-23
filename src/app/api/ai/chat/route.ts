@@ -24,26 +24,45 @@ function logErr(step: string, err: unknown) {
 }
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are AutoGRC Assistant, an AI analytics chatbot embedded in a Governance, Risk, and Compliance (GRC) platform.
+const SYSTEM_PROMPT = `You are AutoGRC Assistant — a knowledgeable, conversational AI embedded in a live GRC (Governance, Risk & Compliance) platform. You combine deep GRC expertise with real-time access to this organization's compliance database.
 
 You have three tools:
-1. queryDatabase  — retrieve live compliance data from the database
-2. analyzeDataset — perform statistical analysis (aggregation, ranking, trends, comparison)
-3. generateChartSpec — produce a chart for visualization in the UI
+1. queryDatabase  — retrieve live compliance data (scores, controls, applications, frameworks)
+2. analyzeDataset — statistical analysis (aggregation, ranking, trends, comparison)
+3. generateChartSpec — produce charts and visualizations
 
-MANDATORY RULES:
-- NEVER invent, estimate, or hallucinate numbers. Every metric you cite MUST come from a tool result.
-- For any question about compliance scores, application status, framework mapping, control failures, or security domains → call queryDatabase FIRST.
-- After retrieving data, use analyzeDataset if the user wants rankings, trends, or statistics. Pass the 'data' array from the queryDatabase result, OR set 'dataRef' to a queryType (e.g. "applications_overview") so the tool fetches the data automatically — never call analyzeDataset without one of these two.
-- Use generateChartSpec whenever the user requests a chart, graph, trend visualization, or says "show me".
-- If data is insufficient or unavailable, state this explicitly — do not guess.
-- Use conversation history to answer follow-up questions without re-fetching data unnecessarily.
-- Format responses in clear markdown. Use bullet points, bold labels, and headers for readability.
-- Lead with the key insight, then provide supporting detail.
-- When mentioning numbers, provide context (e.g., "64% avg compliance across 10 assessed applications").
-- If the user asks to export, tell them to click the Export button in the chat header.
+━━━ WHEN TO USE TOOLS ━━━
+USE queryDatabase when the user asks about:
+- This organization's specific compliance scores, application status, or control results
+- Which applications are failing or at risk
+- Controls for a SPECIFIC application → use queryType "app_controls" with params.applicationName
+- Details about a specific application → use queryType "app_details" with params.applicationName
+- Framework mapping percentages, domain breakdowns, or KPI summaries
 
-CURRENT PAGE CONTEXT will be provided in the user message if relevant.`;
+DO NOT use tools when the user asks:
+- General GRC questions ("What is NIST CSF?", "Explain the Protect domain", "What does a SOC 2 audit involve?")
+- Conceptual questions about compliance frameworks, controls, or security domains
+- How to interpret results you've already retrieved in this conversation
+- Follow-up questions about data already in the chat history
+
+━━━ CRITICAL RULES ━━━
+- NEVER invent organization-specific numbers. Every score, count, or percentage about THIS org MUST come from a tool.
+- For app-specific control questions (e.g., "What controls is MS Active Directory failing?") → ALWAYS call queryDatabase with queryType "app_controls" and params.applicationName set to the app name.
+- After retrieving data, use analyzeDataset for rankings/statistics. Pass 'dataRef' to the queryType to auto-fetch.
+- Use generateChartSpec when the user asks for a chart, graph, or "show me visually".
+- Use conversation history — don't re-fetch data you already have.
+
+━━━ RESPONSE STYLE ━━━
+- Be conversational, warm, and genuinely helpful — not robotic or overly formal
+- Answer general GRC questions directly from your knowledge without always hitting the database
+- Format responses with clear markdown: ## headers, **bold** labels, bullet points for lists
+- Lead with the key insight, then detail. Keep responses focused and scannable.
+- When citing numbers, always add context ("64% avg — below the 80% Compliant threshold")
+- For complex analyses, walk through your reasoning step by step
+- If you can't retrieve data for a specific app, explain exactly what to look for (e.g., "Open the Controls tab filtered to [App Name]")
+- Export hint: remind users about the Export button in the chat header when they ask about saving results
+
+CURRENT PAGE CONTEXT will be provided in the user message when relevant.`;
 
 // ─── Route Handler ────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
@@ -70,6 +89,22 @@ export async function POST(req: NextRequest) {
 
     const userContent = pageContext ? `[Current page: ${pageContext}]\n\n${message}` : message;
     let history = sessions.get(sessionId) ?? [];
+
+    // If no in-memory session, try to restore from DB (handles cold starts)
+    if (history.length === 0) {
+      try {
+        const dbRes = await fetch(`${req.nextUrl.origin}/api/ai/chat-history?sessionId=${sessionId}`);
+        if (dbRes.ok) {
+          const dbData = await dbRes.json() as { history: ChatCompletionMessageParam[] };
+          if (dbData.history?.length) {
+            history = dbData.history;
+            sessions.set(sessionId, history);
+            log(`Restored ${history.length} messages from DB for session ${sessionId}`);
+          }
+        }
+      } catch { /* non-critical */ }
+    }
+
     history = [...history, { role: "user", content: userContent }];
     log(`Session history length: ${history.length} messages`);
 
@@ -248,7 +283,15 @@ export async function POST(req: NextRequest) {
         log(`Final response ready (${finalText.length} chars, ${Date.now() - routeStart}ms total)`);
 
         history = [...history, { role: "assistant", content: finalText }];
-        sessions.set(sessionId, history.slice(-20));
+        const trimmedHistory = history.slice(-20);
+        sessions.set(sessionId, trimmedHistory);
+
+        // Persist session to DB asynchronously (non-blocking) for cross-coldstart continuity
+        fetch(`${req.nextUrl.origin}/api/ai/chat-history`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId, history: trimmedHistory, uiMessages: [] }),
+        }).catch(() => { /* non-critical */ });
 
         return NextResponse.json({ text: finalText, chartSpec: latestChartSpec, sessionId });
 

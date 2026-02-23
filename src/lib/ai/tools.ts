@@ -327,6 +327,160 @@ async function queryDatabase(params: QueryDatabaseParams): Promise<ToolResult> {
         };
       }
 
+      // ── App-specific Controls ─────────────────────────────────────────────
+      case "app_controls": {
+        if (!masterFrameworkId) {
+          return { status: "error", error_type: "no_data", message: "No master framework configured" };
+        }
+
+        const appName = String(params.params?.applicationName ?? "");
+        const appId = String(params.params?.applicationId ?? "");
+
+        if (!appName && !appId) {
+          return {
+            status: "error",
+            error_type: "missing_params",
+            message: "Provide params.applicationName (e.g. 'MS Active Directory') or params.applicationId",
+          };
+        }
+
+        // First, find the matching application(s)
+        const appRows = await db<{ id: string; name: string }[]>`
+          SELECT id, name FROM applications
+          WHERE ${appId ? db`id = ${appId}` : db`LOWER(name) LIKE LOWER(${"%" + appName + "%"})`}
+          LIMIT 5
+        `;
+
+        if (!appRows.length) {
+          return {
+            status: "error",
+            error_type: "no_data",
+            message: `No application found matching "${appName || appId}". Try applications_overview to see all app names.`,
+          };
+        }
+
+        const targetAppId = appRows[0].id;
+        const targetAppName = appRows[0].name;
+
+        const controls = await db<{
+          controlCode: string;
+          controlStatement: string;
+          domain: string;
+          score: number;
+          status: string;
+        }[]>`
+          SELECT
+            c.control_code AS "controlCode",
+            c.control_statement AS "controlStatement",
+            c.domain,
+            ROUND(ca.final_score::numeric, 1) AS "score",
+            ca.final_status AS "status"
+          FROM control_assessments ca
+          JOIN controls c ON c.id = ca.control_id
+          WHERE ca.application_id = ${targetAppId}
+            AND c.framework_id = ${masterFrameworkId}
+          ORDER BY ca.final_score ASC
+          LIMIT 30
+        `;
+
+        const allControls = controls.map(c => ({
+          ...c,
+          score: Number(c.score),
+        }));
+
+        const failing = allControls.filter(c => c.score <= 50);
+        const warning = allControls.filter(c => c.score > 50 && c.score < 80);
+        const passing = allControls.filter(c => c.score >= 80);
+
+        return {
+          status: "success",
+          data: {
+            applicationName: targetAppName,
+            applicationId: targetAppId,
+            totalAssessed: allControls.length,
+            failingCount: failing.length,
+            warningCount: warning.length,
+            passingCount: passing.length,
+            failingControls: failing,
+            warningControls: warning,
+            passingControls: passing,
+          },
+        };
+      }
+
+      // ── Application Details ────────────────────────────────────────────────
+      case "app_details": {
+        if (!masterFrameworkId) {
+          return { status: "error", error_type: "no_data", message: "No master framework configured" };
+        }
+
+        const appName = String(params.params?.applicationName ?? "");
+        const appId = String(params.params?.applicationId ?? "");
+
+        if (!appName && !appId) {
+          return {
+            status: "error",
+            error_type: "missing_params",
+            message: "Provide params.applicationName or params.applicationId",
+          };
+        }
+
+        const rows = await db<{
+          id: string;
+          name: string;
+          serviceManagement: string;
+          criticality: string;
+          serviceOwner: string;
+          businessOwner: string;
+          lifecycleStatus: string;
+          cloudProvider: string;
+          avgScore: number;
+          nonCompliances: string;
+          totalAssessed: string;
+        }[]>`
+          SELECT
+            a.id,
+            a.name,
+            a.service_management AS "serviceManagement",
+            a.criticality,
+            a.service_owner AS "serviceOwner",
+            a.business_owner AS "businessOwner",
+            a.lifecycle_status AS "lifecycleStatus",
+            a.cloud_provider AS "cloudProvider",
+            COALESCE(ROUND(AVG(ca.final_score) FILTER (WHERE c.framework_id = ${masterFrameworkId})::numeric, 1), 0) AS "avgScore",
+            COUNT(DISTINCT ca.control_id) FILTER (WHERE ca.final_score <= 50 AND c.framework_id = ${masterFrameworkId}) AS "nonCompliances",
+            COUNT(DISTINCT ca.control_id) FILTER (WHERE c.framework_id = ${masterFrameworkId}) AS "totalAssessed"
+          FROM applications a
+          LEFT JOIN control_assessments ca ON ca.application_id = a.id
+          LEFT JOIN controls c ON c.id = ca.control_id
+          WHERE ${appId ? db`a.id = ${appId}` : db`LOWER(a.name) LIKE LOWER(${"%" + appName + "%"})`}
+          GROUP BY a.id, a.name, a.service_management, a.criticality,
+                   a.service_owner, a.business_owner, a.lifecycle_status, a.cloud_provider
+          LIMIT 1
+        `;
+
+        if (!rows[0]) {
+          return {
+            status: "error",
+            error_type: "no_data",
+            message: `No application found matching "${appName || appId}"`,
+          };
+        }
+
+        const r = rows[0];
+        return {
+          status: "success",
+          data: {
+            ...r,
+            avgScore: Number(r.avgScore),
+            nonCompliances: Number(r.nonCompliances),
+            totalAssessed: Number(r.totalAssessed),
+            complianceStatus:
+              Number(r.avgScore) >= 80 ? "Compliant" : Number(r.avgScore) >= 50 ? "Warning" : "Critical",
+          },
+        };
+      }
+
       default:
         return { status: "error", error_type: "unknown_query", message: `Unknown queryType: "${params.queryType}"` };
     }
@@ -606,6 +760,8 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "compliance_trends",
               "controls_by_domain",
               "failing_controls",
+              "app_controls",
+              "app_details",
             ],
             description:
               "overview_kpis: global KPIs. " +
@@ -614,13 +770,17 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "security_domains: domain-level compliance breakdown. " +
               "compliance_trends: 6-month score trend. " +
               "controls_by_domain: controls in one domain (requires params.domain). " +
-              "failing_controls: top 10 worst-performing controls.",
+              "failing_controls: top 10 worst-performing controls (portfolio-wide). " +
+              "app_controls: all controls + compliance scores for ONE specific application (requires params.applicationName or params.applicationId). Use this to answer 'what controls is [app] failing?'. " +
+              "app_details: metadata + compliance summary for ONE specific application (requires params.applicationName or params.applicationId).",
           },
           params: {
             type: "object",
-            description: "Optional parameters. Use { domain: 'Protect' } for controls_by_domain.",
+            description: "Optional parameters. Use { domain: 'Protect' } for controls_by_domain. Use { applicationName: 'MS Active Directory' } for app_controls and app_details.",
             properties: {
               domain: { type: "string", description: "Security domain name (e.g. 'Protect', 'Identify')" },
+              applicationName: { type: "string", description: "Application name (partial match supported, e.g. 'Active Directory')" },
+              applicationId: { type: "string", description: "Exact application UUID (use instead of applicationName for precision)" },
             },
           },
         },
@@ -659,6 +819,8 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "compliance_trends",
               "controls_by_domain",
               "failing_controls",
+              "app_controls",
+              "app_details",
             ],
             description:
               "Alternative to 'data'. Set this to a queryType (e.g. 'applications_overview') " +
