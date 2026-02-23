@@ -199,7 +199,7 @@ export default async function OverviewPage() {
 
       {/* Framework Overlap */}
       <GlassCard>
-        <div className="mb-6 flex items-start justify-between">
+        <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="flex-1">
             <Link href="/frameworks">
               <h2 className="text-xl font-bold text-slate-900 hover:underline cursor-pointer">

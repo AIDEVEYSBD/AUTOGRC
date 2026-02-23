@@ -193,7 +193,7 @@ export function ComparisonTable({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[#333333]">
             Controls frameworks baselined to master framework
@@ -251,8 +251,8 @@ export function ComparisonTable({
       )}
 
       <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[240px_1fr]">
-          <aside className="border-r border-[#cccccc] bg-[#f9f9f9]">
+        <div className="flex flex-col md:grid md:grid-cols-[240px_1fr]">
+          <aside className="border-b md:border-b-0 md:border-r border-[#cccccc] bg-[#f9f9f9]">
             <div
               className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
               style={{ backgroundColor: "#ffe600" }}
@@ -533,9 +533,9 @@ export function UnmappedControlsTable({
       )}
 
       <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[280px_1fr]">
+        <div className="flex flex-col md:grid md:grid-cols-[280px_1fr]">
           {/* Framework selector */}
-          <aside className="border-r border-[#cccccc] bg-[#f9f9f9]">
+          <aside className="border-b md:border-b-0 md:border-r border-[#cccccc] bg-[#f9f9f9]">
             <div
               className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
               style={{ backgroundColor: "#ffe600" }}

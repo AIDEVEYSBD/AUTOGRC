@@ -218,9 +218,9 @@ export function ComplianceByDomain({
         )}
 
         <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
-          <div className="grid grid-cols-[240px_1fr]">
+          <div className="flex flex-col md:grid md:grid-cols-[240px_1fr]">
             {/* Left rail: domains */}
-            <aside className="border-r border-[#cccccc] bg-[#f9f9f9]">
+            <aside className="border-b md:border-b-0 md:border-r border-[#cccccc] bg-[#f9f9f9]">
               <div
                 className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
                 style={{ backgroundColor: "#ffe600" }}

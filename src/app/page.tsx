@@ -7,7 +7,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-[#f9f9f9] to-white border-b border-[#e5e7eb]">
         <div className="max-w-7xl mx-auto px-6 py-20 md:py-32">
           <div className="max-w-4xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-[#333333] leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#333333] leading-tight mb-6">
               AutoGRC
             </h1>
             <p className="text-xl text-[#666666] leading-relaxed mb-8 max-w-3xl">

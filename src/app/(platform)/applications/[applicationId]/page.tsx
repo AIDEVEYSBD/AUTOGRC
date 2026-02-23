@@ -71,7 +71,7 @@ export default async function ApplicationDetailPage({
       <div className="mx-auto max-w-full px-8 py-8 space-y-6">
         {/* Header Section */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
             <div className="space-y-4">
               {/* Application Name */}
               <h1 className="text-2xl font-semibold text-gray-900">
@@ -79,7 +79,7 @@ export default async function ApplicationDetailPage({
               </h1>
 
               {/* Status Badges - Grouped Display */}
-              <div className="flex items-start gap-6 py-1">
+              <div className="flex flex-wrap items-start gap-4 py-1">
                 {/* Service Criticality */}
                 <div className="space-y-2">
                   <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
@@ -173,7 +173,7 @@ export default async function ApplicationDetailPage({
           </div>
 
           {/* Additional Details Grid */}
-          <div className="grid grid-cols-4 gap-6 pt-6 border-t border-gray-200">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 border-t border-gray-200">
             <DetailItem label="Service Owner" value={app.serviceOwner} />
             <DetailItem label="Business Owner" value={app.businessOwner} />
             {app.serviceDirector && (
@@ -213,7 +213,7 @@ export default async function ApplicationDetailPage({
         </div>
 
         {/* Summary Stats Grid */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <Stat
             label="Total Controls"
             value={app.summary.total}

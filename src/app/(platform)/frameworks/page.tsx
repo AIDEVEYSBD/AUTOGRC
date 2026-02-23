@@ -43,7 +43,7 @@ export default async function FrameworksPage({
     <DeactivatedFrameworksProvider>
       <div className="space-y-8 p-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-[#333333]">
               Compliance Frameworks
@@ -56,7 +56,7 @@ export default async function FrameworksPage({
             </p>
           </div>
 
-          <button className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white">
+          <button className="flex-shrink-0 bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white">
             Upload Framework
           </button>
         </div>

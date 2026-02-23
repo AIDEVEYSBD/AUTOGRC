@@ -594,22 +594,22 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-8 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-[#333333]">
             Security Tools Integration
           </h1>
           <p className="mt-1 text-base text-[#666666] max-w-4xl">
-            Following section provides an overview of cybersecurity tools integrated with 
-            the AutoGRC platform. These integrations enable automated compliance monitoring, 
-            vulnerability assessments, and continuous security posture management across your 
+            Following section provides an overview of cybersecurity tools integrated with
+            the AutoGRC platform. These integrations enable automated compliance monitoring,
+            vulnerability assessments, and continuous security posture management across your
             organization's infrastructure.
           </p>
         </div>
 
         <button
           onClick={() => setShowMarketplace(true)}
-          className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
+          className="flex-shrink-0 bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
         >
           Add Integration
         </button>
@@ -629,20 +629,20 @@ export default function IntegrationsPage() {
 
       {/* Connected tools */}
       <div className="space-y-4">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-[#333333]">
               Active security tool integrations
             </h2>
             <p className="mt-1 text-base text-[#666666] max-w-4xl">
-              Following section lists all cybersecurity tools currently integrated with the 
-              platform. Configure API endpoints, execute automated assessments, and manage 
+              Following section lists all cybersecurity tools currently integrated with the
+              platform. Configure API endpoints, execute automated assessments, and manage
               integration lifecycles for each connected tool.
             </p>
           </div>
-          
+
           {activeIntegrations.length > 0 && (
-            <div className="flex gap-2">
+            <div className="flex flex-shrink-0 gap-2">
               <button
                 onClick={expandAll}
                 className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium whitespace-nowrap"

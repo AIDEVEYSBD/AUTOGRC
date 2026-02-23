@@ -26,7 +26,7 @@ export default async function ApplicationsPage() {
       </section>
 
       {/* KPI METRICS */}
-      <section className="w-full grid grid-cols-6 gap-4 p-6 bg-gray-50">
+      <section className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 p-6 bg-gray-50">
         <MetricCard 
           label="Total" 
           sublabel="Applications"
