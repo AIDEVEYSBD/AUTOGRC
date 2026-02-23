@@ -429,7 +429,8 @@ export default function FrameworkBaselinerPage() {
 
           {/* Runs Table */}
           <div className="border border-[#cccccc] bg-white rounded-lg overflow-hidden shadow-sm">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[500px] text-sm">
               <thead className="bg-[#f9f9f9] border-b border-[#cccccc]">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold text-[#333333]">Source</th>
@@ -471,6 +472,7 @@ export default function FrameworkBaselinerPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Modal */}
@@ -521,7 +523,7 @@ export default function FrameworkBaselinerPage() {
                       </div>
                     </div>
                   ) : (
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[700px] text-sm">
                       <thead className="bg-[#f9f9f9] sticky top-0 border-b border-[#cccccc] z-10">
                         <tr>
                           <th className="px-4 py-3 text-left font-bold text-[#333333]">Source</th>
@@ -712,7 +714,8 @@ export default function FrameworkBaselinerPage() {
 
           {/* SOC Runs Table */}
           <div className="border border-[#cccccc] bg-white rounded-lg overflow-hidden shadow-sm">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px] text-sm">
               <thead className="bg-[#f9f9f9] border-b border-[#cccccc]">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold text-[#333333]">Report</th>
@@ -751,6 +754,7 @@ export default function FrameworkBaselinerPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* SOC Modal */}
@@ -797,7 +801,7 @@ export default function FrameworkBaselinerPage() {
                       </div>
                     </div>
                   ) : (
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[700px] text-sm">
                       <thead className="bg-[#f9f9f9] sticky top-0 border-b border-[#cccccc] z-10">
                         <tr>
                           <th className="px-4 py-3 text-left font-bold text-[#333333]">Domain</th>

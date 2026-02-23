@@ -206,7 +206,7 @@ export default function ApplicationsTable({
       {/* Table */}
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[900px] text-sm">
             <thead className="bg-[#FFE600] text-xs uppercase tracking-wide">
               <tr>
                 <ThWithFilter

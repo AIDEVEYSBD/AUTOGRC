@@ -353,7 +353,8 @@ export default function SocMapperPage() {
 
       {/* Runs Table */}
       <div className="border border-[#cccccc] bg-white rounded-lg overflow-hidden shadow-sm">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[600px] text-sm">
           <thead className="bg-[#f9f9f9] border-b border-[#cccccc]">
             <tr>
               <th className="px-4 py-3 text-left font-bold text-[#333333]">SOC Report</th>
@@ -392,6 +393,7 @@ export default function SocMapperPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Results Modal */}
@@ -439,7 +441,7 @@ export default function SocMapperPage() {
                   </div>
                 </div>
               ) : (
-                <table className="w-full text-sm">
+                <table className="w-full min-w-[700px] text-sm">
                   <thead className="bg-[#f9f9f9] sticky top-0 border-b border-[#cccccc] z-10">
                     <tr>
                       <th className="px-4 py-3 text-left font-bold text-[#333333]">Domain</th>

@@ -161,7 +161,7 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
               }
             `
           }} />
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[600px] text-sm">
             <thead className="sticky top-0 border-b border-slate-300 z-10" style={{ backgroundColor: '#ffe600' }}>
               <tr>
                 <th className="px-4 py-3 text-left font-semibold text-slate-900" style={{ backgroundColor: '#ffe600' }}>

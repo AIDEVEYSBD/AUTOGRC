@@ -180,8 +180,8 @@ export default function ControlsTable({
       )}
 
       <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div className="max-h-[600px] overflow-y-auto">
-          <table className="w-full text-sm table-fixed">
+        <div className="max-h-[600px] overflow-auto">
+          <table className="w-full min-w-[800px] text-sm table-fixed">
             <thead className="sticky top-0 bg-[#FFE600] border-b border-gray-200 z-10">
               <tr>
                 <Th
