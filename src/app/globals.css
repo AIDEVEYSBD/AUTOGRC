@@ -1,31 +1,109 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* ------------------------------
-   Base Reset & Typography
--------------------------------- */
+/* ── Class-based dark mode ─────────────────── */
+@custom-variant dark (&:is(.dark, .dark *));
 
+/* ── MD3 Color tokens registered as Tailwind utilities ── */
+@theme inline {
+  --color-md-primary:                 var(--md-primary);
+  --color-md-on-primary:              var(--md-on-primary);
+  --color-md-primary-container:       var(--md-primary-container);
+  --color-md-on-primary-container:    var(--md-on-primary-container);
+  --color-md-surface:                 var(--md-surface);
+  --color-md-surface-variant:         var(--md-surface-variant);
+  --color-md-surface-container:       var(--md-surface-container);
+  --color-md-surface-container-high:  var(--md-surface-container-high);
+  --color-md-on-surface:              var(--md-on-surface);
+  --color-md-on-surface-variant:      var(--md-on-surface-variant);
+  --color-md-outline:                 var(--md-outline);
+  --color-md-outline-variant:         var(--md-outline-variant);
+  --color-md-error:                   var(--md-error);
+  --color-md-error-container:         var(--md-error-container);
+  --color-md-success:                 var(--md-success);
+  --color-md-success-container:       var(--md-success-container);
+}
+
+/* ── Light mode tokens ─────────────────────── */
+:root {
+  --md-primary:                #2E2E38;
+  --md-on-primary:             #FFFFFF;
+  --md-primary-container:      #FFE600;
+  --md-on-primary-container:   #211B00;
+
+  --md-surface:                #FFFBF0;
+  --md-surface-variant:        #EDE8D5;
+  --md-surface-container:      #F3EED8;
+  --md-surface-container-high: #EDE8CE;
+
+  --md-on-surface:             #1E1B13;
+  --md-on-surface-variant:     #4D4738;
+
+  --md-outline:                #7F7667;
+  --md-outline-variant:        #D0C9B6;
+
+  --md-error:                  #B3261E;
+  --md-error-container:        #FFDAD6;
+  --md-success:                #146C2E;
+  --md-success-container:      #C8F2CE;
+}
+
+/* ── Dark mode tokens ──────────────────────── */
+.dark {
+  --md-primary:                #FFE600;
+  --md-on-primary:             #3A2E00;
+  --md-primary-container:      #544500;
+  --md-on-primary-container:   #FFE163;
+
+  --md-surface:                #16130A;
+  --md-surface-variant:        #37322A;
+  --md-surface-container:      #1E1B12;
+  --md-surface-container-high: #28251B;
+
+  --md-on-surface:             #E8E2CF;
+  --md-on-surface-variant:     #CBC5B0;
+
+  --md-outline:                #978D7E;
+  --md-outline-variant:        #4D4738;
+
+  --md-error:                  #F2B8B5;
+  --md-error-container:        #8C1D18;
+  --md-success:                #6FDB8B;
+  --md-success-container:      #005223;
+}
+
+/* ── Base Reset ────────────────────────────── */
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
-  color: #333333;
+  background-color: var(--md-surface);
+  color: var(--md-on-surface);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* ------------------------------
-   Chat Modal Markdown Rendering
--------------------------------- */
+/* ── MD3 Elevation Shadows ─────────────────── */
+.md3-elevation-1 {
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.06);
+}
+.md3-elevation-2 {
+  box-shadow: 0 1px 2px rgba(0,0,0,.15), 0 2px 6px 2px rgba(0,0,0,.08);
+}
 
-/* User bubble — force white text regardless of global p rule */
+/* ── MD3 Card ──────────────────────────────── */
+.md3-card {
+  background-color: var(--md-surface-container-high);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.06);
+}
+
+/* ── Chat Modal Markdown ───────────────────── */
 .user-bubble,
 .user-bubble p {
   color: #ffffff !important;
 }
 
-.chat-markdown {
-  line-height: 1.6;
-}
+.chat-markdown { line-height: 1.6; }
 
 .chat-markdown h1,
 .chat-markdown h2,
@@ -33,20 +111,20 @@ html, body {
 .chat-markdown h4 {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--md-on-surface);
   margin-top: 0.75rem;
   margin-bottom: 0.35rem;
 }
 
 .chat-markdown h2 {
   font-size: 0.875rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--md-outline-variant);
   padding-bottom: 0.2rem;
 }
 
 .chat-markdown p {
   font-size: 0.875rem;
-  color: #333333;
+  color: var(--md-on-surface);
   margin: 0.25rem 0;
   line-height: 1.6;
 }
@@ -59,33 +137,26 @@ html, body {
 
 .chat-markdown li {
   font-size: 0.875rem;
-  color: #333333;
+  color: var(--md-on-surface);
   margin: 0.15rem 0;
   line-height: 1.55;
 }
 
-.chat-markdown strong {
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-.chat-markdown em {
-  font-style: italic;
-  color: #555;
-}
+.chat-markdown strong { font-weight: 600; color: var(--md-on-surface); }
+.chat-markdown em     { font-style: italic; color: var(--md-on-surface-variant); }
 
 .chat-markdown code {
   font-size: 0.8rem;
-  background: #f3f4f6;
-  border-radius: 4px;
+  background: var(--md-surface-container);
+  border-radius: 6px;
   padding: 0.1rem 0.35rem;
-  color: #c0392b;
+  color: var(--md-error);
   font-family: 'Courier New', monospace;
 }
 
 .chat-markdown pre {
-  background: #1e1e2e;
-  border-radius: 8px;
+  background: var(--md-primary);
+  border-radius: 12px;
   padding: 0.75rem;
   margin: 0.5rem 0;
   overflow-x: auto;
@@ -93,16 +164,16 @@ html, body {
 
 .chat-markdown pre code {
   background: none;
-  color: #e2e8f0;
+  color: var(--md-primary-container);
   padding: 0;
   font-size: 0.78rem;
 }
 
 .chat-markdown blockquote {
-  border-left: 3px solid #FFE600;
+  border-left: 3px solid var(--md-primary-container);
   padding-left: 0.75rem;
   margin: 0.5rem 0;
-  color: #555;
+  color: var(--md-on-surface-variant);
   font-style: italic;
 }
 
@@ -114,8 +185,8 @@ html, body {
 }
 
 .chat-markdown th {
-  background: #2E2E38;
-  color: #fff;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
   padding: 0.35rem 0.6rem;
   text-align: left;
   font-weight: 600;
@@ -123,123 +194,39 @@ html, body {
 
 .chat-markdown td {
   padding: 0.3rem 0.6rem;
-  border-bottom: 1px solid #e5e7eb;
-  color: #333;
+  border-bottom: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface);
 }
 
 .chat-markdown tr:nth-child(even) td {
-  background: #f9fafb;
+  background: var(--md-surface-container);
 }
 
-.chat-markdown a {
-  color: #2563eb;
-  text-decoration: underline;
-}
+.chat-markdown a { color: #2563eb; text-decoration: underline; }
 
-/* ------------------------------
-   Background Grid (Global)
--------------------------------- */
-
-.app-background {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-/* ------------------------------
-   Headings (Big & Bold by Default)
--------------------------------- */
-
+/* ── Typography ────────────────────────────── */
 h1 {
-  font-size: 2rem;
-  font-weight: 800;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
 }
 
-@media (min-width: 640px) {
-  h1 { font-size: 2.5rem; }
-}
-
-@media (min-width: 1024px) {
-  h1 { font-size: 3rem; }
-}
-
 h2 {
-  font-size: 1.375rem;
-  font-weight: 700;
+  font-size: clamp(1.25rem, 2.5vw, 1.875rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
   margin-bottom: 1rem;
 }
 
-@media (min-width: 640px) {
-  h2 { font-size: 1.625rem; }
-}
-
-@media (min-width: 1024px) {
-  h2 { font-size: 1.875rem; }
-}
-
 h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 500;
   margin-bottom: 0.75rem;
 }
-
-@media (min-width: 1024px) {
-  h3 { font-size: 1.25rem; }
-}
-
-/* ------------------------------
-   Paragraphs
--------------------------------- */
 
 p {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #555555;
-}
-
-/* ------------------------------
-   Buttons
--------------------------------- */
-
-button {
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.6rem 1.2rem;
-  cursor: pointer;
-}
-
-button.primary {
-  background-color: #ffe600;
-  color: #000000;
-  border: none;
-}
-
-button.secondary {
-  background-color: transparent;
-  border: 1px solid #cccccc;
-  color: #333333;
-}
-
-button.secondary:hover {
-  border-color: #999999;
-}
-
-/* ------------------------------
-   Utility Sections
--------------------------------- */
-
-.section {
-  margin-bottom: 6rem;
-}
-
-.section-divider {
-  border-top: 1px solid #cccccc;
-  margin: 4rem 0;
+  color: var(--md-on-surface-variant);
 }

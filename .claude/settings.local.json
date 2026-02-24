@@ -3,7 +3,27 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(\"c:\\\\Users\\\\Plazor\\\\Documents\\\\Code\\\\EY\\\\AUTOGRC\\\\tailwind.config.js\":*)",
+      "Bash(python3:*)",
+      "Bash(find:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(/tmp/update_app_page.ps1:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File /tmp/update_fw_tables.ps1)",
+      "Bash(powershell -ExecutionPolicy Bypass -File /tmp/update_app_page.ps1)",
+      "Bash(/tmp/update_app_page.py:*)",
+      "Bash(python:*)",
+      "Bash(/tmp/update_landing.py:*)",
+      "Bash(/tmp/fix_fw_tables_remaining.py:*)",
+      "Bash(/tmp/cleanup_soc_fw.py:*)",
+      "Bash(/tmp/cleanup_controls.py:*)",
+      "Bash(/tmp/final_cleanup.py:*)",
+      "Bash(/tmp/deep_cleanup.py:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Plazor\\Documents\\Code\\EY\\AUTOGRC",
+      "\\tmp",
+      "C:\\Users\\Plazor\\AppData\\Local\\Temp"
     ]
   }
 }

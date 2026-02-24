@@ -48,8 +48,8 @@ function FilterDropdown({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
-          value ? "text-blue-600" : "text-gray-600"
+        className={`p-1 rounded hover:bg-md-surface-container-high transition-colors ${
+          value ? "text-md-primary" : "text-md-on-surface-variant"
         }`}
         title={`Filter ${label}`}
       >
@@ -74,14 +74,14 @@ function FilterDropdown({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+          <div className="absolute top-full left-0 mt-2 z-20 bg-md-surface-container rounded-xl border border-md-outline-variant shadow-lg p-3 min-w-[250px]">
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={`Filter ${label.toLowerCase()}...`}
-                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="flex-1 px-3 py-1.5 text-sm border border-md-outline-variant rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
@@ -91,7 +91,7 @@ function FilterDropdown({
                     e.stopPropagation()
                     onClear()
                   }}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  className="p-1.5 text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-container-high rounded-lg"
                   title="Clear filter"
                 >
                   <svg
@@ -182,12 +182,12 @@ export function ComplianceByDomain({
     idColWidth + statementMinWidth + typeColWidth + compliantColWidth + nonCompliantColWidth + avgScoreColWidth
 
   return (
-    <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
+    <div className="md3-card overflow-hidden">
       <div className="p-6 pb-4">
-        <h2 className="text-2xl font-bold text-[#333333]">
+        <h2 className="text-2xl font-bold text-md-on-surface">
           Compliance by Domain
         </h2>
-        <p className="mt-1 text-base text-[#666666] max-w-4xl">
+        <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
           Following section gives an overview of number of applications on which
           specific controls which are compliant and/or non-compliant
         </p>
@@ -196,11 +196,11 @@ export function ComplianceByDomain({
       <div className="px-6 pb-6">
         {/* Filter Status Bar */}
         {activeFilterCount > 0 && (
-          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm mb-4">
-            <div className="text-sm text-gray-600">
+          <div className="flex items-center justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm mb-4">
+            <div className="text-sm text-md-on-surface-variant">
               {visibleControls.length} of {controls.length} controls
               {activeFilterCount > 0 && (
-                <span className="ml-2 text-gray-500">
+                <span className="ml-2 opacity-70">
                   • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
                 </span>
               )}
@@ -210,20 +210,20 @@ export function ComplianceByDomain({
                 setControlIdFilter("")
                 setStatementFilter("")
               }}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-sm text-md-primary font-medium hover:opacity-70 transition-opacity"
             >
               Clear all filters
             </button>
           </div>
         )}
 
-        <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-md-outline-variant overflow-hidden shadow-sm">
           <div className="flex flex-col md:grid md:grid-cols-[240px_1fr]">
             {/* Left rail: domains */}
-            <aside className="border-b md:border-b-0 md:border-r border-[#cccccc] bg-[#f9f9f9]">
+            <aside className="border-b md:border-b-0 md:border-r border-md-outline-variant bg-md-surface-container">
               <div
-                className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
-                style={{ backgroundColor: "#ffe600" }}
+                className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider border-b border-md-outline-variant"
+                style={{ backgroundColor: "var(--md-primary-container)", color: "var(--md-on-primary-container)" }}
               >
                 Security Domains
               </div>
@@ -238,8 +238,8 @@ export function ComplianceByDomain({
                       className={[
                         "w-full rounded-md p-4 flex items-center justify-between transition-all duration-200 group text-left",
                         isSelected
-                          ? "bg-[#ffe600] text-[#333333] shadow-sm"
-                          : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
+                          ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
+                          : "bg-md-primary hover:opacity-80 text-md-on-primary",
                       ].join(" ")}
                     >
                       <div className="flex-1">
@@ -247,7 +247,7 @@ export function ComplianceByDomain({
                         <div
                           className={[
                             "text-sm mt-0.5",
-                            isSelected ? "text-[#666666]" : "text-[#cccccc]",
+                            isSelected ? "text-md-on-primary-container/70" : "text-md-on-primary/70",
                           ].join(" ")}
                         >
                           {domain.controls} controls
@@ -260,7 +260,7 @@ export function ComplianceByDomain({
                           <span
                             className={[
                               "text-xs font-semibold",
-                              isSelected ? "text-[#333333]" : "text-white",
+                              isSelected ? "text-md-on-primary-container" : "text-md-on-primary",
                             ].join(" ")}
                           >
                             {domain.avgCompliance}% avg
@@ -272,8 +272,8 @@ export function ComplianceByDomain({
                         className={[
                           "w-5 h-5 transition-all duration-200 flex-shrink-0 ml-2",
                           isSelected
-                            ? "text-[#333333]"
-                            : "text-[#cccccc] group-hover:text-white group-hover:translate-x-1",
+                            ? "text-md-on-primary-container"
+                            : "text-md-on-primary/60 group-hover:text-md-on-primary group-hover:translate-x-1",
                         ].join(" ")}
                         fill="none"
                         stroke="currentColor"
@@ -293,16 +293,16 @@ export function ComplianceByDomain({
             </aside>
 
             {/* Right: ONE scroll container for header + body */}
-            <section className="min-w-0 bg-white">
+            <section className="min-w-0 bg-md-surface">
               <div className="max-h-[600px] overflow-auto">
                 <div style={{ minWidth: minGridWidth }}>
                   {/* Sticky header inside same scroll container */}
                   <div
-                    className="sticky top-0 z-10 border-b border-[#cccccc]"
-                    style={{ backgroundColor: "#ffe600" }}
+                    className="sticky top-0 z-10 border-b border-md-outline-variant"
+                    style={{ backgroundColor: "var(--md-primary-container)" }}
                   >
                     <div className="grid" style={{ gridTemplateColumns }}>
-                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
+                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-primary-container">
                         <span>Control</span>
                         <FilterDropdown
                           label="Control ID"
@@ -311,7 +311,7 @@ export function ComplianceByDomain({
                           onClear={() => setControlIdFilter("")}
                         />
                       </div>
-                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
+                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-primary-container">
                         <span>Control Statement</span>
                         <FilterDropdown
                           label="Control Statement"
@@ -320,13 +320,13 @@ export function ComplianceByDomain({
                           onClear={() => setStatementFilter("")}
                         />
                       </div>
-                      <div className="h-12 px-4 flex items-center justify-center font-bold text-[#333333] text-center">
+                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-primary-container text-center">
                         Compliant
                       </div>
-                      <div className="h-12 px-4 flex items-center justify-center font-bold text-[#333333] text-center">
+                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-primary-container text-center">
                         Non-Compliant
                       </div>
-                      <div className="h-12 px-4 flex items-center justify-center font-bold text-[#333333] text-center">
+                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-primary-container text-center">
                         Avg Score
                       </div>
                     </div>
@@ -335,19 +335,19 @@ export function ComplianceByDomain({
                   {/* Content */}
                   {isLoading ? (
                     <div className="p-6">
-                      <div className="flex flex-col items-center justify-center bg-[#f9f9f9] rounded p-12 border border-[#cccccc]">
-                        <div className="w-12 h-12 border-4 border-[#ffe600] border-t-transparent rounded-full animate-spin mb-4" />
-                        <p className="text-base font-bold text-[#333333]">
+                      <div className="flex flex-col items-center justify-center bg-md-surface-container rounded-xl p-12 border border-md-outline-variant">
+                        <div className="w-12 h-12 border-4 border-md-primary-container border-t-transparent rounded-full animate-spin mb-4" />
+                        <p className="text-base font-bold text-md-on-surface">
                           Loading controls...
                         </p>
                       </div>
                     </div>
                   ) : visibleControls.length === 0 ? (
                     <div className="p-6">
-                      <div className="flex flex-col items-center justify-center bg-[#f9f9f9] rounded p-12 border border-[#cccccc]">
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 border border-[#cccccc]">
+                      <div className="flex flex-col items-center justify-center bg-md-surface-container rounded-xl p-12 border border-md-outline-variant">
+                        <div className="w-16 h-16 bg-md-surface rounded-full flex items-center justify-center mb-4 border border-md-outline-variant">
                           <svg
-                            className="w-8 h-8 text-[#999999]"
+                            className="w-8 h-8 text-md-on-surface-variant"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -360,10 +360,10 @@ export function ComplianceByDomain({
                             />
                           </svg>
                         </div>
-                        <p className="text-base font-bold text-[#333333]">
+                        <p className="text-base font-bold text-md-on-surface">
                           {activeFilterCount > 0 ? "No controls match your filters" : "No controls found"}
                         </p>
-                        <p className="text-sm text-[#666666] mt-2">
+                        <p className="text-sm text-md-on-surface-variant mt-2">
                           {activeFilterCount > 0 
                             ? "Try adjusting your filter criteria"
                             : "This domain has no controls defined"}
@@ -375,22 +375,22 @@ export function ComplianceByDomain({
                       {visibleControls.map(control => (
                         <div
                           key={control.id}
-                          className="border-b border-[#e5e7eb] last:border-b-0 hover:bg-[#f9f9f9] transition-colors"
+                          className="border-b border-md-outline-variant last:border-b-0 hover:bg-md-surface-container transition-colors"
                         >
                           <div className="grid" style={{ gridTemplateColumns }}>
                             {/* Control ID */}
                             <div className="px-4 py-4 align-top">
-                              <div className="font-bold text-sm text-[#333333]">
+                              <div className="font-bold text-sm text-md-on-surface">
                                 {control.controlCode}
                               </div>
                               {control.subDomain && (
-                                <div className="text-xs text-[#666666] mt-1">
+                                <div className="text-xs text-md-on-surface-variant mt-1">
                                   {control.subDomain}
                                 </div>
                               )}
                               {control.isAutomated && (
                                 <div className="mt-1">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-md-primary-container/30 text-md-on-surface">
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
@@ -402,7 +402,7 @@ export function ComplianceByDomain({
 
                             {/* Statement */}
                             <div className="px-4 py-4 align-top">
-                              <div className="text-sm text-[#333333] leading-relaxed">
+                              <div className="text-sm text-md-on-surface leading-relaxed">
                                 {control.controlStatement}
                               </div>
                             </div>
@@ -423,7 +423,7 @@ export function ComplianceByDomain({
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                   />
                                 </svg>
-                                <span className="text-lg font-bold text-[#333333]">
+                                <span className="text-lg font-bold text-md-on-surface">
                                   {control.compliantApps}
                                 </span>
                               </div>
@@ -445,7 +445,7 @@ export function ComplianceByDomain({
                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                                   />
                                 </svg>
-                                <span className="text-lg font-bold text-[#333333]">
+                                <span className="text-lg font-bold text-md-on-surface">
                                   {control.nonCompliantApps}
                                 </span>
                               </div>
@@ -458,7 +458,7 @@ export function ComplianceByDomain({
                                   className="w-3 h-3 rounded-full"
                                   style={{ backgroundColor: getScoreColor(control.avgScore) }}
                                 />
-                                <span className="text-base font-bold text-[#333333]">
+                                <span className="text-base font-bold text-md-on-surface">
                                   {control.avgScore}%
                                 </span>
                               </div>

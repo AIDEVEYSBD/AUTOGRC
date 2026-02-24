@@ -217,8 +217,8 @@ export default function SocMapperPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold text-[#333333]">SOC Mapper</h1>
-          <p className="text-base text-[#666666] max-w-3xl mt-2">
+          <h1 className="text-3xl font-bold text-md-on-surface">SOC Mapper</h1>
+          <p className="text-base text-md-on-surface-variant max-w-3xl mt-2">
             Upload the SOC report PDF and run the SOC mapping. Then review per-control results (Met, Partially Met, Not Met),
             download the canonical Excel report, and keep a run history.
           </p>
@@ -228,12 +228,12 @@ export default function SocMapperPage() {
         <div className="flex gap-2">
           <button
             onClick={() => router.push("/framework")}
-            className="px-4 py-2 text-sm font-bold rounded border transition-colors bg-white text-[#333333] border-[#cccccc] hover:bg-[#f9f9f9]"
+            className="px-4 py-2 text-sm font-bold rounded border transition-colors bg-md-surface-container text-md-on-surface border-md-outline-variant hover:bg-md-surface-container-high"
           >
             Framework
           </button>
           <button
-            className="px-4 py-2 text-sm font-bold rounded border transition-colors bg-[#333333] text-white border-[#333333]"
+            className="px-4 py-2 text-sm font-bold rounded border transition-colors bg-md-primary text-md-on-primary border-md-primary"
           >
             SOC
           </button>
@@ -241,11 +241,11 @@ export default function SocMapperPage() {
       </div>
 
       {/* Create New SOC Run */}
-      <div className="border border-[#cccccc] bg-white p-6 rounded-lg shadow-sm space-y-6">
+      <div className="border border-md-outline-variant bg-md-surface-container p-6 rounded-xl shadow-sm space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-[#333333]">Run SOC Mapping</h2>
-            <p className="mt-1 text-sm text-[#666666]">
+            <h2 className="text-xl font-bold text-md-on-surface">Run SOC Mapping</h2>
+            <p className="mt-1 text-sm text-md-on-surface-variant">
               Upload the SOC report PDF to enable the run. SOC configuration is handled internally.
             </p>
           </div>
@@ -253,7 +253,7 @@ export default function SocMapperPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowInstructions(true)}
-              className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors flex items-center gap-2"
               title="View instructions"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,7 +268,7 @@ export default function SocMapperPage() {
             </button>
             <button
               onClick={() => fetchRuns().catch(() => {})}
-              className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+              className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
               title="Refresh runs"
             >
               Refresh
@@ -285,25 +285,25 @@ export default function SocMapperPage() {
           onChange={(e) => onFileSelected(e.target.files?.[0] ?? null)}
         />
 
-        <div className="border border-[#cccccc] rounded-lg p-5 bg-white">
+        <div className="border border-md-outline-variant rounded-xl p-5 bg-md-surface-container">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-[#333333]">SOC report PDF</p>
-              <p className="text-xs text-[#666666] mt-1">Upload a PDF to enable running the mapper.</p>
+              <p className="text-sm font-bold text-md-on-surface">SOC report PDF</p>
+              <p className="text-xs text-md-on-surface-variant mt-1">Upload a PDF to enable running the mapper.</p>
             </div>
 
             <div className="flex gap-2">
               {!pdfFile ? (
                 <button
                   onClick={onPickPdfClick}
-                  className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                  className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                 >
                   Upload PDF
                 </button>
               ) : (
                 <button
                   onClick={removePdf}
-                  className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                  className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                 >
                   Remove
                 </button>
@@ -312,7 +312,7 @@ export default function SocMapperPage() {
           </div>
 
           {uploadError && (
-            <div className="mt-4 flex items-center gap-2 text-sm text-[#e41f13] bg-[#fee] px-4 py-3 rounded">
+            <div className="mt-4 flex items-center gap-2 text-sm text-[#e41f13] bg-[#e41f13]/10 px-4 py-3 rounded-lg">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -326,11 +326,11 @@ export default function SocMapperPage() {
           )}
 
           {pdfFile && (
-            <div className="mt-4 bg-[#f9f9f9] border border-[#e5e7eb] rounded p-4">
+            <div className="mt-4 bg-md-surface border border-md-outline-variant rounded-xl p-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#333333] truncate">{pdfFile.name}</p>
-                  <p className="text-xs text-[#666666] mt-1">{(pdfFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                  <p className="text-sm font-bold text-md-on-surface truncate">{pdfFile.name}</p>
+                  <p className="text-xs text-md-on-surface-variant mt-1">{(pdfFile.size / (1024 * 1024)).toFixed(2)} MB</p>
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#e8f0fe] text-[#2563eb]">
                   Ready
@@ -343,8 +343,8 @@ export default function SocMapperPage() {
         <button
           onClick={startRun}
           disabled={disableStart}
-          className={`w-full px-4 py-3 font-bold bg-[#ffe600] text-[#333333] rounded transition-colors ${
-            disableStart ? "cursor-not-allowed" : "hover:bg-[#333333] hover:text-white"
+          className={`w-full px-4 py-3 font-bold bg-md-primary-container text-md-on-primary-container rounded-lg transition-colors ${
+            disableStart ? "cursor-not-allowed" : "hover:bg-md-primary hover:text-md-on-primary"
           }`}
         >
           {starting ? "Starting…" : "Start SOC Mapping"}
@@ -352,16 +352,16 @@ export default function SocMapperPage() {
       </div>
 
       {/* Runs Table */}
-      <div className="border border-[#cccccc] bg-white rounded-lg overflow-hidden shadow-sm">
+      <div className="border border-md-outline-variant bg-md-surface-container rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] text-sm">
-          <thead className="bg-[#f9f9f9] border-b border-[#cccccc]">
+          <thead className="bg-md-surface-container border-b border-md-outline-variant">
             <tr>
-              <th className="px-4 py-3 text-left font-bold text-[#333333]">SOC Report</th>
-              <th className="px-4 py-3 text-left font-bold text-[#333333]">Master Framework</th>
-              <th className="px-4 py-3 text-left font-bold text-[#333333]">Status</th>
-              <th className="px-4 py-3 text-left font-bold text-[#333333]">Created</th>
-              <th className="px-4 py-3 text-left font-bold text-[#333333]">Completed</th>
+              <th className="px-4 py-3 text-left font-bold text-md-on-surface">SOC Report</th>
+              <th className="px-4 py-3 text-left font-bold text-md-on-surface">Master Framework</th>
+              <th className="px-4 py-3 text-left font-bold text-md-on-surface">Status</th>
+              <th className="px-4 py-3 text-left font-bold text-md-on-surface">Created</th>
+              <th className="px-4 py-3 text-left font-bold text-md-on-surface">Completed</th>
             </tr>
           </thead>
           <tbody>
@@ -369,24 +369,24 @@ export default function SocMapperPage() {
               <tr
                 key={r.id}
                 onClick={() => openRun(r.id)}
-                className="cursor-pointer border-t border-[#e5e7eb] hover:bg-[#f9f9f9] transition-colors"
+                className="cursor-pointer border-t border-md-outline-variant hover:bg-md-surface-container transition-colors"
                 title="Click to view results"
               >
-                <td className="px-4 py-3 text-[#333333] font-semibold">{r.soc_report_name}</td>
-                <td className="px-4 py-3 text-[#333333]">{r.master_framework_name}</td>
+                <td className="px-4 py-3 text-md-on-surface font-semibold">{r.soc_report_name}</td>
+                <td className="px-4 py-3 text-md-on-surface">{r.master_framework_name}</td>
                 <td className="px-4 py-3">
                   <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusPill(r.status)}`}>
                     {r.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-[#666666]">{formatTs(r.created_at)}</td>
-                <td className="px-4 py-3 text-[#666666]">{r.completed_at ? formatTs(r.completed_at) : "-"}</td>
+                <td className="px-4 py-3 text-md-on-surface-variant">{formatTs(r.created_at)}</td>
+                <td className="px-4 py-3 text-md-on-surface-variant">{r.completed_at ? formatTs(r.completed_at) : "-"}</td>
               </tr>
             ))}
 
             {runs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-[#666666]">
+                <td colSpan={5} className="px-4 py-8 text-center text-md-on-surface-variant">
                   No SOC runs yet.
                 </td>
               </tr>
@@ -404,11 +404,11 @@ export default function SocMapperPage() {
             if (e.target === e.currentTarget) closeModal()
           }}
         >
-          <div className="bg-white w-full max-w-7xl max-h-[90vh] rounded-lg overflow-hidden shadow-2xl flex flex-col">
-            <div className="flex justify-between items-center px-6 py-4 border-b border-[#cccccc] bg-[#f9f9f9] flex-shrink-0">
+          <div className="bg-md-surface-container w-full max-w-7xl max-h-[90vh] rounded-xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-md-outline-variant bg-md-surface-container flex-shrink-0">
               <div>
-                <h3 className="text-xl font-bold text-[#333333]">SOC Mapping Results</h3>
-                <p className="text-sm text-[#666666] mt-1">
+                <h3 className="text-xl font-bold text-md-on-surface">SOC Mapping Results</h3>
+                <p className="text-sm text-md-on-surface-variant mt-1">
                   {openRunMeta?.soc_report_name || "SOC Run"} · {openRunMeta?.master_framework_name || "Master"} ·{" "}
                   {summary.met} met · {summary.partial} partial · {summary.not_met} not met · {summary.total} total · avg{" "}
                   {summary.avg_score.toFixed(1)}
@@ -418,14 +418,14 @@ export default function SocMapperPage() {
               <div className="flex gap-3">
                 <button
                   onClick={downloadExcel}
-                  className="px-4 py-2 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors"
+                  className="px-4 py-2 font-bold bg-md-primary-container text-md-on-surface rounded hover:bg-md-primary hover:text-md-on-primary transition-colors"
                   title="Download the canonical Excel report"
                 >
                   Download Excel
                 </button>
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                  className="px-4 py-2 font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                 >
                   Close
                 </button>
@@ -436,41 +436,41 @@ export default function SocMapperPage() {
               {loading ? (
                 <div className="flex items-center justify-center p-12">
                   <div className="text-center">
-                    <div className="inline-block w-8 h-8 border-4 border-[#cccccc] border-t-[#ffe600] rounded-full animate-spin mb-4"></div>
-                    <p className="text-[#666666]">Loading results…</p>
+                    <div className="inline-block w-8 h-8 border-4 border-md-outline-variant border-t-md-primary-container rounded-full animate-spin mb-4"></div>
+                    <p className="text-md-on-surface-variant">Loading results…</p>
                   </div>
                 </div>
               ) : (
                 <table className="w-full min-w-[700px] text-sm">
-                  <thead className="bg-[#f9f9f9] sticky top-0 border-b border-[#cccccc] z-10">
+                  <thead className="bg-md-surface-container sticky top-0 border-b border-md-outline-variant z-10">
                     <tr>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">Domain</th>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">Sub-domain</th>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">Control statement</th>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">SOC control</th>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">Score</th>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">Status</th>
-                      <th className="px-4 py-3 text-left font-bold text-[#333333]">Explanation</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">Domain</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">Sub-domain</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">Control statement</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">SOC control</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">Score</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">Status</th>
+                      <th className="px-4 py-3 text-left font-bold text-md-on-surface">Explanation</th>
                     </tr>
                   </thead>
                   <tbody>
                     {results.map((r, i) => {
                       const s100 = normalizeScoreTo100(r.score)
                       return (
-                        <tr key={i} className="border-t border-[#e5e7eb] align-top hover:bg-[#f9f9f9]">
-                          <td className="px-4 py-3 text-[#333333] font-semibold whitespace-nowrap">
+                        <tr key={i} className="border-t border-md-outline-variant align-top hover:bg-md-surface-container">
+                          <td className="px-4 py-3 text-md-on-surface font-semibold whitespace-nowrap">
                             {r.domain || "SOC"}
                           </td>
-                          <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{r.sub_domain || "-"}</td>
-                          <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[420px] max-w-[520px]">
+                          <td className="px-4 py-3 text-md-on-surface-variant whitespace-nowrap">{r.sub_domain || "-"}</td>
+                          <td className="px-4 py-3 text-md-on-surface text-xs leading-relaxed min-w-[420px] max-w-[520px]">
                             {r.control_statement}
                             <div className="text-[10px] text-[#9ca3af] mt-2">
                               control_id: <span className="font-mono">{r.control_id}</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[360px] max-w-[520px]">
+                          <td className="px-4 py-3 text-md-on-surface text-xs leading-relaxed min-w-[360px] max-w-[520px]">
                             <div className="font-semibold whitespace-nowrap">{r.soc_control_code ? r.soc_control_code : "-"}</div>
-                            <div className="text-[#666666] mt-1">{r.soc_control_statement || ""}</div>
+                            <div className="text-md-on-surface-variant mt-1">{r.soc_control_statement || ""}</div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <span className={`font-bold ${scoreColor(s100)}`}>{s100.toFixed(1)}</span>
@@ -480,7 +480,7 @@ export default function SocMapperPage() {
                               {r.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-[#666666] text-xs leading-relaxed min-w-[420px] max-w-[560px]">
+                          <td className="px-4 py-3 text-md-on-surface-variant text-xs leading-relaxed min-w-[420px] max-w-[560px]">
                             {r.explanation}
                           </td>
                         </tr>
@@ -489,7 +489,7 @@ export default function SocMapperPage() {
 
                     {results.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="px-4 py-12 text-center text-[#666666]">
+                        <td colSpan={7} className="px-4 py-12 text-center text-md-on-surface-variant">
                           No SOC results available for this run.
                         </td>
                       </tr>
@@ -510,12 +510,12 @@ export default function SocMapperPage() {
             if (e.target === e.currentTarget) setShowInstructions(false)
           }}
         >
-          <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center px-6 py-4 border-b border-[#cccccc] bg-[#f9f9f9]">
-              <h3 className="text-xl font-bold text-[#333333]">How to Use SOC Mapper</h3>
+          <div className="bg-md-surface-container w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-md-outline-variant bg-md-surface-container">
+              <h3 className="text-xl font-bold text-md-on-surface">How to Use SOC Mapper</h3>
               <button
                 onClick={() => setShowInstructions(false)}
-                className="text-[#666666] hover:text-[#333333] transition-colors"
+                className="text-md-on-surface-variant hover:text-md-on-surface transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -523,31 +523,31 @@ export default function SocMapperPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-4 text-[#333333]">
+            <div className="p-6 space-y-4 text-md-on-surface">
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">Step 1: Upload the SOC report PDF</h4>
-                <p className="text-sm text-[#666666]">
+                <p className="text-sm text-md-on-surface-variant">
                   Upload a PDF file. The Start button stays disabled until a valid PDF is selected.
                 </p>
               </div>
 
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">Step 2: Start SOC Mapping</h4>
-                <p className="text-sm text-[#666666]">
+                <p className="text-sm text-md-on-surface-variant">
                   Click <strong>"Start SOC Mapping"</strong>. A new SOC run is created and executed by the scheduler.
                 </p>
               </div>
 
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">Step 3: Review results</h4>
-                <p className="text-sm text-[#666666]">
+                <p className="text-sm text-md-on-surface-variant">
                   Click any run to open the results modal. You will see per-control status, scores, explanations, and control_id traceability.
                 </p>
               </div>
 
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">Step 4: Download Excel</h4>
-                <p className="text-sm text-[#666666]">
+                <p className="text-sm text-md-on-surface-variant">
                   In the results view, click <strong>"Download Excel"</strong> to export the canonical report.
                 </p>
               </div>
@@ -568,8 +568,8 @@ export default function SocMapperPage() {
                     />
                   </svg>
                   <div>
-                    <p className="font-bold text-sm text-[#333333]">Note</p>
-                    <p className="text-sm text-[#666666] mt-1">
+                    <p className="font-bold text-sm text-md-on-surface">Note</p>
+                    <p className="text-sm text-md-on-surface-variant mt-1">
                       This UI gates the run on a PDF upload. The scheduler run uses internal SOC configuration.
                     </p>
                   </div>
@@ -577,10 +577,10 @@ export default function SocMapperPage() {
               </div>
             </div>
 
-            <div className="px-6 py-4 bg-[#f9f9f9] border-t border-[#cccccc] flex justify-end">
+            <div className="px-6 py-4 bg-md-surface-container border-t border-md-outline-variant flex justify-end">
               <button
                 onClick={() => setShowInstructions(false)}
-                className="px-6 py-2 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors"
+                className="px-6 py-2 font-bold bg-md-primary-container text-md-on-surface rounded hover:bg-md-primary hover:text-md-on-primary transition-colors"
               >
                 Got it!
               </button>
@@ -616,15 +616,15 @@ function statusPill(status: string) {
   if (s === "completed") return "bg-[#e8f5e9] text-[#00a758]"
   if (s === "running") return "bg-[#e8f0fe] text-[#2563eb]"
   if (s === "queued") return "bg-[#f3f4f6] text-[#4b5563]"
-  if (s === "failed") return "bg-[#fee] text-[#e41f13]"
+  if (s === "failed") return "bg-[#e41f13]/10 text-[#e41f13]"
   return "bg-[#f3f4f6] text-[#4b5563]"
 }
 
 function socStatusPill(status: string) {
   const s = (status || "").toLowerCase()
   if (s === "met") return "bg-[#e8f5e9] text-[#00a758]"
-  if (s === "partially met") return "bg-[#fff7ed] text-[#f59e0b]"
-  return "bg-[#fee] text-[#e41f13]"
+  if (s === "partially met") return "bg-[#f59e0b]/10 text-[#f59e0b]"
+  return "bg-[#e41f13]/10 text-[#e41f13]"
 }
 
 function scoreColor(score0to100: number) {

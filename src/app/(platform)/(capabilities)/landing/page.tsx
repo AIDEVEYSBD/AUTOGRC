@@ -90,7 +90,7 @@ function StatusLabel({ status }: { status: CapabilityStatus }) {
       ? "text-white bg-[#00a758]"
       : status === "Not configured"
         ? "text-white bg-[#f59e0b]"
-        : "text-white bg-[#8b5cf6]"
+        : "text-md-on-primary bg-md-primary"
 
   return (
     <span className={`text-xs font-bold px-3 py-1 rounded ${styles} uppercase tracking-wide`}>
@@ -103,11 +103,11 @@ export default function CapabilitiesLandingPage() {
   return (
     <div className="space-y-8 p-6">
       {/* Header */}
-      <div className="rounded-lg border border-[#cccccc] bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-bold text-[#333333]">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-8 shadow-sm">
+        <h1 className="text-3xl font-bold text-md-on-surface">
           AutoGRC Capabilities
         </h1>
-        <p className="mt-2 text-base text-[#666666] max-w-4xl">
+        <p className="mt-2 text-base text-md-on-surface-variant max-w-4xl">
           Following section provides access to AutoGRC's core capabilities for governance,
           risk, and compliance management. Launch integrated workflows for framework mapping,
           audit report analysis, and automated controls assessment to streamline your
@@ -119,7 +119,7 @@ export default function CapabilitiesLandingPage() {
             <div className="w-2 h-2 rounded-full bg-[#00a758] animate-pulse"></div>
             Platform Status: Operational
           </div>
-          <div className="text-sm text-[#666666]">
+          <div className="text-sm text-md-on-surface-variant">
             {CAPABILITIES.filter(c => c.status === "Ready").length} of {CAPABILITIES.length} capabilities active
           </div>
         </div>
@@ -128,10 +128,10 @@ export default function CapabilitiesLandingPage() {
       {/* Capability cards */}
       <div>
         <div className="mb-4">
-          <h2 className="text-2xl font-bold text-[#333333]">
+          <h2 className="text-2xl font-bold text-md-on-surface">
             Available capabilities
           </h2>
-          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+          <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
             Following section lists all GRC capabilities available in the platform.
             Each capability provides specialized functionality for different aspects
             of compliance management and regulatory adherence.
@@ -142,20 +142,20 @@ export default function CapabilitiesLandingPage() {
           {CAPABILITIES.map((cap) => (
             <div
               key={cap.key}
-              className="flex flex-col justify-between rounded-lg border border-[#cccccc] bg-white p-6 shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-6 shadow-sm hover:shadow-md transition-all"
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="text-[#333333]">{cap.icon}</div>
-                    <h3 className="text-lg font-bold text-[#333333]">
+                    <div className="text-md-on-surface">{cap.icon}</div>
+                    <h3 className="text-lg font-bold text-md-on-surface">
                       {cap.name}
                     </h3>
                   </div>
 
                   <Link
                     href={cap.href}
-                    className="text-[#999999] hover:text-[#333333] transition-colors"
+                    className="text-md-on-surface-variant hover:text-md-on-surface transition-colors"
                     title={`Open ${cap.name} in new view`}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -171,7 +171,7 @@ export default function CapabilitiesLandingPage() {
 
                 <StatusLabel status={cap.status} />
 
-                <p className="text-sm leading-relaxed text-[#666666]">
+                <p className="text-sm leading-relaxed text-md-on-surface-variant">
                   {cap.description}
                 </p>
               </div>
@@ -179,7 +179,7 @@ export default function CapabilitiesLandingPage() {
               <div className="mt-6">
                 <Link
                   href={cap.href}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded bg-[#ffe600] px-4 py-2.5 text-sm font-bold text-[#333333] transition-colors hover:bg-[#333333] hover:text-white"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-md-primary-container px-4 py-2.5 text-sm font-bold text-md-on-primary-container transition-colors hover:bg-md-primary hover:text-md-on-primary"
                 >
                   <svg
                     width="14"
@@ -198,17 +198,17 @@ export default function CapabilitiesLandingPage() {
       </div>
 
       {/* Information footer */}
-      <div className="rounded-lg border border-[#e5e7eb] bg-[#f9f9f9] p-6">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-6">
         <div className="flex items-start gap-3">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#666666] mt-0.5">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-md-on-surface-variant mt-0.5">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
             <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <div>
-            <div className="font-bold text-[#333333] mb-1">
+            <div className="font-bold text-md-on-surface mb-1">
               Capability Configuration
             </div>
-            <p className="text-sm text-[#666666] leading-relaxed">
+            <p className="text-sm text-md-on-surface-variant leading-relaxed">
               Capabilities marked as "Ready" are fully configured and operational.
               Capabilities requiring configuration must be set up before use.
               Experimental capabilities are in beta testing and may have limited functionality.

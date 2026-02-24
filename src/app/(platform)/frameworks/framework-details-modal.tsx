@@ -112,31 +112,31 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-7xl max-h-[90vh] bg-white rounded-lg shadow-xl flex flex-col">
+      <div className="w-full max-w-7xl max-h-[90vh] bg-md-surface-container rounded-xl shadow-xl flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#cccccc] flex items-center justify-between" style={{ backgroundColor: "#ffe600" }}>
+        <div className="px-6 py-4 border-b border-md-outline-variant flex items-center justify-between" style={{ backgroundColor: "var(--md-primary-container)" }}>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-[#333333]">
+              <h2 className="text-2xl font-bold text-md-on-surface">
                 {framework.name}
               </h2>
               {framework.isMaster && (
-                <span className="text-xs px-2 py-0.5 rounded bg-white text-[#333333] font-bold border border-[#333333]">
+                <span className="text-xs px-2 py-0.5 rounded bg-md-surface-container text-md-on-surface font-bold border border-md-outline">
                   MASTER
                 </span>
               )}
             </div>
             {framework.version && (
-              <p className="text-sm text-[#666666] mt-1">
+              <p className="text-sm text-md-on-surface-variant mt-1">
                 Version {framework.version} • {framework.totalControls} controls
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded hover:bg-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-md-surface-container-high transition-colors"
           >
-            <svg className="w-5 h-5 text-[#333333]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-md-on-surface" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -145,10 +145,10 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
         {/* Body */}
         <div className="flex-1 overflow-hidden flex">
           {/* Sidebar - Domain filter */}
-          <aside className="w-64 border-r border-[#cccccc] bg-[#f9f9f9] overflow-y-auto">
+          <aside className="w-64 border-r border-md-outline-variant bg-md-surface-container overflow-y-auto">
             <div
-              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
-              style={{ backgroundColor: "#ffe600" }}
+              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-md-on-surface border-b border-md-outline-variant"
+              style={{ backgroundColor: "var(--md-primary-container)" }}
             >
               Control Domains
             </div>
@@ -158,12 +158,12 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
                 className={[
                   "w-full text-left px-3 py-3 rounded transition-colors text-sm font-bold",
                   !selectedDomain
-                    ? "bg-[#ffe600] text-[#333333] shadow-sm"
+                    ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
                     : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
                 ].join(" ")}
               >
                 All Domains
-                <div className={`text-xs mt-1 ${!selectedDomain ? "text-[#666666]" : "text-[#cccccc]"}`}>
+                <div className={`text-xs mt-1 ${!selectedDomain ? "text-md-on-surface-variant" : "text-md-on-surface-variant"}`}>
                   {framework.totalControls} controls
                 </div>
               </button>
@@ -177,12 +177,12 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
                     className={[
                       "w-full text-left px-3 py-3 rounded transition-colors text-sm font-bold",
                       active
-                        ? "bg-[#ffe600] text-[#333333] shadow-sm"
+                        ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
                         : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
                     ].join(" ")}
                   >
                     {domain}
-                    <div className={`text-xs mt-1 ${active ? "text-[#666666]" : "text-[#cccccc]"}`}>
+                    <div className={`text-xs mt-1 ${active ? "text-md-on-surface-variant" : "text-md-on-surface-variant"}`}>
                       {count} controls
                     </div>
                   </button>
@@ -192,17 +192,17 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
           </aside>
 
           {/* Main content - Table format */}
-          <div className="flex-1 overflow-y-auto bg-white">
-            <div className="border-b border-[#cccccc]" style={{ backgroundColor: "#ffe600" }}>
+          <div className="flex-1 overflow-y-auto bg-md-surface-container">
+            <div className="border-b border-md-outline-variant" style={{ backgroundColor: "var(--md-primary-container)" }}>
               <div className="grid grid-cols-[200px_1fr_120px] h-12 items-center px-4">
-                <div className="text-sm font-bold text-[#333333]">Control ID</div>
-                <div className="text-sm font-bold text-[#333333]">Control Details</div>
-                <div className="text-sm font-bold text-[#333333] text-right">Actions</div>
+                <div className="text-sm font-bold text-md-on-surface">Control ID</div>
+                <div className="text-sm font-bold text-md-on-surface">Control Details</div>
+                <div className="text-sm font-bold text-md-on-surface text-right">Actions</div>
               </div>
             </div>
 
             {filteredControls.length === 0 ? (
-              <div className="p-6 text-sm text-[#666666]">
+              <div className="p-6 text-sm text-md-on-surface-variant">
                 No controls found for this domain.
               </div>
             ) : (
@@ -223,10 +223,10 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#cccccc] flex justify-end">
+        <div className="px-6 py-4 border-t border-md-outline-variant flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-[#ffe600] text-[#333333] rounded font-semibold hover:bg-[#ffd700] transition-colors"
+            className="px-6 py-2 bg-md-primary-container text-md-on-primary-container rounded-lg font-semibold hover:opacity-90 transition-colors"
           >
             Close
           </button>
@@ -254,14 +254,14 @@ function ControlRow({
   isPending: boolean
 }) {
   return (
-    <div className="border-b border-[#e5e7eb] last:border-b-0 hover:bg-[#f9f9f9] transition-colors">
+    <div className="border-b border-md-outline-variant last:border-b-0 hover:bg-md-surface-container-high transition-colors">
       <div className="grid grid-cols-[200px_1fr_120px] px-4 py-4">
         {/* Control ID column */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-bold text-[#333333]">{control.controlCode}</span>
+            <span className="text-sm font-bold text-md-on-surface">{control.controlCode}</span>
             {control.isAutomated && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-md-primary-container/30 text-md-on-surface">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -286,7 +286,7 @@ function ControlRow({
               </span>
             )}
             {control.subDomain && (
-              <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+              <span className="px-2 py-0.5 rounded text-xs font-medium bg-md-surface-container-high text-md-on-surface">
                 {control.subDomain}
               </span>
             )}
@@ -295,14 +295,14 @@ function ControlRow({
 
         {/* Control details column */}
         <div>
-          <p className="text-sm text-[#666666] leading-relaxed mb-2">
+          <p className="text-sm text-md-on-surface-variant leading-relaxed mb-2">
             {control.statement}
           </p>
 
           {control.testingProcedure && (
             <div className="mb-2">
-              <p className="text-xs font-semibold text-[#333333] mb-1">Testing Procedure:</p>
-              <p className="text-xs text-[#666666] leading-relaxed">
+              <p className="text-xs font-semibold text-md-on-surface mb-1">Testing Procedure:</p>
+              <p className="text-xs text-md-on-surface-variant leading-relaxed">
                 {control.testingProcedure}
               </p>
             </div>
@@ -327,10 +327,10 @@ function ControlRow({
 
           {/* Edit mode */}
           {isEditing && (
-            <div className="mt-3 pt-3 border-t border-[#e5e7eb] space-y-3">
+            <div className="mt-3 pt-3 border-t border-md-outline-variant space-y-3">
               {/* Control Type */}
               <div>
-                <label className="block text-xs font-semibold text-[#333333] mb-2">
+                <label className="block text-xs font-semibold text-md-on-surface mb-2">
                   Control Type
                 </label>
                 <div className="flex gap-3">
@@ -347,9 +347,9 @@ function ControlRow({
                           )
                         }}
                         disabled={isPending}
-                        className="rounded border-gray-300 text-[#ffe600] focus:ring-[#ffe600]"
+                        className="rounded border-md-outline-variant text-md-primary-container focus:ring-md-primary-container"
                       />
-                      <span className="text-xs text-[#666666]">{type}</span>
+                      <span className="text-xs text-md-on-surface-variant">{type}</span>
                     </label>
                   ))}
                 </div>
@@ -357,7 +357,7 @@ function ControlRow({
 
               {/* Control Scope */}
               <div>
-                <label className="block text-xs font-semibold text-[#333333] mb-2">
+                <label className="block text-xs font-semibold text-md-on-surface mb-2">
                   Control Scope
                 </label>
                 <div className="flex gap-3">
@@ -374,9 +374,9 @@ function ControlRow({
                           )
                         }}
                         disabled={isPending}
-                        className="rounded border-gray-300 text-[#ffe600] focus:ring-[#ffe600]"
+                        className="rounded border-md-outline-variant text-md-primary-container focus:ring-md-primary-container"
                       />
-                      <span className="text-xs text-[#666666]">{scope}</span>
+                      <span className="text-xs text-md-on-surface-variant">{scope}</span>
                     </label>
                   ))}
                 </div>
@@ -396,9 +396,9 @@ function ControlRow({
                       )
                     }}
                     disabled={isPending}
-                    className="rounded border-gray-300 text-[#ffe600] focus:ring-[#ffe600]"
+                    className="rounded border-md-outline-variant text-md-primary-container focus:ring-md-primary-container"
                   />
-                  <span className="text-xs font-semibold text-[#333333]">
+                  <span className="text-xs font-semibold text-md-on-surface">
                     Automated Control
                   </span>
                 </label>
@@ -406,14 +406,14 @@ function ControlRow({
 
               {/* Applicability Categories */}
               <div>
-                <label className="block text-xs font-semibold text-[#333333] mb-2">
+                <label className="block text-xs font-semibold text-md-on-surface mb-2">
                   Applicability
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {availableApplicabilities.map(cat => (
                     <label
                       key={cat.id}
-                      className="flex items-start gap-2 cursor-pointer p-2 rounded hover:bg-[#f9f9f9] transition-colors"
+                      className="flex items-start gap-2 cursor-pointer p-2 rounded hover:bg-md-surface-container-high transition-colors"
                     >
                       <input
                         type="checkbox"
@@ -422,12 +422,12 @@ function ControlRow({
                           onApplicabilityToggle(control.id, cat.id, control.applicabilityIds)
                         }}
                         disabled={isPending}
-                        className="mt-0.5 rounded border-gray-300 text-[#ffe600] focus:ring-[#ffe600]"
+                        className="mt-0.5 rounded border-md-outline-variant text-md-primary-container focus:ring-md-primary-container"
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-medium text-[#333333]">{cat.name}</div>
+                        <div className="text-xs font-medium text-md-on-surface">{cat.name}</div>
                         {cat.description && (
-                          <div className="text-xs text-[#999999] line-clamp-2">{cat.description}</div>
+                          <div className="text-xs text-md-on-surface-variant line-clamp-2">{cat.description}</div>
                         )}
                       </div>
                     </label>
@@ -442,7 +442,7 @@ function ControlRow({
         <div className="flex justify-end">
           <button
             onClick={onEditClick}
-            className="px-3 py-1.5 text-xs font-medium rounded border border-[#cccccc] hover:bg-[#f9f9f9] transition-colors"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-md-outline-variant hover:bg-md-surface-container-high transition-colors"
           >
             {isEditing ? "Cancel" : "Edit"}
           </button>

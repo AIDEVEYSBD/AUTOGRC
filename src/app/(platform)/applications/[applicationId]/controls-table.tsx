@@ -27,8 +27,8 @@ function FilterDropdown({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
-          value ? "text-blue-600" : "text-gray-600"
+        className={`p-1 rounded hover:bg-md-surface-container-high transition-colors ${
+          value ? "text-md-primary" : "text-md-on-surface-variant"
         }`}
         title={`Filter ${label}`}
       >
@@ -53,14 +53,14 @@ function FilterDropdown({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+          <div className="absolute top-full left-0 mt-2 z-20 bg-md-surface-container rounded-xl border border-md-outline-variant shadow-lg p-3 min-w-[250px]">
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={`Filter ${label.toLowerCase()}...`}
-                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="flex-1 px-3 py-1.5 text-sm border border-md-outline-variant rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
@@ -70,7 +70,7 @@ function FilterDropdown({
                     e.stopPropagation()
                     onClear()
                   }}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  className="p-1.5 text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-container-high rounded"
                   title="Clear filter"
                 >
                   <svg
@@ -157,11 +157,11 @@ export default function ControlsTable({
     <div className="space-y-4">
       {/* Filter Status Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm">
+          <div className="text-sm text-md-on-surface-variant">
             {sorted.length} of {controls.length} controls
             {activeFilterCount > 0 && (
-              <span className="ml-2 text-gray-500">
+              <span className="ml-2 text-md-on-surface-variant">
                 • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
               </span>
             )}
@@ -172,17 +172,17 @@ export default function ControlsTable({
               setDomainFilter("")
               setStatementFilter("")
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-md-primary hover:opacity-80 font-medium"
           >
             Clear all filters
           </button>
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden">
         <div className="max-h-[600px] overflow-auto">
           <table className="w-full min-w-[800px] text-sm table-fixed">
-            <thead className="sticky top-0 bg-[#FFE600] border-b border-gray-200 z-10">
+            <thead className="sticky top-0 bg-[#FFE600] border-b border-md-outline-variant z-10">
               <tr>
                 <Th
                   onClick={() => toggleSort("controlCode")}
@@ -240,14 +240,14 @@ export default function ControlsTable({
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-md-outline-variant">
               {sorted.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center">
                     <div className="flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <div className="w-16 h-16 bg-md-surface-container-high rounded-full flex items-center justify-center mb-4">
                         <svg
-                          className="w-8 h-8 text-gray-400"
+                          className="w-8 h-8 text-md-on-surface-variant"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -260,10 +260,10 @@ export default function ControlsTable({
                           />
                         </svg>
                       </div>
-                      <p className="text-base font-semibold text-gray-900">
+                      <p className="text-base font-semibold text-md-on-surface">
                         {activeFilterCount > 0 ? "No controls match your filters" : "No controls found"}
                       </p>
-                      <p className="text-sm text-gray-500 mt-2">
+                      <p className="text-sm text-md-on-surface-variant mt-2">
                         {activeFilterCount > 0 
                           ? "Try adjusting your filter criteria"
                           : "No controls available for this application"}
@@ -284,29 +284,29 @@ export default function ControlsTable({
                       }}
                       className={`transition-colors ${
                         c.isAssessed 
-                          ? "cursor-pointer hover:bg-gray-50" 
-                          : "cursor-not-allowed bg-gray-50 opacity-60"
+                          ? "cursor-pointer hover:bg-md-surface" 
+                          : "cursor-not-allowed bg-md-surface opacity-60"
                       }`}
                     >
-                      <Td className={`font-semibold ${c.isAssessed ? "text-gray-900" : "text-gray-500"}`}>
+                      <Td className={`font-semibold ${c.isAssessed ? "text-md-on-surface" : "text-md-on-surface-variant"}`}>
                         {c.controlCode}
                       </Td>
                       <Td>
                         <div className="space-y-1">
                           <div className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
-                            c.isAssessed ? "bg-gray-100 text-gray-700" : "bg-gray-200 text-gray-500"
+                            c.isAssessed ? "bg-md-surface-container-high text-md-on-surface" : "bg-md-outline-variant text-md-on-surface-variant"
                           }`}>
                             {c.domain}
                           </div>
                           {c.subDomain && (
-                            <div className={`text-xs ${c.isAssessed ? "text-gray-500" : "text-gray-400"}`}>
+                            <div className={`text-xs ${c.isAssessed ? "text-md-on-surface-variant" : "text-md-on-surface-variant"}`}>
                               {c.subDomain}
                             </div>
                           )}
                         </div>
                       </Td>
                       <Td>
-                        <div className={`leading-relaxed ${c.isAssessed ? "text-gray-700" : "text-gray-500"}`}>
+                        <div className={`leading-relaxed ${c.isAssessed ? "text-md-on-surface" : "text-md-on-surface-variant"}`}>
                           {c.controlStatement}
                         </div>
                       </Td>
@@ -314,7 +314,7 @@ export default function ControlsTable({
                         {c.isAssessed ? (
                           <ScoreBadge score={c.complianceScore} />
                         ) : (
-                          <span className="inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+                          <span className="inline-flex items-center rounded-md border border-md-outline-variant bg-md-surface-container-high px-2.5 py-1 text-xs font-semibold text-md-on-surface-variant">
                             N/A
                           </span>
                         )}
@@ -323,8 +323,8 @@ export default function ControlsTable({
                         <div className="flex items-center gap-1">
                           <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${
                             c.isAssessed 
-                              ? "border-gray-200 bg-gray-50 text-gray-700" 
-                              : "border-gray-300 bg-gray-200 text-gray-400"
+                              ? "border-md-outline-variant bg-md-surface text-md-on-surface" 
+                              : "border-md-outline-variant bg-md-outline-variant text-md-on-surface-variant"
                           }`}>
                             {c.evidence.length}
                           </span>
@@ -333,7 +333,7 @@ export default function ControlsTable({
                       <Td className="text-right">
                         {c.isAssessed ? (
                           <svg
-                            className={`w-5 h-5 text-gray-400 transition-transform ${
+                            className={`w-5 h-5 text-md-on-surface-variant transition-transform ${
                               expandedId === c.controlId ? "rotate-180" : ""
                             }`}
                             fill="none"
@@ -349,7 +349,7 @@ export default function ControlsTable({
                           </svg>
                         ) : (
                           <svg
-                            className="w-5 h-5 text-gray-300"
+                            className="w-5 h-5 text-md-on-surface-variant"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -366,16 +366,16 @@ export default function ControlsTable({
                     </tr>
 
                     {expandedId === c.controlId && c.isAssessed && (
-                      <tr className="bg-gray-50">
+                      <tr className="bg-md-surface">
                         <Td colSpan={6} className="p-6">
                           <div className="space-y-6 max-w-6xl">
                             {/* Testing Procedure */}
                             {c.testingProcedure && (
-                              <div className="bg-white rounded-lg border border-gray-200 p-4">
-                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                              <div className="bg-md-surface-container rounded-lg border border-md-outline-variant p-4">
+                                <div className="text-xs font-semibold text-md-on-surface-variant uppercase tracking-wide mb-2">
                                   Testing Procedure
                                 </div>
-                                <p className="text-sm text-gray-700 leading-relaxed">
+                                <p className="text-sm text-md-on-surface leading-relaxed">
                                   {c.testingProcedure}
                                 </p>
                               </div>
@@ -384,16 +384,16 @@ export default function ControlsTable({
                             {/* Evidence Section */}
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
-                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                <div className="text-xs font-semibold text-md-on-surface-variant uppercase tracking-wide">
                                   Evidence ({c.evidence.length})
                                 </div>
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-md-on-surface-variant">
                                   Assessed by: {c.assessedBy}
                                 </div>
                               </div>
 
                               {c.evidence.length === 0 ? (
-                                <div className="bg-white rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-500">
+                                <div className="bg-md-surface-container rounded-lg border border-md-outline-variant p-4 text-center text-sm text-md-on-surface-variant">
                                   No evidence available for this control
                                 </div>
                               ) : (
@@ -407,10 +407,10 @@ export default function ControlsTable({
 
                             {/* Assessment Info */}
                             {c.assessedAt && (
-                              <div className="flex items-center gap-6 text-xs text-gray-500 pt-4 border-t border-gray-200">
+                              <div className="flex items-center gap-6 text-xs text-md-on-surface-variant pt-4 border-t border-md-outline-variant">
                                 <div className="flex items-center gap-2">
                                   <span>Assessed:</span>
-                                  <span className="font-medium text-gray-900">
+                                  <span className="font-medium text-md-on-surface">
                                     {new Date(c.assessedAt).toLocaleDateString()}
                                   </span>
                                 </div>
@@ -570,9 +570,9 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
     : null
 
   return (
-    <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50/30 rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+    <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50/30 rounded-lg border border-md-outline-variant overflow-hidden shadow-sm">
       {/* Evidence Header */}
-      <div className="p-4 bg-gray-50/80 backdrop-blur-sm border-b border-gray-200">
+      <div className="p-4 bg-md-surface/80 backdrop-blur-sm border-b border-md-outline-variant">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -580,10 +580,10 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               <StatusBadge status={evidence.status} isAssessed={true} />
               <ScoreBadge score={evidence.score} />
             </div>
-            <div className="font-medium text-gray-900 text-sm">
+            <div className="font-medium text-md-on-surface text-sm">
               {evidence.title}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-md-on-surface-variant mt-1">
               Assessed At:{" "}
               {new Date(evidence.collectedAt).toLocaleDateString()} at{" "}
               {new Date(evidence.collectedAt).toLocaleTimeString()}
@@ -592,7 +592,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
           {(evidence.explanation || evidence.evidenceData) && (
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              className="text-xs text-md-primary hover:opacity-80 font-medium"
             >
               {showDetails ? "Hide Details" : "Show Details"}
             </button>
@@ -605,10 +605,10 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
         <div className="p-4 space-y-4">
           {processedExplanation && (
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <div className="text-xs font-semibold text-md-on-surface-variant uppercase tracking-wide mb-2">
                 Explanation
               </div>
-              <div className="prose prose-sm max-w-none text-gray-700">
+              <div className="prose prose-sm max-w-none text-md-on-surface">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
@@ -619,12 +619,12 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
                     strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                     em: ({ children }) => <em className="italic">{children}</em>,
                     code: ({ children }) => (
-                      <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
+                      <code className="bg-md-surface-container-high px-1.5 py-0.5 rounded text-xs font-mono">
                         {children}
                       </code>
                     ),
                     pre: ({ children }) => (
-                      <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">
+                      <pre className="bg-md-surface-container-high p-2 rounded text-xs overflow-x-auto mb-2">
                         {children}
                       </pre>
                     ),
@@ -636,13 +636,13 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline"
+                        className="text-md-primary hover:opacity-80 underline"
                       >
                         {children}
                       </a>
                     ),
                     blockquote: ({ children }) => (
-                      <blockquote className="border-l-4 border-gray-300 pl-3 italic text-gray-600 mb-2">
+                      <blockquote className="border-l-4 border-md-outline-variant pl-3 italic text-md-on-surface-variant mb-2">
                         {children}
                       </blockquote>
                     ),
@@ -656,29 +656,29 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
 
           {evidence.evidenceData && (
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <div className="text-xs font-semibold text-md-on-surface-variant uppercase tracking-wide mb-2">
                 Evidence Data
               </div>
               {isSOCReport && socEvidenceTable ? (
-                <div className="bg-gray-50 rounded p-3 border border-gray-200 overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
-                    <thead className="bg-gray-100">
+                <div className="bg-md-surface rounded p-3 border border-md-outline-variant overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-300 border border-md-outline-variant">
+                    <thead className="bg-md-surface-container-high">
                       <tr>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900 border-r border-gray-300 w-48">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-md-on-surface border-r border-md-outline-variant w-48">
                           Field
                         </th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-md-on-surface">
                           Value
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 bg-md-surface-container">
                       {socEvidenceTable.map((row, idx) => (
                         <tr key={idx} className="align-top">
-                          <td className="px-3 py-2 text-xs font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap">
+                          <td className="px-3 py-2 text-xs font-medium text-md-on-surface border-r border-md-outline-variant whitespace-nowrap">
                             {row.key}
                           </td>
-                          <td className="px-3 py-2 text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                          <td className="px-3 py-2 text-xs text-md-on-surface leading-relaxed whitespace-pre-wrap break-words">
                             {row.cleanedValue}
                           </td>
                         </tr>
@@ -687,23 +687,23 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
                   </table>
                 </div>
               ) : (
-                <div className="bg-gray-50 rounded p-3 border border-gray-200 overflow-x-auto">
+                <div className="bg-md-surface rounded p-3 border border-md-outline-variant overflow-x-auto">
                   <div className="prose prose-sm max-w-none">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
                         table: ({ children }) => (
-                          <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
+                          <table className="min-w-full divide-y divide-gray-300 border border-md-outline-variant">
                             {children}
                           </table>
                         ),
                         thead: ({ children }) => (
-                          <thead className="bg-gray-100">
+                          <thead className="bg-md-surface-container-high">
                             {children}
                           </thead>
                         ),
                         tbody: ({ children }) => (
-                          <tbody className="divide-y divide-gray-200 bg-white">
+                          <tbody className="divide-y divide-gray-200 bg-md-surface-container">
                             {children}
                           </tbody>
                         ),
@@ -713,18 +713,18 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
                           </tr>
                         ),
                         th: ({ children }) => (
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-900 border-r border-gray-300 last:border-r-0">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-md-on-surface border-r border-md-outline-variant last:border-r-0">
                             {children}
                           </th>
                         ),
                         td: ({ children }) => (
-                          <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-200 last:border-r-0">
+                          <td className="px-3 py-2 text-xs text-md-on-surface border-r border-md-outline-variant last:border-r-0">
                             {children}
                           </td>
                         ),
                         p: ({ children }) => <p className="mb-2 last:mb-0 text-xs">{children}</p>,
                         code: ({ children }) => (
-                          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
+                          <code className="bg-md-surface-container-high px-1.5 py-0.5 rounded text-xs font-mono">
                             {children}
                           </code>
                         ),
@@ -741,7 +741,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
           )}
 
           {(evidence.automationRunId || evidence.socRunId) && (
-            <div className="flex items-center gap-4 text-xs text-gray-500 pt-2 border-t border-gray-200">
+            <div className="flex items-center gap-4 text-xs text-md-on-surface-variant pt-2 border-t border-md-outline-variant">
               {evidence.automationRunId && (
                 <div>
                   <span className="font-medium">Automation Run: </span>
@@ -778,11 +778,11 @@ function SourceTypeBadge({
     },
     "SOC Report": {
       label: "SOC Report",
-      className: "bg-blue-50 text-blue-700 border-blue-200",
+      className: "bg-md-primary-container/30 text-md-on-surface border-md-outline-variant",
     },
     "Manual Testing": {
       label: "Manual",
-      className: "bg-gray-50 text-gray-700 border-gray-200",
+      className: "bg-md-surface text-md-on-surface border-md-outline-variant",
     },
   }
 
@@ -826,14 +826,14 @@ function StatusBadge({
     Compliant: "bg-green-100 text-green-800 border-green-200",
     "Partial Gap": "bg-amber-100 text-amber-800 border-amber-200",
     "Not Compliant": "bg-red-100 text-red-800 border-red-200",
-    "Not Applicable": "bg-gray-100 text-gray-800 border-gray-200",
-    "Not Assessed": "bg-gray-200 text-gray-500 border-gray-300",
+    "Not Applicable": "bg-md-surface-container-high text-md-on-surface border-md-outline-variant",
+    "Not Assessed": "bg-md-outline-variant text-md-on-surface-variant border-md-outline-variant",
   }
 
   return (
     <span
       className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${
-        isAssessed ? variants[status] : "bg-gray-200 text-gray-500 border-gray-300"
+        isAssessed ? variants[status] : "bg-md-outline-variant text-md-on-surface-variant border-md-outline-variant"
       }`}
     >
       {status}
@@ -861,8 +861,8 @@ function Th({
         width || ""
       } px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider transition-colors ${
         onClick ? "cursor-pointer select-none" : ""
-      } ${isActive ? "text-gray-900" : "text-gray-700"} ${
-        onClick ? "hover:text-gray-900" : ""
+      } ${isActive ? "text-md-on-surface" : "text-md-on-surface"} ${
+        onClick ? "hover:text-md-on-surface" : ""
       }`}
     >
       <div className="flex items-center gap-2">
@@ -870,7 +870,7 @@ function Th({
         {onClick && (
           <svg
             className={`w-4 h-4 transition-all ${
-              isActive ? "text-gray-900" : "text-gray-600"
+              isActive ? "text-md-on-surface" : "text-md-on-surface-variant"
             } ${sortDir === "desc" ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
@@ -901,7 +901,7 @@ function Td({
   return (
     <td
       colSpan={colSpan}
-      className={`px-4 py-3.5 text-gray-600 ${className ?? ""}`}
+      className={`px-4 py-3.5 text-md-on-surface-variant ${className ?? ""}`}
     >
       {children}
     </td>

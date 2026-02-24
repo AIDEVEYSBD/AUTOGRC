@@ -16,17 +16,17 @@ export default async function ApplicationsPage() {
   const { kpis, rows } = await getApplicationsOverview()
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full">
+    <div className="min-h-screen w-full">
       {/* HEADER */}
-      <section className="w-full bg-white border-b border-gray-200 p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-gray-900">Applications</h1>
-        <p className="mt-1 text-sm text-gray-600">
+      <section className="w-full bg-md-surface-container border-b border-md-outline-variant p-6 shadow-sm">
+        <h1 className="text-2xl font-semibold text-md-on-surface">Applications</h1>
+        <p className="mt-1 text-sm text-md-on-surface-variant">
           Monitor security posture and compliance across all your applications.
         </p>
       </section>
 
       {/* KPI METRICS */}
-      <section className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 p-6 bg-gray-50">
+      <section className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 p-6">
         <MetricCard 
           label="Total" 
           sublabel="Applications"
@@ -63,7 +63,7 @@ export default async function ApplicationsPage() {
       </section>
 
       {/* TABLE */}
-      <section className="w-full p-6 bg-gray-50">
+      <section className="w-full p-6">
         <ApplicationsTable rows={rows} />
       </section>
     </div>
@@ -85,26 +85,26 @@ function MetricCard({
   avgScore: number
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-4 h-[130px] flex flex-col justify-between">
+    <div className="md3-card p-4 h-[130px] flex flex-col justify-between">
       <div className="space-y-0.5">
-        <div className="text-xs font-medium text-gray-600 uppercase tracking-wide leading-tight">
+        <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide leading-tight">
           {label}
         </div>
         {sublabel && (
-          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide leading-tight">
+          <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide leading-tight">
             {sublabel}
           </div>
         )}
       </div>
       <div className="mt-auto w-full">
-        <div className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="text-3xl font-bold text-md-on-surface mb-2">
           {count}
         </div>
         <div className="flex items-center justify-between w-full">
-          <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">
+          <div className="text-[10px] font-medium text-md-on-surface-variant uppercase tracking-wide">
             Avg Compliance
           </div>
-          <div className="text-sm font-semibold text-gray-500">
+          <div className="text-sm font-semibold text-md-on-surface-variant">
             {avgScore}%
           </div>
         </div>

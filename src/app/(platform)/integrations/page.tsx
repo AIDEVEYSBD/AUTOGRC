@@ -65,8 +65,8 @@ function getStatusColor(status: string): string {
     case "Success": return "text-[#00a758]"
     case "Failed": return "text-[#e41f13]"
     case "Partial": return "text-[#f59e0b]"
-    case "Started": return "text-[#666666]"
-    default: return "text-[#666666]"
+    case "Started": return "text-md-on-surface-variant"
+    default: return "text-md-on-surface-variant"
   }
 }
 
@@ -586,7 +586,7 @@ export default function IntegrationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-[#666666]">Loading integrations...</div>
+        <div className="text-lg text-md-on-surface-variant">Loading integrations...</div>
       </div>
     )
   }
@@ -596,10 +596,10 @@ export default function IntegrationsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#333333]">
+          <h1 className="text-3xl font-bold text-md-on-surface">
             Security Tools Integration
           </h1>
-          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+          <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
             Following section provides an overview of cybersecurity tools integrated with
             the AutoGRC platform. These integrations enable automated compliance monitoring,
             vulnerability assessments, and continuous security posture management across your
@@ -609,7 +609,7 @@ export default function IntegrationsPage() {
 
         <button
           onClick={() => setShowMarketplace(true)}
-          className="flex-shrink-0 bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
+          className="flex-shrink-0 bg-md-primary-container text-md-on-primary-container px-6 py-2.5 rounded-lg font-bold transition-colors hover:bg-md-primary hover:text-md-on-primary"
         >
           Add Integration
         </button>
@@ -631,10 +631,10 @@ export default function IntegrationsPage() {
       <div className="space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-[#333333]">
+            <h2 className="text-2xl font-bold text-md-on-surface">
               Active security tool integrations
             </h2>
-            <p className="mt-1 text-base text-[#666666] max-w-4xl">
+            <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
               Following section lists all cybersecurity tools currently integrated with the
               platform. Configure API endpoints, execute automated assessments, and manage
               integration lifecycles for each connected tool.
@@ -645,13 +645,13 @@ export default function IntegrationsPage() {
             <div className="flex flex-shrink-0 gap-2">
               <button
                 onClick={expandAll}
-                className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium whitespace-nowrap"
+                className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container transition-colors font-medium whitespace-nowrap"
               >
                 Expand All
               </button>
               <button
                 onClick={collapseAll}
-                className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium whitespace-nowrap"
+                className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container transition-colors font-medium whitespace-nowrap"
               >
                 Collapse All
               </button>
@@ -660,13 +660,13 @@ export default function IntegrationsPage() {
         </div>
 
         {activeIntegrations.length === 0 ? (
-          <div className="rounded-lg border border-[#cccccc] bg-white p-12 text-center shadow-sm">
-            <div className="text-[#666666] mb-4">
+          <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-12 text-center shadow-sm">
+            <div className="text-md-on-surface-variant mb-4">
               No security tools integrated yet. Browse the marketplace to add integrations.
             </div>
             <button
               onClick={() => setShowMarketplace(true)}
-              className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
+              className="bg-md-primary-container text-md-on-primary-container px-6 py-2.5 rounded-lg font-bold transition-colors hover:bg-md-primary hover:text-md-on-primary"
             >
               Browse Marketplace
             </button>
@@ -678,41 +678,41 @@ export default function IntegrationsPage() {
             const isLoadingRuns = loadingRuns.has(tool.id)
 
             return (
-              <div key={tool.id} className="rounded-lg border border-[#cccccc] bg-white shadow-sm">
+              <div key={tool.id} className="rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm">
                 {/* Collapsed Header */}
                 <div 
-                  className="p-6 cursor-pointer hover:bg-[#f9f9f9] transition-colors"
+                  className="p-6 cursor-pointer hover:bg-md-surface-container-high transition-colors"
                   onClick={() => toggleCard(tool.id)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <div className="font-bold text-lg text-[#333333]">{tool.displayName}</div>
+                        <div className="font-bold text-lg text-md-on-surface">{tool.displayName}</div>
                         <span className={`text-xs px-2 py-0.5 rounded font-bold ${
                           tool.status === "Active" 
                             ? "bg-[#00a758] text-white" 
                             : tool.status === "Error"
                             ? "bg-[#e41f13] text-white"
-                            : "bg-[#cccccc] text-[#666666]"
+                            : "bg-md-surface-container-high text-md-on-surface-variant"
                         }`}>
                           {tool.status.toUpperCase()}
                         </span>
                         {tool.schemaInitialized && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                          <span className="text-xs px-2 py-0.5 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                             CONFIGURED
                           </span>
                         )}
                         {tool.scheduleEnabled && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-[#2e2e38] text-white font-bold">
+                          <span className="text-xs px-2 py-0.5 rounded bg-md-primary text-md-on-primary font-bold">
                             SCHEDULED
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-[#666666] mt-1">
+                      <div className="text-sm text-md-on-surface-variant mt-1">
                         {tool.type} • {tool.authType} • {tool.successfulRuns} successful runs
                       </div>
                     </div>
-                    <div className="text-[#666666]">
+                    <div className="text-md-on-surface-variant">
                       {isExpanded ? "▼" : "▶"}
                     </div>
                   </div>
@@ -720,14 +720,14 @@ export default function IntegrationsPage() {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className="border-t border-[#cccccc] p-6 space-y-6 bg-[#fafafa]">
+                  <div className="border-t border-md-outline-variant p-6 space-y-6 bg-md-surface-container">
                     {/* Details */}
                     <div className="space-y-2">
-                      <div className="text-sm text-[#666666]">
+                      <div className="text-sm text-md-on-surface-variant">
                         <span className="font-bold">API Endpoint:</span> {tool.apiBaseUrl}
                       </div>
                       {tool.lastSyncAt && (
-                        <div className="text-sm text-[#666666]">
+                        <div className="text-sm text-md-on-surface-variant">
                           <span className="font-bold">Last Synced:</span> {formatDateTime(tool.lastSyncAt)}
                         </div>
                       )}
@@ -746,7 +746,7 @@ export default function IntegrationsPage() {
                           setConfigFormData({})
                         }}
                         disabled={submitting}
-                        className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         Configure API
                       </button>
@@ -754,7 +754,7 @@ export default function IntegrationsPage() {
                       <button
                         onClick={() => executeAssessment(tool)}
                         disabled={submitting}
-                        className="text-xs px-4 py-2 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="text-xs px-4 py-2 rounded-lg bg-md-primary text-md-on-primary font-medium hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {submitting ? "Executing..." : "Execute Assessment"}
                       </button>
@@ -762,7 +762,7 @@ export default function IntegrationsPage() {
                       <button
                         onClick={() => openScheduleModal(tool)}
                         disabled={submitting}
-                        className="text-xs px-4 py-2 rounded border border-[#2e2e38] text-[#2e2e38] hover:bg-[#2e2e38] hover:text-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="text-xs px-4 py-2 rounded-lg border border-md-outline text-md-on-surface hover:bg-md-primary hover:text-md-on-primary transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         Schedule Runs
                       </button>
@@ -771,14 +771,14 @@ export default function IntegrationsPage() {
                         <button
                           onClick={() => loadResults(tool)}
                           disabled={loadingResults}
-                          className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           {loadingResults ? "Loading..." : "Load Results"}
                         </button>
                       ) : (
                         <button
                           disabled
-                          className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#999999] bg-[#f9f9f9] cursor-not-allowed font-medium"
+                          className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface-variant bg-md-surface-container cursor-not-allowed font-medium opacity-50"
                           title="Execute assessment first to initialize schema"
                         >
                           Load Results (Not Configured)
@@ -788,7 +788,7 @@ export default function IntegrationsPage() {
                       <button
                         onClick={() => handleDeactivateIntegration(tool)}
                         disabled={submitting}
-                        className="text-xs px-4 py-2 rounded border border-[#e41f13] text-[#e41f13] hover:bg-[#e41f13] hover:text-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="text-xs px-4 py-2 rounded-lg border border-[#e41f13] text-[#e41f13] hover:bg-[#e41f13] hover:text-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         Deactivate
                       </button>
@@ -797,44 +797,44 @@ export default function IntegrationsPage() {
                     {/* Run History */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-[#333333]">Recent Runs</h3>
+                        <h3 className="font-bold text-md-on-surface">Recent Runs</h3>
                         <button
                           onClick={() => loadRunsForCard(tool.id)}
                           disabled={isLoadingRuns}
-                          className="text-xs px-3 py-1 rounded border border-[#cccccc] text-[#666666] hover:bg-white transition-colors disabled:opacity-60"
+                          className="text-xs px-3 py-1 rounded-lg border border-md-outline-variant text-md-on-surface-variant hover:bg-md-surface transition-colors disabled:opacity-60"
                         >
                           {isLoadingRuns ? "Loading..." : "Refresh"}
                         </button>
                       </div>
 
                       {isLoadingRuns ? (
-                        <div className="text-sm text-[#666666] py-4">Loading runs...</div>
+                        <div className="text-sm text-md-on-surface-variant py-4">Loading runs...</div>
                       ) : runs.length === 0 ? (
-                        <div className="text-sm text-[#666666] py-4">No runs yet. Execute an assessment to see results here.</div>
+                        <div className="text-sm text-md-on-surface-variant py-4">No runs yet. Execute an assessment to see results here.</div>
                       ) : (
                         <div className="space-y-2">
                           {runs.map(run => (
-                            <div key={run.id} className="bg-white rounded border border-[#e5e7eb] p-3">
+                            <div key={run.id} className="bg-md-surface rounded-lg border border-md-outline-variant p-3">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-3">
                                     <span className={`text-xs font-bold ${getStatusColor(run.status)}`}>
                                       {run.status}
                                     </span>
-                                    <span className="text-xs text-[#999999]">
+                                    <span className="text-xs text-md-on-surface-variant">
                                       {run.triggerType}
                                     </span>
                                   </div>
-                                  <div className="text-xs text-[#666666] mt-1">
+                                  <div className="text-xs text-md-on-surface-variant mt-1">
                                     Started: {formatDateTime(run.startedAt)}
                                   </div>
                                   {run.finishedAt && (
-                                    <div className="text-xs text-[#666666]">
+                                    <div className="text-xs text-md-on-surface-variant">
                                       Finished: {formatDateTime(run.finishedAt)}
                                     </div>
                                   )}
                                 </div>
-                                <div className="text-right text-xs text-[#666666]">
+                                <div className="text-right text-xs text-md-on-surface-variant">
                                   {run.recordsProcessed !== null && (
                                     <div>Processed: {run.recordsProcessed}</div>
                                   )}
@@ -844,7 +844,7 @@ export default function IntegrationsPage() {
                                 </div>
                               </div>
                               {run.errorMessage && (
-                                <div className="text-xs text-[#e41f13] mt-2 p-2 bg-[#fff5f5] rounded">
+                                <div className="text-xs text-[#e41f13] mt-2 p-2 bg-[#e41f13]/10 rounded">
                                   {run.errorMessage}
                                 </div>
                               )}
@@ -865,11 +865,11 @@ export default function IntegrationsPage() {
       {showMarketplace && (
         <Modal onClose={() => setShowMarketplace(false)} wide>
           <div className="mb-6">
-            <h3 className="text-2xl font-bold text-[#333333]">
+            <h3 className="text-2xl font-bold text-md-on-surface">
               Security Tools Marketplace
             </h3>
-            <p className="mt-1 text-base text-[#666666]">
-              Browse and activate integrations with leading cybersecurity platforms across 
+            <p className="mt-1 text-base text-md-on-surface-variant">
+              Browse and activate integrations with leading cybersecurity platforms across
               vulnerability management, cloud security, identity management, and threat intelligence.
             </p>
           </div>
@@ -878,11 +878,11 @@ export default function IntegrationsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by tool name or category..."
-            className="w-full border border-[#cccccc] rounded px-4 py-2.5 text-[#333333] placeholder:text-[#999999]"
+            className="w-full border border-md-outline-variant rounded-lg px-4 py-2.5 text-md-on-surface bg-md-surface placeholder:text-md-on-surface-variant"
           />
 
           {marketplaceIntegrations.length === 0 ? (
-            <div className="mt-8 text-center text-[#666666] py-12">
+            <div className="mt-8 text-center text-md-on-surface-variant py-12">
               {search ? "No tools found matching your search criteria." : "All available integrations are already active."}
             </div>
           ) : (
@@ -892,40 +892,40 @@ export default function IntegrationsPage() {
                 const toolsInCategory = marketplaceByCategory[category]
 
                 return (
-                  <div key={category} className="border border-[#cccccc] rounded-lg overflow-hidden">
+                  <div key={category} className="border border-md-outline-variant rounded-xl overflow-hidden">
                     {/* Category Header */}
                     <button
                       onClick={() => toggleCategory(category)}
-                      className="w-full flex items-center justify-between p-4 bg-[#f9f9f9] hover:bg-[#f0f0f0] transition-colors"
+                      className="w-full flex items-center justify-between p-4 bg-md-surface-container hover:bg-md-surface-container-high transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold text-[#333333]">{category}</span>
-                        <span className="text-xs px-2 py-1 rounded bg-[#ffe600] text-[#333333] font-bold">
+                        <span className="text-lg font-bold text-md-on-surface">{category}</span>
+                        <span className="text-xs px-2 py-1 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                           {toolsInCategory.length} {toolsInCategory.length === 1 ? 'tool' : 'tools'}
                         </span>
                       </div>
-                      <span className="text-[#666666]">
+                      <span className="text-md-on-surface-variant">
                         {isCollapsed ? "▶" : "▼"}
                       </span>
                     </button>
 
                     {/* Category Content */}
                     {!isCollapsed && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-md-surface">
                         {toolsInCategory.map(tool => (
-                          <div key={tool.id} className="rounded-lg border border-[#e5e7eb] bg-white p-4 hover:shadow-md transition-shadow">
+                          <div key={tool.id} className="rounded-xl border border-md-outline-variant bg-md-surface-container p-4 hover:shadow-md transition-shadow">
                             <div className="flex items-start justify-between mb-2">
-                              <div className="font-bold text-[#333333]">{tool.displayName}</div>
+                              <div className="font-bold text-md-on-surface">{tool.displayName}</div>
                             </div>
-                            <div className="text-xs text-[#999999] mb-2">{tool.authType}</div>
-                            <div className="text-sm text-[#666666] mb-4 line-clamp-2">
+                            <div className="text-xs text-md-on-surface-variant mb-2">{tool.authType}</div>
+                            <div className="text-sm text-md-on-surface-variant mb-4 line-clamp-2">
                               {tool.apiBaseUrl}
                             </div>
 
                             <button
                               onClick={() => handleActivateIntegration(tool)}
                               disabled={submitting}
-                              className="w-full bg-[#ffe600] text-[#333333] px-4 py-2 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              className="w-full bg-md-primary-container text-md-on-primary-container px-4 py-2 rounded-lg font-bold transition-colors hover:bg-md-primary hover:text-md-on-primary disabled:opacity-60 disabled:cursor-not-allowed"
                             >
                               {submitting ? "Activating..." : "Activate Integration"}
                             </button>
@@ -945,10 +945,10 @@ export default function IntegrationsPage() {
       {configuring && (
         <Modal onClose={() => setConfiguring(null)}>
           <div className="mb-6">
-            <h3 className="text-xl font-bold text-[#333333]">
+            <h3 className="text-xl font-bold text-md-on-surface">
               Configure API Credentials
             </h3>
-            <p className="mt-1 text-sm text-[#666666]">
+            <p className="mt-1 text-sm text-md-on-surface-variant">
               Configure the API credentials for {configuring.displayName} integration
             </p>
           </div>
@@ -956,7 +956,7 @@ export default function IntegrationsPage() {
           <div className="space-y-4">
             {getCredentialFields(configuring).map(field => (
               <div key={field.key}>
-                <label className="block text-sm font-bold text-[#333333] mb-2">
+                <label className="block text-sm font-bold text-md-on-surface mb-2">
                   {field.label}
                 </label>
                 <input
@@ -964,7 +964,7 @@ export default function IntegrationsPage() {
                   value={configFormData[field.key] ?? ""}
                   onChange={e => setConfigFormData(prev => ({ ...prev, [field.key]: e.target.value }))}
                   placeholder={field.placeholder}
-                  className="w-full border border-[#cccccc] rounded px-3 py-2 text-[#333333]"
+                  className="w-full border border-md-outline-variant rounded-lg px-3 py-2 text-md-on-surface bg-md-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                 />
               </div>
             ))}
@@ -974,14 +974,14 @@ export default function IntegrationsPage() {
             <button 
               onClick={() => setConfiguring(null)} 
               disabled={submitting}
-              className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium disabled:opacity-60"
+              className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container transition-colors font-medium disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               onClick={configureIntegration}
               disabled={submitting}
-              className="text-xs px-4 py-2 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-xs px-4 py-2 rounded-lg bg-md-primary text-md-on-primary font-medium hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? "Saving..." : "Save Configuration"}
             </button>
@@ -993,10 +993,10 @@ export default function IntegrationsPage() {
       {showScheduleModal && schedulingIntegration && (
         <Modal onClose={() => setShowScheduleModal(false)}>
           <div className="mb-6">
-            <h3 className="text-xl font-bold text-[#333333]">
+            <h3 className="text-xl font-bold text-md-on-surface">
               Set Recurrence
             </h3>
-            <p className="mt-1 text-sm text-[#666666]">
+            <p className="mt-1 text-sm text-md-on-surface-variant">
               Configure automated assessment scheduling for {schedulingIntegration.displayName}
             </p>
           </div>
@@ -1004,7 +1004,7 @@ export default function IntegrationsPage() {
           <div className="space-y-5">
             {/* Repeats Dropdown */}
             <div>
-              <label className="block text-sm font-medium text-[#666666] mb-2">
+              <label className="block text-sm font-medium text-md-on-surface-variant mb-2">
                 Repeats
               </label>
               <select
@@ -1013,7 +1013,7 @@ export default function IntegrationsPage() {
                   ...prev, 
                   repetition: e.target.value as any
                 }))}
-                className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] bg-white focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+                className="w-full border border-md-outline-variant rounded-lg px-3 py-2.5 text-md-on-surface bg-md-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container focus:border-transparent"
               >
                 <option value="does-not-repeat">Does not repeat</option>
                 <option value="daily">Daily</option>
@@ -1027,7 +1027,7 @@ export default function IntegrationsPage() {
 
             {/* Start Date */}
             <div>
-              <label className="block text-sm font-medium text-[#666666] mb-2">
+              <label className="block text-sm font-medium text-md-on-surface-variant mb-2">
                 Start
               </label>
               <input
@@ -1037,14 +1037,14 @@ export default function IntegrationsPage() {
                   ...prev, 
                   startDate: e.target.value
                 }))}
-                className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+                className="w-full border border-md-outline-variant rounded-lg px-3 py-2.5 text-md-on-surface bg-md-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container focus:border-transparent"
               />
             </div>
 
             {/* Custom Repeat Every */}
             {scheduleData.repetition === "custom" && (
               <div>
-                <label className="block text-sm font-medium text-[#666666] mb-2">
+                <label className="block text-sm font-medium text-md-on-surface-variant mb-2">
                   Repeat every
                 </label>
                 <div className="flex gap-3">
@@ -1056,7 +1056,7 @@ export default function IntegrationsPage() {
                       ...prev, 
                       repeatInterval: parseInt(e.target.value) || 1
                     }))}
-                    className="w-20 border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] text-center focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+                    className="w-20 border border-md-outline-variant rounded-lg px-3 py-2.5 text-md-on-surface bg-md-surface text-center focus:outline-none focus:ring-2 focus:ring-md-primary-container focus:border-transparent"
                   />
                   <select
                     value={scheduleData.repeatUnit}
@@ -1064,7 +1064,7 @@ export default function IntegrationsPage() {
                       ...prev, 
                       repeatUnit: e.target.value as any
                     }))}
-                    className="flex-1 border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] bg-white focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+                    className="flex-1 border border-md-outline-variant rounded-lg px-3 py-2.5 text-md-on-surface bg-md-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container focus:border-transparent"
                   >
                     <option value="day">Day</option>
                     <option value="week">Week</option>
@@ -1078,7 +1078,7 @@ export default function IntegrationsPage() {
             {/* Day of Week Selector (circular buttons) */}
             {(scheduleData.repetition === "weekly" || (scheduleData.repetition === "custom" && scheduleData.repeatUnit === "week")) && (
               <div>
-                <label className="block text-sm font-medium text-[#666666] mb-3">
+                <label className="block text-sm font-medium text-md-on-surface-variant mb-3">
                   Repeat on
                 </label>
                 <div className="flex gap-2 justify-center">
@@ -1109,8 +1109,8 @@ export default function IntegrationsPage() {
                         }}
                         className={`w-10 h-10 rounded-full font-medium transition-all ${
                           isSelected
-                            ? "bg-[#ffe600] text-[#333333] font-bold"
-                            : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+                            ? "bg-md-primary-container text-md-on-primary-container font-bold"
+                            : "bg-md-surface-container text-md-on-surface-variant hover:bg-md-surface-container-high"
                         }`}
                       >
                         {day.label}
@@ -1118,7 +1118,7 @@ export default function IntegrationsPage() {
                     )
                   })}
                 </div>
-                <div className="text-xs text-[#999999] mt-2 text-center">
+                <div className="text-xs text-md-on-surface-variant mt-2 text-center">
                   Click to select multiple days
                 </div>
               </div>
@@ -1127,7 +1127,7 @@ export default function IntegrationsPage() {
             {/* Start Time */}
             {scheduleData.repetition !== "does-not-repeat" && (
               <div>
-                <label className="block text-sm font-medium text-[#666666] mb-2">
+                <label className="block text-sm font-medium text-md-on-surface-variant mb-2">
                   Time
                 </label>
                 <input
@@ -1137,7 +1137,7 @@ export default function IntegrationsPage() {
                     ...prev, 
                     startTime: e.target.value
                   }))}
-                  className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+                  className="w-full border border-md-outline-variant rounded-lg px-3 py-2.5 text-md-on-surface bg-md-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container focus:border-transparent"
                 />
               </div>
             )}
@@ -1145,7 +1145,7 @@ export default function IntegrationsPage() {
             {/* End Date */}
             {scheduleData.repetition !== "does-not-repeat" && (
               <div>
-                <label className="block text-sm font-medium text-[#666666] mb-2">
+                <label className="block text-sm font-medium text-md-on-surface-variant mb-2">
                   End
                 </label>
                 <input
@@ -1157,14 +1157,14 @@ export default function IntegrationsPage() {
                   }))}
                   min={scheduleData.startDate}
                   placeholder="Select date"
-                  className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+                  className="w-full border border-md-outline-variant rounded-lg px-3 py-2.5 text-md-on-surface bg-md-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container focus:border-transparent"
                 />
               </div>
             )}
 
             {/* Schedule Summary */}
-            <div className="bg-[#f5f5f5] rounded p-3 border border-[#e5e7eb]">
-              <div className="text-xs text-[#666666]">
+            <div className="bg-md-surface rounded-lg p-3 border border-md-outline-variant">
+              <div className="text-xs text-md-on-surface-variant">
                 {generateScheduleSummary(
                   scheduleData.repetition,
                   scheduleData.startDate,
@@ -1179,7 +1179,7 @@ export default function IntegrationsPage() {
             </div>
 
             {/* Enabled Toggle */}
-            <div className="flex items-center gap-3 p-4 bg-[#fffef0] rounded border-2 border-[#ffe600]">
+            <div className="flex items-center gap-3 p-4 bg-md-primary-container/10 rounded-lg border-2 border-md-primary-container">
               <input
                 type="checkbox"
                 id="schedule-enabled"
@@ -1188,9 +1188,9 @@ export default function IntegrationsPage() {
                   ...prev, 
                   enabled: e.target.checked
                 }))}
-                className="w-4 h-4 accent-[#ffe600]"
+                className="w-4 h-4"
               />
-              <label htmlFor="schedule-enabled" className="text-sm font-medium text-[#333333]">
+              <label htmlFor="schedule-enabled" className="text-sm font-medium text-md-on-surface">
                 Enable Automated Scheduling
               </label>
             </div>
@@ -1200,14 +1200,14 @@ export default function IntegrationsPage() {
             <button 
               onClick={() => setShowScheduleModal(false)} 
               disabled={submitting}
-              className="px-5 py-2.5 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f5f5f5] transition-colors font-medium disabled:opacity-60"
+              className="px-5 py-2.5 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container transition-colors font-medium disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               onClick={saveScheduleConfig}
               disabled={submitting}
-              className="px-5 py-2.5 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 rounded-lg bg-md-primary text-md-on-primary font-medium hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? "Saving..." : "Save"}
             </button>
@@ -1219,18 +1219,18 @@ export default function IntegrationsPage() {
       {showColumnSelection && columnSelectionIntegration && (
         <Modal onClose={() => setShowColumnSelection(false)} wide>
           <div className="mb-6">
-            <h3 className="text-2xl font-bold text-[#333333]">
+            <h3 className="text-2xl font-bold text-md-on-surface">
               Select Data Columns to Store
             </h3>
-            <p className="mt-1 text-base text-[#666666]">
-              Choose which columns from the {columnSelectionIntegration.displayName} assessment 
+            <p className="mt-1 text-base text-md-on-surface-variant">
+              Choose which columns from the {columnSelectionIntegration.displayName} assessment
               results should be stored in the normalized table for future analysis.
             </p>
           </div>
 
           <div className="space-y-3">
             {availableColumns.map(col => (
-              <label key={col} className="flex items-center gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+              <label key={col} className="flex items-center gap-3 p-3 border border-md-outline-variant rounded-lg hover:bg-md-surface-container cursor-pointer">
                 <input
                   type="checkbox"
                   checked={selectedColumns.has(col)}
@@ -1245,7 +1245,7 @@ export default function IntegrationsPage() {
                   }}
                   className="w-4 h-4"
                 />
-                <span className="font-medium text-[#333333]">{col}</span>
+                <span className="font-medium text-md-on-surface">{col}</span>
               </label>
             ))}
           </div>
@@ -1254,14 +1254,14 @@ export default function IntegrationsPage() {
             <button 
               onClick={() => setShowColumnSelection(false)} 
               disabled={submitting}
-              className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9] transition-colors font-medium disabled:opacity-60"
+              className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container transition-colors font-medium disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               onClick={submitColumnSelection}
               disabled={submitting || selectedColumns.size === 0}
-              className="text-xs px-4 py-2 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-xs px-4 py-2 rounded-lg bg-md-primary text-md-on-primary font-medium hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? "Initializing..." : `Initialize Schema (${selectedColumns.size} columns)`}
             </button>
@@ -1273,27 +1273,27 @@ export default function IntegrationsPage() {
       {resultsIntegration && resultsData && (
         <Modal onClose={() => { setResultsIntegration(null); setResultsData(null) }} wide noScroll>
           <div className="mb-4">
-            <h3 className="text-2xl font-bold text-[#333333]">
+            <h3 className="text-2xl font-bold text-md-on-surface">
               {resultsIntegration.displayName} - Assessment Results
             </h3>
-            <p className="mt-1 text-base text-[#666666]">
+            <p className="mt-1 text-base text-md-on-surface-variant">
               Showing {resultsData.length} records from {resultsIntegration.normalizedTableName}
             </p>
           </div>
 
-          <div className="overflow-x-auto overflow-y-auto max-h-[calc(90vh-180px)] border border-[#cccccc] rounded">
+          <div className="overflow-x-auto overflow-y-auto max-h-[calc(90vh-180px)] border border-md-outline-variant rounded-lg">
             {resultsData.length === 0 ? (
-              <div className="text-center py-12 text-[#666666]">
+              <div className="text-center py-12 text-md-on-surface-variant">
                 No results available yet. Execute an assessment to populate data.
               </div>
             ) : (
               <table className="min-w-full border-collapse text-sm">
-                <thead className="bg-[#f9f9f9] sticky top-0">
+                <thead className="bg-md-surface-container sticky top-0">
                   <tr>
                     {Object.keys(resultsData[0])
                       .filter(key => key !== 'integration_run_id')
                       .map(key => (
-                        <th key={key} className="border border-[#cccccc] px-4 py-3 text-left font-bold text-[#333333]">
+                        <th key={key} className="border border-md-outline-variant px-4 py-3 text-left font-bold text-md-on-surface">
                           {key}
                         </th>
                       ))}
@@ -1301,11 +1301,11 @@ export default function IntegrationsPage() {
                 </thead>
                 <tbody>
                   {resultsData.map((row, i) => (
-                    <tr key={i} className="odd:bg-white even:bg-[#fafafa] hover:bg-[#f5f5f5]">
+                    <tr key={i} className="odd:bg-md-surface even:bg-md-surface-container/50 hover:bg-md-surface-container">
                       {Object.entries(row)
                         .filter(([key]) => key !== 'integration_run_id')
                         .map(([key, val], j) => (
-                          <td key={j} className="border border-[#e5e7eb] px-4 py-3 text-[#666666]">
+                          <td key={j} className="border border-md-outline-variant px-4 py-3 text-md-on-surface-variant">
                             {val === null || val === undefined 
                               ? "—" 
                               : typeof val === "boolean"
@@ -1334,11 +1334,11 @@ export default function IntegrationsPage() {
 
 function KpiCard({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-[#cccccc] bg-white p-6 shadow-sm">
-      <div className="text-sm font-medium text-[#666666] uppercase tracking-wide">
+    <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-6 shadow-sm">
+      <div className="text-sm font-medium text-md-on-surface-variant uppercase tracking-wide">
         {title}
       </div>
-      <div className="mt-3 text-4xl font-bold text-[#333333]">
+      <div className="mt-3 text-4xl font-bold text-md-on-surface">
         {value}
       </div>
     </div>
@@ -1363,7 +1363,7 @@ function Modal({
     >
       <div
         className={[
-          "relative bg-white rounded-lg shadow-lg w-full",
+          "relative bg-md-surface-container rounded-xl shadow-lg w-full",
           wide ? "max-w-5xl" : "max-w-xl",
           noScroll ? "max-h-[90vh] flex flex-col" : "max-h-[90vh] flex flex-col",
         ].join(" ")}
@@ -1371,7 +1371,7 @@ function Modal({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl font-bold text-[#666666] hover:text-[#333333] transition-colors z-10"
+          className="absolute top-4 right-4 text-2xl font-bold text-md-on-surface-variant hover:text-md-on-surface transition-colors z-10"
           title="Close"
         >
           ×

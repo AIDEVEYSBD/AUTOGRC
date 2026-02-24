@@ -173,11 +173,11 @@ export default function ApplicationsTable({
     <div className="space-y-4">
       {/* Filter Status Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm">
+          <div className="text-sm text-md-on-surface-variant">
             {sorted.length} of {rows.length} applications
             {activeFilterCount > 0 && (
-              <span className="ml-2 text-gray-500">
+              <span className="ml-2 opacity-70">
                 • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
               </span>
             )}
@@ -196,7 +196,7 @@ export default function ApplicationsTable({
               })
               setActiveFilter(null)
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-md-primary font-medium hover:opacity-70 transition-opacity"
           >
             Clear all filters
           </button>
@@ -204,10 +204,10 @@ export default function ApplicationsTable({
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-sm">
-            <thead className="bg-[#FFE600] text-xs uppercase tracking-wide">
+            <thead className="bg-md-primary-container text-md-on-primary-container text-xs uppercase tracking-wide">
               <tr>
                 <ThWithFilter
                   label="Application"
@@ -333,30 +333,30 @@ export default function ApplicationsTable({
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-md-outline-variant">
               {sorted.map(app => (
                 <tr
                   key={app.id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-md-surface-container-high transition-colors"
                 >
                   <Td className="font-semibold">
                     <Link
                       href={`/applications/${app.id}`}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                      className="text-md-primary hover:opacity-80 hover:underline"
                     >
                       {app.name}
                     </Link>
-                    <div className="text-xs text-gray-500 mt-0.5">
+                    <div className="text-xs text-md-on-surface-variant mt-0.5">
                       {app.primaryFqdn}
                     </div>
                   </Td>
 
                   <Td>
                     <div className="leading-tight">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-md-on-surface">
                         {app.serviceOwner}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-md-on-surface-variant">
                         {app.businessOwner}
                       </div>
                     </div>
@@ -393,7 +393,7 @@ export default function ApplicationsTable({
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs text-md-on-surface-variant opacity-50">—</span>
                       )}
                     </div>
                   </Td>
@@ -409,14 +409,14 @@ export default function ApplicationsTable({
                   <Td
                     className={
                       app.nonCompliances > 0
-                        ? "font-semibold text-red-600"
-                        : "text-gray-600"
+                        ? "font-semibold text-[#e41f13]"
+                        : "text-md-on-surface-variant"
                     }
                   >
                     {app.nonCompliances}
                   </Td>
 
-                  <Td className="text-gray-600">
+                  <Td className="text-md-on-surface-variant">
                     {app.lastAssessedAt
                       ? new Date(app.lastAssessedAt).toLocaleDateString()
                       : "—"}
@@ -426,7 +426,7 @@ export default function ApplicationsTable({
 
               {sorted.length === 0 && (
                 <tr>
-                  <Td colSpan={11} className="py-8 text-center text-gray-500">
+                  <Td colSpan={11} className="py-8 text-center text-md-on-surface-variant">
                     {activeFilterCount > 0
                       ? "No applications match your filters."
                       : "No applications found."}
@@ -475,18 +475,18 @@ function ThWithFilter({
   const isSortActive = sortKey && currentSortKey === sortKey
 
   return (
-    <th className="px-4 py-3.5 text-left font-semibold text-gray-700 relative">
+    <th className="px-4 py-3.5 text-left font-semibold text-md-on-primary-container relative">
       <div className="flex items-center gap-2">
         {/* Label and Sort Icon */}
-        <div 
-          className={`flex items-center gap-2 ${sortKey ? "cursor-pointer select-none hover:text-gray-900" : ""} ${isSortActive ? "text-gray-900" : ""}`}
+        <div
+          className={`flex items-center gap-2 ${sortKey ? "cursor-pointer select-none hover:opacity-80" : ""} ${isSortActive ? "opacity-100" : ""}`}
           onClick={() => sortKey && onSort && onSort(sortKey)}
         >
           <span>{label}</span>
           {sortKey && (
             <svg
               className={`w-4 h-4 transition-all ${
-                isSortActive ? "text-gray-900" : "text-gray-600"
+                isSortActive ? "opacity-100" : "opacity-60"
               } ${sortDir === "desc" ? "rotate-180" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
@@ -508,8 +508,8 @@ function ThWithFilter({
             e.stopPropagation()
             onToggleFilter(filterKey)
           }}
-          className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
-            hasActiveFilter ? "text-blue-600" : "text-gray-600"
+          className={`p-1 rounded hover:bg-md-on-primary-container/10 transition-colors ${
+            hasActiveFilter ? "text-md-primary" : "text-md-on-primary-container"
           }`}
           title="Filter column"
         >
@@ -531,14 +531,14 @@ function ThWithFilter({
 
       {/* Filter Dropdown */}
       {isFilterActive && (
-        <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+        <div className="absolute top-full left-0 mt-2 z-20 bg-md-surface-container rounded-xl border border-md-outline-variant shadow-lg p-3 min-w-[250px]">
           <div className="flex items-center gap-2">
             <input
               type="text"
               value={filterValue}
               onChange={(e) => onFilterChange(filterKey, e.target.value)}
               placeholder={`Filter ${label.toLowerCase()}...`}
-              className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="flex-1 px-3 py-1.5 text-sm border border-md-outline-variant rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
               autoFocus
               onClick={(e) => e.stopPropagation()}
             />
@@ -548,7 +548,7 @@ function ThWithFilter({
                   e.stopPropagation()
                   onClearFilter(filterKey)
                 }}
-                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                className="p-1.5 text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-container-high rounded-lg"
                 title="Clear filter"
               >
                 <svg
@@ -603,14 +603,14 @@ function DRLevelBadge({ level }: { level: number }) {
     1: "bg-red-100 text-red-800 border-red-200",
     2: "bg-orange-100 text-orange-800 border-orange-200",
     3: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    4: "bg-blue-100 text-blue-800 border-blue-200",
+    4: "bg-md-primary-container text-md-on-primary-container border-md-primary-container",
     5: "bg-green-100 text-green-800 border-green-200",
   }
 
   return (
     <span
       className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-bold ${
-        variants[level as keyof typeof variants] || "bg-gray-100 text-gray-800"
+        variants[level as keyof typeof variants] || "bg-md-surface-container-high text-md-on-surface"
       }`}
     >
       DR {level}
@@ -626,7 +626,7 @@ function LifecycleBadge({
   const variants = {
     Active: "bg-green-100 text-green-800 border-green-200",
     Deprecated: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    Decommissioned: "bg-gray-100 text-gray-800 border-gray-200",
+    Decommissioned: "bg-md-surface-container-high text-md-on-surface border-md-outline-variant",
   }
 
   return (
@@ -655,11 +655,11 @@ function ServiceManagementBadge({
 
   return (
     <div className="space-y-1">
-      <span className="inline-flex items-center rounded-md border border-blue-200 bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800">
+      <span className="inline-flex items-center rounded-md border border-md-outline-variant bg-md-primary-container/30 px-2.5 py-1 text-xs font-medium text-md-on-surface">
         {typeShort[type]}
       </span>
       {provider && (
-        <div className="text-xs text-gray-500">{provider}</div>
+        <div className="text-xs text-md-on-surface-variant">{provider}</div>
       )}
     </div>
   )
@@ -691,13 +691,13 @@ function ScoreBar({ value }: { value: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="h-2 w-full max-w-[120px] rounded-full bg-gray-200">
+      <div className="h-2 w-full max-w-[120px] rounded-full bg-md-outline-variant">
         <div
           className={`h-2 rounded-full ${color} transition-all`}
           style={{ width: `${value}%` }}
         />
       </div>
-      <span className="w-10 text-right font-medium text-gray-900">
+      <span className="w-10 text-right font-medium text-md-on-surface">
         {value}%
       </span>
     </div>
@@ -722,16 +722,16 @@ function Th({
   return (
     <th
       onClick={onClick}
-      className={`px-4 py-3.5 text-left font-semibold ${
-        onClick ? "cursor-pointer select-none hover:text-gray-900" : ""
-      } ${isActive ? "text-gray-900" : "text-gray-700"}`}
+      className={`px-4 py-3.5 text-left font-semibold text-md-on-primary-container ${
+        onClick ? "cursor-pointer select-none hover:opacity-80" : ""
+      } ${isActive ? "opacity-100" : "opacity-80"}`}
     >
       <div className="flex items-center gap-2">
         {children}
         {onClick && (
           <svg
             className={`w-4 h-4 transition-all ${
-              isActive ? "text-gray-900" : "text-gray-600"
+              isActive ? "opacity-100" : "opacity-60"
             } ${sortDir === "desc" ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"

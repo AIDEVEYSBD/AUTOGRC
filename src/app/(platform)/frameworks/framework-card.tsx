@@ -57,33 +57,33 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
     <>
       <div
         onClick={handleCardClick}
-        className={`rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow-md cursor-pointer ${
-          isDeactivated ? "border-[#999999] opacity-60" : "border-[#cccccc]"
+        className={`rounded-xl border bg-md-surface-container p-6 shadow-sm transition-all hover:shadow-md cursor-pointer ${
+          isDeactivated ? "border-md-outline opacity-60" : "border-md-outline-variant"
         } ${isPending ? "opacity-50" : ""}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-lg text-[#333333]">
+              <h3 className="font-bold text-lg text-md-on-surface">
                 {framework.name}
               </h3>
 
               {framework.isMaster && (
-                <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                <span className="text-xs px-2 py-0.5 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                   MASTER
                 </span>
               )}
 
               {isDeactivated && (
-                <span className="text-xs px-2 py-0.5 rounded bg-[#e5e7eb] text-[#666666] font-bold">
+                <span className="text-xs px-2 py-0.5 rounded bg-md-surface-container-high text-md-on-surface-variant font-bold">
                   INACTIVE
                 </span>
               )}
             </div>
 
             {framework.version && (
-              <p className="text-sm text-[#666666] mt-1">
+              <p className="text-sm text-md-on-surface-variant mt-1">
                 Version {framework.version}
               </p>
             )}
@@ -93,22 +93,22 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
         {/* Master */}
         {framework.isMaster ? (
           <div className="text-center py-8">
-            <div className="text-5xl font-bold text-[#333333]">
+            <div className="text-5xl font-bold text-md-on-surface">
               {framework.totalControls}
             </div>
-            <div className="mt-2 text-sm text-[#666666]">Total Controls</div>
+            <div className="mt-2 text-sm text-md-on-surface-variant">Total Controls</div>
           </div>
         ) : (
           /* Progress */
           <div className="mt-6 space-y-4">
-            <div className="text-sm text-[#666666]">
+            <div className="text-sm text-md-on-surface-variant">
               {framework.mappedControls} of {framework.totalControls} controls
               mapped
             </div>
 
             <div className="relative">
               {/* Bar */}
-              <div className="h-2.5 rounded-full bg-[#e5e7eb] overflow-hidden">
+              <div className="h-2.5 rounded-full bg-md-outline-variant overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${colorClass}`}
                   style={{ width: `${framework.percentMapped}%` }}
@@ -130,7 +130,7 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
 
         {/* Footer */}
         <div className="mt-6 flex items-center justify-between gap-3">
-          <div className="text-sm text-[#666666]">
+          <div className="text-sm text-md-on-surface-variant">
             {framework.totalControls} controls
           </div>
 
@@ -140,10 +140,10 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
                 e.stopPropagation()
                 toggleFramework(framework.id)
               }}
-              className={`text-xs px-3 py-1.5 rounded border transition-colors font-medium ${
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors font-medium ${
                 isDeactivated
                   ? "border-[#00a758] text-[#00a758] hover:bg-[#00a758] hover:text-white"
-                  : "border-[#cccccc] text-[#333333] hover:bg-[#f9f9f9]"
+                  : "border-md-outline-variant text-md-on-surface hover:bg-md-surface-container-high"
               }`}
               title={
                 isDeactivated
@@ -157,7 +157,7 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
         </div>
 
         {isPending && (
-          <div className="mt-2 text-xs text-center text-[#666666]">
+          <div className="mt-2 text-xs text-center text-md-on-surface-variant">
             Loading framework details...
           </div>
         )}

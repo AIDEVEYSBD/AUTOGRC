@@ -39,8 +39,8 @@ function FilterDropdown({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
-          value ? "text-blue-600" : "text-gray-600"
+        className={`p-1 rounded hover:bg-md-surface-container-high transition-colors ${
+          value ? "text-md-primary" : "text-md-on-surface-variant"
         }`}
         title={`Filter ${label}`}
       >
@@ -65,14 +65,14 @@ function FilterDropdown({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+          <div className="absolute top-full left-0 mt-2 z-20 bg-md-surface-container rounded-xl border border-md-outline-variant shadow-lg p-3 min-w-[250px]">
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={`Filter ${label.toLowerCase()}...`}
-                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="flex-1 px-3 py-1.5 text-sm border border-md-outline-variant rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
@@ -82,7 +82,7 @@ function FilterDropdown({
                     e.stopPropagation()
                     onClear()
                   }}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  className="p-1.5 text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-container-high rounded-lg"
                   title="Clear filter"
                 >
                   <svg
@@ -127,25 +127,25 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
     <div className="space-y-4">
       {/* Filter Status Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm">
+          <div className="text-sm text-md-on-surface-variant">
             {visibleRows.length} of {matrix.rows.length} applications
             {activeFilterCount > 0 && (
-              <span className="ml-2 text-gray-500">
+              <span className="ml-2 opacity-70">
                 • 1 filter active
               </span>
             )}
           </div>
           <button
             onClick={() => setApplicationFilter("")}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-md-primary font-medium hover:opacity-70 transition-opacity"
           >
             Clear filter
           </button>
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="overflow-x-auto rounded-xl border border-md-outline-variant">
         <div 
           className={matrix.rows.length > 10 ? "max-h-[520px] overflow-y-auto" : ""}
           style={{
@@ -162,9 +162,9 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
             `
           }} />
           <table className="w-full min-w-[600px] text-sm">
-            <thead className="sticky top-0 border-b border-slate-300 z-10" style={{ backgroundColor: '#ffe600' }}>
+            <thead className="sticky top-0 border-b border-md-outline-variant z-10" style={{ backgroundColor: 'var(--md-primary-container)' }}>
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-slate-900" style={{ backgroundColor: '#ffe600' }}>
+                <th className="px-4 py-3 text-left font-semibold text-md-on-primary-container" style={{ backgroundColor: 'var(--md-primary-container)' }}>
                   <div className="flex items-center gap-2">
                     <span>Application</span>
                     <FilterDropdown
@@ -178,13 +178,13 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
                 {matrix.frameworks.map(fw => (
                   <th
                     key={fw.id}
-                    className="px-4 py-3 text-center font-semibold text-slate-900 min-w-[100px]"
-                    style={{ backgroundColor: '#ffe600' }}
+                    className="px-4 py-3 text-center font-semibold text-md-on-primary-container min-w-[100px]"
+                    style={{ backgroundColor: 'var(--md-primary-container)' }}
                   >
                     {fw.name}
                   </th>
                 ))}
-                <th className="px-4 py-3 text-center font-semibold text-slate-900 min-w-[100px]" style={{ backgroundColor: '#ffe600' }}>
+                <th className="px-4 py-3 text-center font-semibold text-md-on-primary-container min-w-[100px]" style={{ backgroundColor: 'var(--md-primary-container)' }}>
                   Overall
                 </th>
               </tr>
@@ -193,7 +193,7 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
             <tbody>
               {visibleRows.length === 0 ? (
                 <tr>
-                  <td colSpan={matrix.frameworks.length + 2} className="px-4 py-8 text-center text-sm text-slate-600">
+                  <td colSpan={matrix.frameworks.length + 2} className="px-4 py-8 text-center text-sm text-md-on-surface-variant">
                     {activeFilterCount > 0
                       ? "No applications match your filters."
                       : "No applications found."}
@@ -203,13 +203,13 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
                 visibleRows.map(app => (
                   <tr
                     key={app.id}
-                    className="border-b border-slate-200 hover:bg-slate-50 transition-colors"
+                    className="border-b border-md-outline-variant hover:bg-md-surface-container transition-colors"
                   >
-                    <td className="px-4 py-4 bg-white sticky left-0">
-                      <div className="font-semibold text-slate-900">
+                    <td className="px-4 py-4 bg-md-surface sticky left-0">
+                      <div className="font-semibold text-md-on-surface">
                         {app.name}
                       </div>
-                      <div className="text-xs text-slate-500 mt-1">
+                      <div className="text-xs text-md-on-surface-variant mt-1">
                         {app.owner}
                       </div>
                     </td>
@@ -228,11 +228,11 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: dotColor }}
                               />
-                              <span className="text-base font-semibold text-slate-900">
+                              <span className="text-base font-semibold text-md-on-surface">
                                 {cell.percent}%
                               </span>
                             </div>
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-md-on-surface-variant">
                               {cell.done}/{cell.total} controls
                             </div>
                           </div>
@@ -247,11 +247,11 @@ export function ApplicationsTable({ matrix }: { matrix: ApplicationsMatrixData }
                             className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: ringColor(app.overallScore) }}
                           />
-                          <span className="text-base font-semibold text-slate-900">
+                          <span className="text-base font-semibold text-md-on-surface">
                             {app.overallScore}%
                           </span>
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-md-on-surface-variant">
                           aggregate score
                         </div>
                       </div>

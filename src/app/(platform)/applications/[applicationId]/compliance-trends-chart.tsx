@@ -50,10 +50,10 @@ export default function ComplianceTrendsChart({ data }: ComplianceTrendsChartPro
       }
       
       return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 mb-2">{payload[0].payload.month}</p>
+        <div className="bg-md-surface-container p-4 rounded-xl shadow-lg border border-md-outline-variant">
+          <p className="font-semibold text-md-on-surface mb-2">{payload[0].payload.month}</p>
           <div className="space-y-1">
-            <p className="text-sm text-gray-700 flex items-center gap-2">
+            <p className="text-sm text-md-on-surface flex items-center gap-2">
               <span className="font-medium">Compliance Score:</span> 
               <span className="font-bold">{score}%</span>
               {trendIndicator && (
@@ -102,7 +102,7 @@ export default function ComplianceTrendsChart({ data }: ComplianceTrendsChartPro
           <Legend 
             wrapperStyle={{ paddingTop: '20px' }}
             iconType="line"
-            formatter={(value) => <span className="font-medium text-gray-700">{value}</span>}
+            formatter={(value) => <span className="font-medium text-md-on-surface-variant">{value}</span>}
           />
           <Line 
             type="monotone" 

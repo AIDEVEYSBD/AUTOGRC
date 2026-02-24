@@ -72,7 +72,7 @@ function Donut({
           cy={center}
           r={radius}
           fill="transparent"
-          stroke="#e5e7eb"
+          stroke="var(--md-outline-variant)"
           strokeWidth={stroke}
         />
         
@@ -113,8 +113,8 @@ function Donut({
         `
       }} />
 
-      <span 
-        className="absolute text-lg font-bold text-slate-800"
+      <span
+        className="absolute text-lg font-bold text-md-on-surface"
         style={{
           animation: 'fadeInText 0.5s ease-out 0.8s forwards',
           opacity: 0,
@@ -164,10 +164,10 @@ export default async function OverviewPage() {
     <div className="space-y-8 p-6">
       {/* Header */}
       <div className="max-w-4xl">
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="text-3xl font-bold text-md-on-surface">
           Cybersecurity Compliance Dashboard
         </h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-md-on-surface-variant">
           Following section gives an overview of current state of organizations compliance vis-a-vis internal controls framework
         </p>
       </div>
@@ -175,7 +175,7 @@ export default async function OverviewPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         <KPICard title="Applications Tested">
-          <div className="text-3xl font-bold text-slate-900">
+          <div className="text-3xl font-bold text-md-on-surface">
             {kpis.applicationsCovered}/{kpis.totalApplications}
           </div>
         </KPICard>
@@ -185,7 +185,7 @@ export default async function OverviewPage() {
         </KPICard>
 
         <KPICard title="Total Number of Failing Controls">
-          <div className="text-3xl font-bold text-slate-900">
+          <div className="text-3xl font-bold text-md-on-surface">
             {kpis.failingMasterControls}
           </div>
         </KPICard>
@@ -202,27 +202,27 @@ export default async function OverviewPage() {
         <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="flex-1">
             <Link href="/frameworks">
-              <h2 className="text-xl font-bold text-slate-900 hover:underline cursor-pointer">
+              <h2 className="text-xl font-bold text-md-on-surface hover:underline cursor-pointer">
                 Internal Controls Framework
               </h2>
             </Link>
 
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-md-on-surface-variant">
               Following section give an overview of internal controls framework of the organization vis-a-vis industry leading frameworks like NIST, CIS, ISO, PCI DSS, etc.
             </p>
           </div>
           
           {/* Master Framework Card */}
-          <div className="rounded-lg border border-[#ffe600] bg-white p-6 shadow-sm transition-all hover:shadow-md">
+          <div className="rounded-xl border border-md-primary-container bg-md-surface-container p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-lg text-[#333333]">
+                  <h3 className="font-bold text-lg text-md-on-surface">
                     {masterFrameworkName}
                   </h3>
                   
                 </div>
-                <p className="text-sm text-[#666666] mt-1">
+                <p className="text-sm text-md-on-surface-variant mt-1">
                   Current Internal Controls
                   <br />
                   Framework
@@ -236,13 +236,13 @@ export default async function OverviewPage() {
           {rings.map(fw => (
             <div key={fw.id} className="flex flex-col items-center text-center">
               <Donut percent={fw.percent} />
-              <p className="mt-3 text-sm font-semibold text-slate-800">
+              <p className="mt-3 text-sm font-semibold text-md-on-surface">
                 {fw.name}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-md-on-surface-variant">
                 {fw.fullOverlap} full · {fw.partialOverlap} partial
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-md-on-surface-variant opacity-60">
                 {fw.total} total
               </p>
             </div>
@@ -254,12 +254,12 @@ export default async function OverviewPage() {
       <GlassCard>
         <div className="mb-4">
           <Link href="/applications">
-            <h2 className="text-xl font-bold text-slate-900 hover:underline cursor-pointer">
+            <h2 className="text-xl font-bold text-md-on-surface hover:underline cursor-pointer">
               Applications Compliance Score
             </h2>
           </Link>
 
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-md-on-surface-variant">
             Following section gives an overview of compliance score of all applications vis-a-vis frameworks activated on the platform
           </p>
         </div>
@@ -290,8 +290,8 @@ function KPICard({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm p-5 flex flex-col items-center justify-center text-center min-h-[140px] hover:shadow-md transition-shadow">
-      <p className="mb-3 text-sm font-medium text-slate-600 uppercase tracking-wide">
+    <div className="md3-card p-5 flex flex-col items-center justify-center text-center min-h-[140px] hover:shadow-md transition-shadow">
+      <p className="mb-3 text-sm font-medium text-md-on-surface-variant uppercase tracking-wide">
         {title}
       </p>
       <div className="flex-1 flex items-center justify-center">
@@ -303,7 +303,7 @@ function KPICard({
 
 function GlassCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm p-6">
+    <div className="md3-card p-6">
       {children}
     </div>
   )
@@ -311,9 +311,9 @@ function GlassCard({ children }: { children: React.ReactNode }) {
 
 function EmptyState({ msg }: { msg: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 m-6">
-      <h1 className="text-2xl font-bold text-slate-900">Overview</h1>
-      <p className="mt-3 text-slate-600">{msg}</p>
+    <div className="md3-card p-8 m-6">
+      <h1 className="text-2xl font-bold text-md-on-surface">Overview</h1>
+      <p className="mt-3 text-md-on-surface-variant">{msg}</p>
     </div>
   )
 }

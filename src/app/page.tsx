@@ -1,16 +1,18 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-md-surface">
+      <ThemeToggle />
       {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#f9f9f9] to-white border-b border-[#e5e7eb]">
+      <section className="relative overflow-hidden bg-md-surface-container border-b border-md-outline-variant">
         <div className="max-w-7xl mx-auto px-6 py-20 md:py-32">
           <div className="max-w-4xl">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#333333] leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-md-on-surface leading-tight mb-6">
               AutoGRC
             </h1>
-            <p className="text-xl text-[#666666] leading-relaxed mb-8 max-w-3xl">
+            <p className="text-xl text-md-on-surface-variant leading-relaxed mb-8 max-w-3xl">
               Automate compliance across frameworks with AI-powered control mapping, 
               continuous testing, and real-time reporting. Transform weeks of manual 
               work into minutes of intelligent automation.
@@ -18,7 +20,7 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap gap-4">
               <Link href="/overview">
-                <button className="px-8 py-4 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors text-lg">
+                <button className="px-8 py-4 font-bold bg-md-primary-container text-md-on-primary-container rounded-xl hover:bg-md-primary hover:text-md-on-primary transition-colors text-lg">
                   Enter Platform
                 </button>
               </Link>
@@ -27,29 +29,29 @@ export default function LandingPage() {
         </div>
 
         {/* Decorative element */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#ffe600]/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-md-primary-container/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
       </section>
 
       {/* PROBLEM STATEMENT */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl font-bold text-[#333333] mb-6">
+            <h2 className="text-3xl font-bold text-md-on-surface mb-6">
               The Compliance Challenge
             </h2>
-            <p className="text-base text-[#666666] leading-relaxed mb-4">
+            <p className="text-base text-md-on-surface-variant leading-relaxed mb-4">
               Organizations struggle to maintain alignment between internal controls 
               and evolving regulatory frameworks like NIST, CIS, ISO, and NIS2. Manual 
               processes are time-consuming, inconsistent, and impossible to scale.
             </p>
-            <p className="text-base text-[#666666] leading-relaxed">
+            <p className="text-base text-md-on-surface-variant leading-relaxed">
               Security teams spend weeks mapping controls, conducting assessments, and 
               preparing audit reports—only to repeat the process across multiple frameworks.
             </p>
           </div>
 
-          <div className="bg-[#f9f9f9] rounded-lg p-8 border border-[#e5e7eb]">
-            <h3 className="text-xl font-bold text-[#333333] mb-6">Common Pain Points</h3>
+          <div className="bg-md-surface-container rounded-xl p-8 border border-md-outline-variant">
+            <h3 className="text-xl font-bold text-md-on-surface mb-6">Common Pain Points</h3>
             <ul className="space-y-4">
               <PainPoint text="Manual control mapping across multiple frameworks" />
               <PainPoint text="Inconsistent assessment procedures and results" />
@@ -62,13 +64,13 @@ export default function LandingPage() {
       </section>
 
       {/* SOLUTION */}
-      <section className="bg-[#f9f9f9] border-y border-[#e5e7eb] py-20">
+      <section className="bg-md-surface-container border-y border-md-outline-variant py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-[#333333] mb-4">
+            <h2 className="text-4xl font-bold text-md-on-surface mb-4">
               The AutoGRC Solution
             </h2>
-            <p className="text-xl text-[#666666] max-w-3xl mx-auto">
+            <p className="text-xl text-md-on-surface-variant max-w-3xl mx-auto">
               A unified platform that establishes your controls foundation, automates 
               testing, and delivers real-time, defensible reporting across all frameworks.
             </p>
@@ -96,10 +98,10 @@ export default function LandingPage() {
       {/* CORE CAPABILITIES */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#333333] mb-4">
+          <h2 className="text-4xl font-bold text-md-on-surface mb-4">
             Core Capabilities
           </h2>
-          <p className="text-xl text-[#666666] max-w-2xl mx-auto">
+          <p className="text-xl text-md-on-surface-variant max-w-2xl mx-auto">
             Three powerful modules working together to transform your compliance operations
           </p>
         </div>
@@ -159,17 +161,17 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-[#333333] to-[#1a1a1a] text-white py-20">
+      <section className="bg-md-primary text-md-on-primary py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-6">
             Ready to Transform Your Compliance Operations?
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-xl text-md-on-primary/80 mb-8">
             Join leading organizations using AutoGRC to automate compliance and 
             reduce audit preparation time by 80%.
           </p>
           <Link href="/overview">
-            <button className="px-8 py-4 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-white transition-colors text-lg">
+            <button className="px-8 py-4 font-bold bg-md-primary-container text-md-on-primary-container rounded-xl hover:opacity-90 transition-opacity text-lg">
               Get Started Now
             </button>
           </Link>
@@ -177,9 +179,9 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-[#e5e7eb] py-8">
+      <footer className="border-t border-md-outline-variant py-8">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-sm text-[#999999]">
+          <p className="text-sm text-md-on-surface-variant">
             Internal demonstration build for evaluation purposes only. No client data.
             <br />
             Designed for enterprise assurance environments.
@@ -195,20 +197,20 @@ export default function LandingPage() {
 function PainPoint({ text }: { text: string }) {
   return (
     <li className="flex items-start gap-3">
-      <svg className="w-5 h-5 text-[#e41f13] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-md-error flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
       </svg>
-      <span className="text-[#666666]">{text}</span>
+      <span className="text-md-on-surface-variant">{text}</span>
     </li>
   );
 }
 
 function Benefit({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="bg-white rounded-lg p-6 border border-[#e5e7eb] hover:shadow-lg transition-shadow">
+    <div className="bg-md-surface rounded-xl p-6 border border-md-outline-variant hover:shadow-lg transition-shadow">
       <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-bold text-[#333333] mb-3">{title}</h3>
-      <p className="text-[#666666] leading-relaxed">{description}</p>
+      <h3 className="text-xl font-bold text-md-on-surface mb-3">{title}</h3>
+      <p className="text-md-on-surface-variant leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -227,43 +229,43 @@ function Capability({
   outcomes: string[];
 }) {
   return (
-    <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="bg-gradient-to-r from-[#f9f9f9] to-white px-8 py-6 border-b border-[#e5e7eb]">
+    <div className="bg-md-surface rounded-xl border border-md-outline-variant overflow-hidden hover:shadow-lg transition-shadow">
+      <div className="bg-md-surface-container px-8 py-6 border-b border-md-outline-variant">
         <div className="flex items-center gap-4 mb-3">
-          <span className="text-5xl font-bold text-[#ffe600]">{number}</span>
-          <h3 className="text-2xl font-bold text-[#333333]">{title}</h3>
+          <span className="text-5xl font-bold text-md-primary-container">{number}</span>
+          <h3 className="text-2xl font-bold text-md-on-surface">{title}</h3>
         </div>
-        <p className="text-[#666666] leading-relaxed">{description}</p>
+        <p className="text-md-on-surface-variant leading-relaxed">{description}</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 px-8 py-6">
         <div>
-          <h4 className="text-sm font-bold text-[#333333] uppercase tracking-wider mb-4">
+          <h4 className="text-sm font-bold text-md-on-surface uppercase tracking-wider mb-4">
             Key Features
           </h4>
           <ul className="space-y-3">
             {features.map((feature, i) => (
               <li key={i} className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-[#00a758] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-md-success flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-[#666666] text-sm">{feature}</span>
+                <span className="text-md-on-surface-variant text-sm">{feature}</span>
               </li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h4 className="text-sm font-bold text-[#333333] uppercase tracking-wider mb-4">
+          <h4 className="text-sm font-bold text-md-on-surface uppercase tracking-wider mb-4">
             Business Outcomes
           </h4>
           <ul className="space-y-3">
             {outcomes.map((outcome, i) => (
               <li key={i} className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-[#ffe600] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-md-primary-container flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                 </svg>
-                <span className="text-[#666666] text-sm">{outcome}</span>
+                <span className="text-md-on-surface-variant text-sm">{outcome}</span>
               </li>
             ))}
           </ul>

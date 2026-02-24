@@ -45,10 +45,10 @@ export default async function FrameworksPage({
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-[#333333]">
+            <h1 className="text-3xl font-bold text-md-on-surface">
               Compliance Frameworks
             </h1>
-            <p className="mt-1 text-base text-[#666666] max-w-4xl">
+            <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
               Following section gives an overview of controls frameworks
               activated on the platform. AutoGRC also maps uploaded controls
               frameworks with the internal controls framework of the
@@ -56,7 +56,7 @@ export default async function FrameworksPage({
             </p>
           </div>
 
-          <button className="flex-shrink-0 bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white">
+          <button className="flex-shrink-0 bg-md-primary-container text-md-on-primary-container px-6 py-2.5 rounded-lg font-bold transition-colors hover:bg-md-primary hover:text-md-on-primary">
             Upload Framework
           </button>
         </div>
@@ -107,11 +107,11 @@ function KpiCard({
   value: string | number
 }) {
   return (
-    <div className="rounded-lg border border-[#cccccc] bg-white p-6 shadow-sm">
-      <div className="text-sm font-medium text-[#666666] uppercase tracking-wide">
+    <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-6 shadow-sm">
+      <div className="text-sm font-medium text-md-on-surface-variant uppercase tracking-wide">
         {title}
       </div>
-      <div className="mt-3 text-4xl font-bold text-[#333333]">{value}</div>
+      <div className="mt-3 text-4xl font-bold text-md-on-surface">{value}</div>
     </div>
   )
 }

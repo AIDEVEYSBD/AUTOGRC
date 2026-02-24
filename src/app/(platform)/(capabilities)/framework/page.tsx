@@ -71,10 +71,10 @@ function normalizeScoreTo100(x: number): number {
 function statusBadgeClasses(status: string) {
   const s = (status || "").toLowerCase()
   if (s === "completed") return "bg-[#e8f5e9] text-[#00a758]"
-  if (s === "running") return "bg-[#fff7ed] text-[#f59e0b]"
+  if (s === "running") return "bg-[#f59e0b]/10 text-[#f59e0b]"
   if (s === "queued") return "bg-[#eef2ff] text-[#4f46e5]"
-  if (s === "failed") return "bg-[#fee] text-[#e41f13]"
-  return "bg-[#f3f4f6] text-[#333333]"
+  if (s === "failed") return "bg-[#e41f13]/10 text-[#e41f13]"
+  return "bg-[#f3f4f6] text-md-on-surface"
 }
 
 function scoreColor(score0to100: number) {
@@ -286,10 +286,10 @@ export default function FrameworkBaselinerPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold text-[#333333]">
+          <h1 className="text-3xl font-bold text-md-on-surface">
             {tab === "framework" ? "Framework Baseliner" : "SOC Mapper"}
           </h1>
-          <p className="text-base text-[#666666] max-w-3xl mt-2">
+          <p className="text-base text-md-on-surface-variant max-w-3xl mt-2">
             {tab === "framework" ? (
               <>
                 Generate AI-assisted control mappings between two frameworks. This creates a baseline coverage
@@ -310,8 +310,8 @@ export default function FrameworkBaselinerPage() {
             onClick={() => setTab("framework")}
             className={`px-4 py-2 text-sm font-bold rounded border transition-colors ${
               tab === "framework"
-                ? "bg-[#333333] text-white border-[#333333]"
-                : "bg-white text-[#333333] border-[#cccccc] hover:bg-[#f9f9f9]"
+                ? "bg-md-primary text-md-on-primary border-md-primary"
+                : "bg-md-surface-container text-md-on-surface border-md-outline-variant hover:bg-md-surface-container-high"
             }`}
           >
             Framework
@@ -320,8 +320,8 @@ export default function FrameworkBaselinerPage() {
             onClick={() => setTab("soc")}
             className={`px-4 py-2 text-sm font-bold rounded border transition-colors ${
               tab === "soc"
-                ? "bg-[#333333] text-white border-[#333333]"
-                : "bg-white text-[#333333] border-[#cccccc] hover:bg-[#f9f9f9]"
+                ? "bg-md-primary text-md-on-primary border-md-primary"
+                : "bg-md-surface-container text-md-on-surface border-md-outline-variant hover:bg-md-surface-container-high"
             }`}
           >
             SOC
@@ -333,11 +333,11 @@ export default function FrameworkBaselinerPage() {
       {tab === "framework" && (
         <>
           {/* Create New Mapping */}
-          <div className="border border-[#cccccc] bg-white p-6 rounded-lg shadow-sm space-y-6">
+          <div className="border border-md-outline-variant bg-md-surface-container p-6 rounded-xl shadow-sm space-y-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-[#333333]">Create New Mapping</h2>
-                <p className="mt-1 text-sm text-[#666666]">
+                <h2 className="text-xl font-bold text-md-on-surface">Create New Mapping</h2>
+                <p className="mt-1 text-sm text-md-on-surface-variant">
                   Select a source framework and a target framework to generate a new mapping run.
                 </p>
               </div>
@@ -345,7 +345,7 @@ export default function FrameworkBaselinerPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowInstructions(true)}
-                  className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors flex items-center gap-2"
                   title="View instructions"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +360,7 @@ export default function FrameworkBaselinerPage() {
                 </button>
                 <button
                   onClick={() => fetchRuns().catch(() => {})}
-                  className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                  className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                   title="Refresh runs"
                 >
                   Refresh
@@ -370,11 +370,11 @@ export default function FrameworkBaselinerPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#333333]">Source framework</label>
+                <label className="text-sm font-bold text-md-on-surface">Source framework</label>
                 <select
                   value={source}
                   onChange={(e) => setSource(e.target.value)}
-                  className="w-full border border-[#cccccc] px-3 py-2 rounded bg-white text-[#333333] focus:outline-none focus:border-[#ffe600] focus:ring-2 focus:ring-[#ffe600]/20"
+                  className="w-full border border-md-outline-variant px-3 py-2 rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                 >
                   <option value="">Select source</option>
                   {frameworks.map((f) => (
@@ -386,11 +386,11 @@ export default function FrameworkBaselinerPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#333333]">Target framework</label>
+                <label className="text-sm font-bold text-md-on-surface">Target framework</label>
                 <select
                   value={target}
                   onChange={(e) => setTarget(e.target.value)}
-                  className="w-full border border-[#cccccc] px-3 py-2 rounded bg-white text-[#333333] focus:outline-none focus:border-[#ffe600] focus:ring-2 focus:ring-[#ffe600]/20"
+                  className="w-full border border-md-outline-variant px-3 py-2 rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                 >
                   <option value="">Select target</option>
                   {frameworks.map((f) => (
@@ -403,7 +403,7 @@ export default function FrameworkBaselinerPage() {
             </div>
 
             {source && target && source === target && (
-              <div className="flex items-center gap-2 text-sm text-[#e41f13] bg-[#fee] px-4 py-3 rounded">
+              <div className="flex items-center gap-2 text-sm text-[#e41f13] bg-[#e41f13]/10 px-4 py-3 rounded-lg">
                 <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -419,8 +419,8 @@ export default function FrameworkBaselinerPage() {
             <button
               onClick={startRun}
               disabled={disableStart}
-              className={`w-full px-4 py-3 font-bold bg-[#ffe600] text-[#333333] rounded transition-colors ${
-                disableStart ? "cursor-not-allowed" : "hover:bg-[#333333] hover:text-white"
+              className={`w-full px-4 py-3 font-bold bg-md-primary-container text-md-on-primary-container rounded-lg transition-colors ${
+                disableStart ? "cursor-not-allowed" : "hover:bg-md-primary hover:text-md-on-primary"
               }`}
             >
               {starting ? "Starting…" : "Start AI Mapping"}
@@ -428,16 +428,16 @@ export default function FrameworkBaselinerPage() {
           </div>
 
           {/* Runs Table */}
-          <div className="border border-[#cccccc] bg-white rounded-lg overflow-hidden shadow-sm">
+          <div className="border border-md-outline-variant bg-md-surface-container rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
             <table className="w-full min-w-[500px] text-sm">
-              <thead className="bg-[#f9f9f9] border-b border-[#cccccc]">
+              <thead className="bg-md-surface-container border-b border-md-outline-variant">
                 <tr>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Source</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Target</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Status</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Mappings</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Avg Score</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Source</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Target</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Status</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Mappings</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Avg Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -447,25 +447,25 @@ export default function FrameworkBaselinerPage() {
                     <tr
                       key={r.id}
                       onClick={() => openRun(r.id)}
-                      className="cursor-pointer border-t border-[#e5e7eb] hover:bg-[#f9f9f9] transition-colors"
+                      className="cursor-pointer border-t border-md-outline-variant hover:bg-md-surface-container transition-colors"
                       title="Click to view results"
                     >
-                      <td className="px-4 py-3 text-[#333333]">{r.source_framework_name}</td>
-                      <td className="px-4 py-3 text-[#333333]">{r.target_framework_name}</td>
+                      <td className="px-4 py-3 text-md-on-surface">{r.source_framework_name}</td>
+                      <td className="px-4 py-3 text-md-on-surface">{r.target_framework_name}</td>
                       <td className="px-4 py-3">
                         <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusBadgeClasses(r.status)}`}>
                           {r.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[#333333] font-semibold">{r.summary?.total_mappings ?? 0}</td>
-                      <td className="px-4 py-3 text-[#333333] font-semibold">{avg.toFixed(1)}</td>
+                      <td className="px-4 py-3 text-md-on-surface font-semibold">{r.summary?.total_mappings ?? 0}</td>
+                      <td className="px-4 py-3 text-md-on-surface font-semibold">{avg.toFixed(1)}</td>
                     </tr>
                   )
                 })}
 
                 {runs.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-[#666666]">
+                    <td colSpan={5} className="px-4 py-8 text-center text-md-on-surface-variant">
                       No mapping runs yet.
                     </td>
                   </tr>
@@ -483,31 +483,31 @@ export default function FrameworkBaselinerPage() {
                 if (e.target === e.currentTarget) closeModal()
               }}
             >
-              <div className="bg-white w-full max-w-7xl max-h-[90vh] rounded-lg overflow-hidden shadow-2xl flex flex-col">
-                <div className="flex justify-between items-center px-6 py-4 border-b border-[#cccccc] bg-[#f9f9f9] flex-shrink-0">
+              <div className="bg-md-surface-container w-full max-w-7xl max-h-[90vh] rounded-xl overflow-hidden shadow-2xl flex flex-col">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-md-outline-variant bg-md-surface-container flex-shrink-0">
                   <div>
-                    <h3 className="text-xl font-bold text-[#333333]">Mapping Results</h3>
+                    <h3 className="text-xl font-bold text-md-on-surface">Mapping Results</h3>
                     {summary ? (
-                      <p className="text-sm text-[#666666] mt-1">
+                      <p className="text-sm text-md-on-surface-variant mt-1">
                         {summary.full_overlap} full · {summary.partial_overlap} partial · {summary.total_mappings} total · avg{" "}
                         {normalizeScoreTo100(summary.avg_score).toFixed(1)}
                       </p>
                     ) : (
-                      <p className="text-sm text-[#666666] mt-1">Run summary unavailable</p>
+                      <p className="text-sm text-md-on-surface-variant mt-1">Run summary unavailable</p>
                     )}
                   </div>
 
                   <div className="flex gap-3">
                     <button
                       onClick={downloadExcel}
-                      className="px-4 py-2 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors"
+                      className="px-4 py-2 font-bold bg-md-primary-container text-md-on-surface rounded hover:bg-md-primary hover:text-md-on-primary transition-colors"
                       title="Download the canonical Excel report"
                     >
                       Download Excel
                     </button>
                     <button
                       onClick={closeModal}
-                      className="px-4 py-2 font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                      className="px-4 py-2 font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                     >
                       Close
                     </button>
@@ -518,34 +518,34 @@ export default function FrameworkBaselinerPage() {
                   {loading ? (
                     <div className="flex items-center justify-center p-12">
                       <div className="text-center">
-                        <div className="inline-block w-8 h-8 border-4 border-[#cccccc] border-t-[#ffe600] rounded-full animate-spin mb-4"></div>
-                        <p className="text-[#666666]">Loading results…</p>
+                        <div className="inline-block w-8 h-8 border-4 border-md-outline-variant border-t-md-primary-container rounded-full animate-spin mb-4"></div>
+                        <p className="text-md-on-surface-variant">Loading results…</p>
                       </div>
                     </div>
                   ) : (
                     <table className="w-full min-w-[700px] text-sm">
-                      <thead className="bg-[#f9f9f9] sticky top-0 border-b border-[#cccccc] z-10">
+                      <thead className="bg-md-surface-container sticky top-0 border-b border-md-outline-variant z-10">
                         <tr>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Source</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Domain</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Sub-Domain</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Target</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Score</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Status</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Explanation</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Source</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Domain</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Sub-Domain</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Target</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Score</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Status</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Explanation</th>
                         </tr>
                       </thead>
                       <tbody>
                         {mappings.map((m, i) => {
                           const s100 = normalizeScoreTo100(m.overlap_score)
                           return (
-                            <tr key={i} className="border-t border-[#e5e7eb] align-top hover:bg-[#f9f9f9]">
-                              <td className="px-4 py-3 text-[#333333] font-semibold whitespace-nowrap">
+                            <tr key={i} className="border-t border-md-outline-variant align-top hover:bg-md-surface-container">
+                              <td className="px-4 py-3 text-md-on-surface font-semibold whitespace-nowrap">
                                 {m.source_control_code}
                               </td>
-                              <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{m.source_domain || "—"}</td>
-                              <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{m.source_sub_domain || "—"}</td>
-                              <td className="px-4 py-3 text-[#333333] font-semibold whitespace-nowrap">
+                              <td className="px-4 py-3 text-md-on-surface-variant whitespace-nowrap">{m.source_domain || "—"}</td>
+                              <td className="px-4 py-3 text-md-on-surface-variant whitespace-nowrap">{m.source_sub_domain || "—"}</td>
+                              <td className="px-4 py-3 text-md-on-surface font-semibold whitespace-nowrap">
                                 {m.target_control_code}
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
@@ -557,14 +557,14 @@ export default function FrameworkBaselinerPage() {
                                     (m.status || "") === "Full Overlap"
                                       ? "bg-[#e8f5e9] text-[#00a758]"
                                       : (m.status || "") === "Partial Overlap"
-                                      ? "bg-[#fff7ed] text-[#f59e0b]"
-                                      : "bg-[#fee] text-[#e41f13]"
+                                      ? "bg-[#f59e0b]/10 text-[#f59e0b]"
+                                      : "bg-[#e41f13]/10 text-[#e41f13]"
                                   }`}
                                 >
                                   {m.status}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-[#666666] text-xs leading-relaxed min-w-[400px] max-w-[500px]">
+                              <td className="px-4 py-3 text-md-on-surface-variant text-xs leading-relaxed min-w-[400px] max-w-[500px]">
                                 {m.explanation}
                               </td>
                             </tr>
@@ -573,7 +573,7 @@ export default function FrameworkBaselinerPage() {
 
                         {mappings.length === 0 && (
                           <tr>
-                            <td colSpan={7} className="px-4 py-12 text-center text-[#666666]">
+                            <td colSpan={7} className="px-4 py-12 text-center text-md-on-surface-variant">
                               No mapping results available for this run.
                             </td>
                           </tr>
@@ -594,12 +594,12 @@ export default function FrameworkBaselinerPage() {
                 if (e.target === e.currentTarget) setShowInstructions(false)
               }}
             >
-              <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden">
-                <div className="flex justify-between items-center px-6 py-4 border-b border-[#cccccc] bg-[#f9f9f9]">
-                  <h3 className="text-xl font-bold text-[#333333]">How to Use Framework Baseliner</h3>
+              <div className="bg-md-surface-container w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-md-outline-variant bg-md-surface-container">
+                  <h3 className="text-xl font-bold text-md-on-surface">How to Use Framework Baseliner</h3>
                   <button
                     onClick={() => setShowInstructions(false)}
-                    className="text-[#666666] hover:text-[#333333] transition-colors"
+                    className="text-md-on-surface-variant hover:text-md-on-surface transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -607,10 +607,10 @@ export default function FrameworkBaselinerPage() {
                   </button>
                 </div>
 
-                <div className="p-6 space-y-4 text-[#333333]">
+                <div className="p-6 space-y-4 text-md-on-surface">
                   <div className="space-y-2">
                     <h4 className="font-bold text-lg">Step 1: Select Frameworks</h4>
-                    <p className="text-sm text-[#666666]">
+                    <p className="text-sm text-md-on-surface-variant">
                       Choose a <strong>source framework</strong> (map from) and a <strong>target framework</strong> (map to).
                       These must be different frameworks.
                     </p>
@@ -618,30 +618,30 @@ export default function FrameworkBaselinerPage() {
 
                   <div className="space-y-2">
                     <h4 className="font-bold text-lg">Step 2: Start the Mapping</h4>
-                    <p className="text-sm text-[#666666]">
+                    <p className="text-sm text-md-on-surface-variant">
                       Click <strong>Start AI Mapping</strong>. The system generates an overlap baseline between the two standards.
                     </p>
                   </div>
 
                   <div className="space-y-2">
                     <h4 className="font-bold text-lg">Step 3: View Results</h4>
-                    <p className="text-sm text-[#666666]">
+                    <p className="text-sm text-md-on-surface-variant">
                       Once complete, click a run row to view mappings, scores, and explanations.
                     </p>
                   </div>
 
                   <div className="space-y-2">
                     <h4 className="font-bold text-lg">Step 4: Download Reports</h4>
-                    <p className="text-sm text-[#666666]">
+                    <p className="text-sm text-md-on-surface-variant">
                       In the results view, click <strong>Download Excel</strong> to export the canonical report.
                     </p>
                   </div>
                 </div>
 
-                <div className="px-6 py-4 bg-[#f9f9f9] border-t border-[#cccccc] flex justify-end">
+                <div className="px-6 py-4 bg-md-surface-container border-t border-md-outline-variant flex justify-end">
                   <button
                     onClick={() => setShowInstructions(false)}
-                    className="px-6 py-2 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors"
+                    className="px-6 py-2 font-bold bg-md-primary-container text-md-on-surface rounded hover:bg-md-primary hover:text-md-on-primary transition-colors"
                   >
                     Got it!
                   </button>
@@ -656,11 +656,11 @@ export default function FrameworkBaselinerPage() {
       {tab === "soc" && (
         <>
           {/* Create SOC Run */}
-          <div className="border border-[#cccccc] bg-white p-6 rounded-lg shadow-sm space-y-6">
+          <div className="border border-md-outline-variant bg-md-surface-container p-6 rounded-xl shadow-sm space-y-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-[#333333]">Run SOC Mapping</h2>
-                <p className="mt-1 text-sm text-[#666666]">
+                <h2 className="text-xl font-bold text-md-on-surface">Run SOC Mapping</h2>
+                <p className="mt-1 text-sm text-md-on-surface-variant">
                   Provide the Azure controls JSON path available to the scheduler service. The master framework is resolved server-side.
                 </p>
               </div>
@@ -668,7 +668,7 @@ export default function FrameworkBaselinerPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => fetchSocRuns().catch(() => {})}
-                  className="px-4 py-2 text-sm font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                  className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                   title="Refresh SOC runs"
                 >
                   Refresh
@@ -678,24 +678,24 @@ export default function FrameworkBaselinerPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#333333]">SOC report name</label>
+                <label className="text-sm font-bold text-md-on-surface">SOC report name</label>
                 <input
                   value={socReportName}
                   onChange={(e) => setSocReportName(e.target.value)}
-                  className="w-full border border-[#cccccc] px-3 py-2 rounded bg-white text-[#333333] focus:outline-none focus:border-[#ffe600] focus:ring-2 focus:ring-[#ffe600]/20"
+                  className="w-full border border-md-outline-variant px-3 py-2 rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                   placeholder="Azure SOC 2 Type II"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#333333]">Azure controls JSON path</label>
+                <label className="text-sm font-bold text-md-on-surface">Azure controls JSON path</label>
                 <input
                   value={azureControlsPath}
                   onChange={(e) => setAzureControlsPath(e.target.value)}
-                  className="w-full border border-[#cccccc] px-3 py-2 rounded bg-white text-[#333333] focus:outline-none focus:border-[#ffe600] focus:ring-2 focus:ring-[#ffe600]/20"
+                  className="w-full border border-md-outline-variant px-3 py-2 rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                   placeholder="azure_controls.json"
                 />
-                <p className="text-xs text-[#666666]">
+                <p className="text-xs text-md-on-surface-variant">
                   Example: <span className="font-mono">azure_controls.json</span> or an absolute path on the scheduler machine.
                 </p>
               </div>
@@ -704,8 +704,8 @@ export default function FrameworkBaselinerPage() {
             <button
               onClick={startSocRun}
               disabled={disableSocStart}
-              className={`w-full px-4 py-3 font-bold bg-[#ffe600] text-[#333333] rounded transition-colors ${
-                disableSocStart ? "cursor-not-allowed" : "hover:bg-[#333333] hover:text-white"
+              className={`w-full px-4 py-3 font-bold bg-md-primary-container text-md-on-primary-container rounded-lg transition-colors ${
+                disableSocStart ? "cursor-not-allowed" : "hover:bg-md-primary hover:text-md-on-primary"
               }`}
             >
               {socStarting ? "Starting…" : "Start SOC Mapping"}
@@ -713,15 +713,15 @@ export default function FrameworkBaselinerPage() {
           </div>
 
           {/* SOC Runs Table */}
-          <div className="border border-[#cccccc] bg-white rounded-lg overflow-hidden shadow-sm">
+          <div className="border border-md-outline-variant bg-md-surface-container rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
             <table className="w-full min-w-[480px] text-sm">
-              <thead className="bg-[#f9f9f9] border-b border-[#cccccc]">
+              <thead className="bg-md-surface-container border-b border-md-outline-variant">
                 <tr>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Report</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Master Framework</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Status</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#333333]">Created</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Report</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Master Framework</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Status</th>
+                  <th className="px-4 py-3 text-left font-bold text-md-on-surface">Created</th>
                 </tr>
               </thead>
               <tbody>
@@ -729,17 +729,17 @@ export default function FrameworkBaselinerPage() {
                   <tr
                     key={r.id}
                     onClick={() => openSocRun(r.id)}
-                    className="cursor-pointer border-t border-[#e5e7eb] hover:bg-[#f9f9f9] transition-colors"
+                    className="cursor-pointer border-t border-md-outline-variant hover:bg-md-surface-container transition-colors"
                     title="Click to view results"
                   >
-                    <td className="px-4 py-3 text-[#333333]">{r.soc_report_name}</td>
-                    <td className="px-4 py-3 text-[#333333]">{r.master_framework_name}</td>
+                    <td className="px-4 py-3 text-md-on-surface">{r.soc_report_name}</td>
+                    <td className="px-4 py-3 text-md-on-surface">{r.master_framework_name}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusBadgeClasses(r.status)}`}>
                         {r.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[#666666]">
+                    <td className="px-4 py-3 text-md-on-surface-variant">
                       {r.created_at ? new Date(r.created_at).toLocaleString() : "—"}
                     </td>
                   </tr>
@@ -747,7 +747,7 @@ export default function FrameworkBaselinerPage() {
 
                 {socRuns.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-[#666666]">
+                    <td colSpan={4} className="px-4 py-8 text-center text-md-on-surface-variant">
                       No SOC runs yet.
                     </td>
                   </tr>
@@ -765,11 +765,11 @@ export default function FrameworkBaselinerPage() {
                 if (e.target === e.currentTarget) closeSocModal()
               }}
             >
-              <div className="bg-white w-full max-w-7xl max-h-[90vh] rounded-lg overflow-hidden shadow-2xl flex flex-col">
-                <div className="flex justify-between items-center px-6 py-4 border-b border-[#cccccc] bg-[#f9f9f9] flex-shrink-0">
+              <div className="bg-md-surface-container w-full max-w-7xl max-h-[90vh] rounded-xl overflow-hidden shadow-2xl flex flex-col">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-md-outline-variant bg-md-surface-container flex-shrink-0">
                   <div>
-                    <h3 className="text-xl font-bold text-[#333333]">SOC Mapping Results</h3>
-                    <p className="text-sm text-[#666666] mt-1">
+                    <h3 className="text-xl font-bold text-md-on-surface">SOC Mapping Results</h3>
+                    <p className="text-sm text-md-on-surface-variant mt-1">
                       {socSummary.met} met · {socSummary.partial} partial · {socSummary.notMet} not met · {socSummary.total} total · avg{" "}
                       {socSummary.avg.toFixed(1)}
                     </p>
@@ -778,14 +778,14 @@ export default function FrameworkBaselinerPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={downloadSocExcel}
-                      className="px-4 py-2 font-bold bg-[#ffe600] text-[#333333] rounded hover:bg-[#333333] hover:text-white transition-colors"
+                      className="px-4 py-2 font-bold bg-md-primary-container text-md-on-surface rounded hover:bg-md-primary hover:text-md-on-primary transition-colors"
                       title="Download SOC Excel report"
                     >
                       Download Excel
                     </button>
                     <button
                       onClick={closeSocModal}
-                      className="px-4 py-2 font-bold border border-[#cccccc] text-[#333333] rounded hover:bg-[#f9f9f9] transition-colors"
+                      className="px-4 py-2 font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors"
                     >
                       Close
                     </button>
@@ -796,21 +796,21 @@ export default function FrameworkBaselinerPage() {
                   {socLoading ? (
                     <div className="flex items-center justify-center p-12">
                       <div className="text-center">
-                        <div className="inline-block w-8 h-8 border-4 border-[#cccccc] border-t-[#ffe600] rounded-full animate-spin mb-4"></div>
-                        <p className="text-[#666666]">Loading results…</p>
+                        <div className="inline-block w-8 h-8 border-4 border-md-outline-variant border-t-md-primary-container rounded-full animate-spin mb-4"></div>
+                        <p className="text-md-on-surface-variant">Loading results…</p>
                       </div>
                     </div>
                   ) : (
                     <table className="w-full min-w-[700px] text-sm">
-                      <thead className="bg-[#f9f9f9] sticky top-0 border-b border-[#cccccc] z-10">
+                      <thead className="bg-md-surface-container sticky top-0 border-b border-md-outline-variant z-10">
                         <tr>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Domain</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Sub-Domain</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Master Control</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">SOC Control</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Score</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Status</th>
-                          <th className="px-4 py-3 text-left font-bold text-[#333333]">Explanation</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Domain</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Sub-Domain</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Master Control</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">SOC Control</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Score</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Status</th>
+                          <th className="px-4 py-3 text-left font-bold text-md-on-surface">Explanation</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -818,13 +818,13 @@ export default function FrameworkBaselinerPage() {
                           const s100 = normalizeScoreTo100(m.score)
                           const st = (m.status || "").toLowerCase()
                           return (
-                            <tr key={i} className="border-t border-[#e5e7eb] align-top hover:bg-[#f9f9f9]">
-                              <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{m.domain || "—"}</td>
-                              <td className="px-4 py-3 text-[#666666] whitespace-nowrap">{m.sub_domain || "—"}</td>
-                              <td className="px-4 py-3 text-[#333333] text-xs leading-relaxed min-w-[320px] max-w-[420px]">
+                            <tr key={i} className="border-t border-md-outline-variant align-top hover:bg-md-surface-container">
+                              <td className="px-4 py-3 text-md-on-surface-variant whitespace-nowrap">{m.domain || "—"}</td>
+                              <td className="px-4 py-3 text-md-on-surface-variant whitespace-nowrap">{m.sub_domain || "—"}</td>
+                              <td className="px-4 py-3 text-md-on-surface text-xs leading-relaxed min-w-[320px] max-w-[420px]">
                                 {m.control_statement}
                               </td>
-                              <td className="px-4 py-3 text-[#333333] font-semibold whitespace-nowrap">
+                              <td className="px-4 py-3 text-md-on-surface font-semibold whitespace-nowrap">
                                 {m.soc_control_code || "—"}
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
@@ -836,14 +836,14 @@ export default function FrameworkBaselinerPage() {
                                     st === "met"
                                       ? "bg-[#e8f5e9] text-[#00a758]"
                                       : st === "partially met"
-                                      ? "bg-[#fff7ed] text-[#f59e0b]"
-                                      : "bg-[#fee] text-[#e41f13]"
+                                      ? "bg-[#f59e0b]/10 text-[#f59e0b]"
+                                      : "bg-[#e41f13]/10 text-[#e41f13]"
                                   }`}
                                 >
                                   {m.status}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-[#666666] text-xs leading-relaxed min-w-[380px] max-w-[520px]">
+                              <td className="px-4 py-3 text-md-on-surface-variant text-xs leading-relaxed min-w-[380px] max-w-[520px]">
                                 {m.explanation}
                               </td>
                             </tr>
@@ -852,7 +852,7 @@ export default function FrameworkBaselinerPage() {
 
                         {socResults.length === 0 && (
                           <tr>
-                            <td colSpan={7} className="px-4 py-12 text-center text-[#666666]">
+                            <td colSpan={7} className="px-4 py-12 text-center text-md-on-surface-variant">
                               No SOC results available for this run.
                             </td>
                           </tr>

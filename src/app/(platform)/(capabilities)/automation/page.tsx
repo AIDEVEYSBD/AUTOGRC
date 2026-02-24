@@ -97,7 +97,7 @@ function CustomSelect({
         disabled={disabled}
         className={`
           w-full flex items-center justify-between gap-3 px-4 py-2.5 
-          border border-[#cccccc] rounded bg-white text-[#333333]
+          border border-md-outline-variant rounded-lg bg-md-surface text-md-on-surface
           transition-colors
           ${isOpen ? "border-[#ffe600]" : "hover:border-[#999999]"}
           ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -108,35 +108,35 @@ function CustomSelect({
             <div className="flex items-center gap-2">
               <span className="font-medium">{selectedOption.label}</span>
               {selectedOption.badge && (
-                <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                <span className="text-xs px-2 py-0.5 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                   {selectedOption.badge}
                 </span>
               )}
             </div>
           ) : (
-            <span className="text-[#999999]">{placeholder}</span>
+            <span className="text-md-on-surface-variant">{placeholder}</span>
           )}
         </div>
-        <span className={`text-[#666666] text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
+        <span className={`text-md-on-surface-variant text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-[#ffe600] rounded shadow-lg max-h-80 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-md-surface-container border border-md-primary-container rounded-xl shadow-lg max-h-80 overflow-hidden">
           {searchable && (
-            <div className="p-2 border-b border-[#e5e7eb]">
+            <div className="p-2 border-b border-md-outline-variant">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-3 py-2 text-sm border border-[#cccccc] rounded focus:outline-none focus:border-[#ffe600]"
+                className="w-full px-3 py-2 text-sm border border-md-outline-variant rounded focus:outline-none focus:border-[#ffe600]"
                 autoFocus
               />
             </div>
           )}
           <div className="overflow-y-auto max-h-64">
             {filteredOptions.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-[#999999]">
+              <div className="px-4 py-8 text-center text-sm text-md-on-surface-variant">
                 No options found
               </div>
             ) : (
@@ -151,19 +151,19 @@ function CustomSelect({
                   }}
                   className={`
                     w-full px-4 py-3 text-left text-sm transition-colors
-                    ${value === option.value ? "bg-[#ffe600]/20" : "hover:bg-[#f9f9f9]"}
+                    ${value === option.value ? "bg-md-primary-container/20" : "hover:bg-md-surface-container-high"}
                   `}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-[#333333]">{option.label}</span>
+                    <span className="font-medium text-md-on-surface">{option.label}</span>
                     {option.badge && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                      <span className="text-xs px-2 py-0.5 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                         {option.badge}
                       </span>
                     )}
                   </div>
                   {option.description && (
-                    <div className="text-xs text-[#666666] mt-1">{option.description}</div>
+                    <div className="text-xs text-md-on-surface-variant mt-1">{option.description}</div>
                   )}
                 </button>
               ))
@@ -190,7 +190,7 @@ function getStatusColor(status: string): string {
     case "Success": return "text-[#00a758]"
     case "Failed": return "text-[#e41f13]"
     case "Running": return "text-[#f59e0b]"
-    default: return "text-[#666666]"
+    default: return "text-md-on-surface-variant"
   }
 }
 
@@ -593,7 +593,7 @@ export default function AutomationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-[#666666]">Loading automations...</div>
+        <div className="text-lg text-md-on-surface-variant">Loading automations...</div>
       </div>
     )
   }
@@ -603,10 +603,10 @@ export default function AutomationsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#333333]">
+          <h1 className="text-3xl font-bold text-md-on-surface">
             Control Automations
           </h1>
-          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+          <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
             Create automated rules to continuously test compliance requirements across your applications.
             Define tests that run automatically to ensure ongoing compliance with percentage-based scoring.
           </p>
@@ -614,7 +614,7 @@ export default function AutomationsPage() {
 
         <button
           onClick={openCreateModal}
-          className="flex-shrink-0 bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
+          className="flex-shrink-0 bg-md-primary-container text-md-on-primary-container px-6 py-2.5 rounded-lg font-bold transition-colors hover:bg-md-primary hover:text-md-on-primary"
         >
           Create Automation
         </button>
@@ -631,22 +631,22 @@ export default function AutomationsPage() {
       {/* Automations List */}
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#333333]">
+          <h2 className="text-2xl font-bold text-md-on-surface">
             Active Automations
           </h2>
-          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+          <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
             View and manage all automation rules. Click on any rule to see execution history and details.
           </p>
         </div>
 
         {automations.length === 0 ? (
-          <div className="rounded-lg border border-[#cccccc] bg-white p-12 text-center shadow-sm">
-            <div className="text-[#666666] mb-4">
+          <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-12 text-center shadow-sm">
+            <div className="text-md-on-surface-variant mb-4">
               No automations created yet. Create your first automation to start automatically testing compliance requirements.
             </div>
             <button
               onClick={openCreateModal}
-              className="bg-[#ffe600] text-[#333333] px-6 py-2.5 rounded font-bold transition-colors hover:bg-[#333333] hover:text-white"
+              className="bg-md-primary-container text-md-on-primary-container px-6 py-2.5 rounded-lg font-bold transition-colors hover:bg-md-primary hover:text-md-on-primary"
             >
               Create First Automation
             </button>
@@ -661,16 +661,16 @@ export default function AutomationsPage() {
               : 0
 
             return (
-              <div key={automation.id} className="rounded-lg border border-[#cccccc] bg-white shadow-sm">
+              <div key={automation.id} className="rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm">
                 {/* Collapsed Header */}
                 <div 
-                  className="p-6 cursor-pointer hover:bg-[#f9f9f9] transition-colors"
+                  className="p-6 cursor-pointer hover:bg-md-surface-container-high transition-colors"
                   onClick={() => toggleCard(automation.id)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <div className="font-bold text-lg text-[#333333]">{automation.name}</div>
+                        <div className="font-bold text-lg text-md-on-surface">{automation.name}</div>
                         {automation.lastRunStatus && (
                           <span className={`text-xs px-2 py-0.5 rounded font-bold ${
                             automation.lastRunStatus === "Success"
@@ -682,14 +682,14 @@ export default function AutomationsPage() {
                             {automation.lastRunStatus.toUpperCase()}
                           </span>
                         )}
-                        <span className="text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                        <span className="text-xs px-2 py-0.5 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                           {automation.controlCode}
                         </span>
                       </div>
-                      <div className="text-sm text-[#666666] mt-1">
+                      <div className="text-sm text-md-on-surface-variant mt-1">
                         {automation.controlTitle}
                       </div>
-                      <div className="text-sm text-[#666666] mt-1">
+                      <div className="text-sm text-md-on-surface-variant mt-1">
                         {automation.applyScope === "AllApplications" && "Applies to: All Applications"}
                         {automation.applyScope === "ByApplicability" && 
                           `Applies to: Applications in ${automation.applicabilityIds?.length || 0} categories`
@@ -699,7 +699,7 @@ export default function AutomationsPage() {
                         }
                       </div>
                     </div>
-                    <div className="text-[#666666]">
+                    <div className="text-md-on-surface-variant">
                       {isExpanded ? "▼" : "▶"}
                     </div>
                   </div>
@@ -707,36 +707,36 @@ export default function AutomationsPage() {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className="border-t border-[#cccccc] p-6 space-y-6 bg-[#fafafa]">
+                  <div className="border-t border-md-outline-variant p-6 space-y-6 bg-md-surface">
                     {/* Details */}
                     <div className="space-y-3">
                       {automation.description && (
-                        <div className="text-sm text-[#666666]">
+                        <div className="text-sm text-md-on-surface-variant">
                           <span className="font-bold">Description:</span> {automation.description}
                         </div>
                       )}
-                      <div className="text-sm text-[#666666]">
+                      <div className="text-sm text-md-on-surface-variant">
                         <span className="font-bold">Last Run:</span> {formatDateTime(automation.lastRunAt)}
                       </div>
-                      <div className="text-sm text-[#666666]">
+                      <div className="text-sm text-md-on-surface-variant">
                         <span className="font-bold">Created:</span> {formatDateTime(automation.createdAt)}
                       </div>
                       
                       {/* SQL Query */}
                       <div>
-                        <div className="text-sm font-bold text-[#333333] mb-2">SQL Query:</div>
-                        <pre className="bg-white border border-[#e5e7eb] rounded p-4 text-xs overflow-x-auto text-[#333333]">
+                        <div className="text-sm font-bold text-md-on-surface mb-2">SQL Query:</div>
+                        <pre className="bg-md-surface border border-md-outline-variant rounded-lg p-4 text-xs overflow-x-auto text-md-on-surface">
                           {automation.sqlText}
                         </pre>
                       </div>
 
                       {/* Answer Template */}
                       <div>
-                        <div className="text-sm font-bold text-[#333333] mb-2">Result Template:</div>
-                        <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-3 text-sm text-[#166534]">
+                        <div className="text-sm font-bold text-md-on-surface mb-2">Result Template:</div>
+                        <div className="bg-[#00a758]/10 border border-[#00a758] rounded-lg p-3 text-sm text-[#00a758]">
                           {automation.answerTemplate || automation.answerPass || "No template configured"}
                         </div>
-                        <div className="text-xs text-[#999999] mt-1">
+                        <div className="text-xs text-md-on-surface-variant mt-1">
                           Template supports placeholders: {"{{compliance_percentage}}"}, {"{{total_rows}}"}, {"{{compliant_rows}}"}, {"{{partial_gap_rows}}"}, {"{{non_compliant_rows}}"}, {"{{application_name}}"}, {"{{host}}"}, {"{{control_code}}"}
                         </div>
                       </div>
@@ -750,7 +750,7 @@ export default function AutomationsPage() {
                           handleExecute(automation)
                         }}
                         disabled={submitting}
-                        className="text-xs px-4 py-2 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="text-xs px-4 py-2 rounded-lg bg-md-primary text-md-on-primary font-medium hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {submitting ? "Executing..." : "Execute Now"}
                       </button>
@@ -761,7 +761,7 @@ export default function AutomationsPage() {
                           openEditModal(automation)
                         }}
                         disabled={submitting}
-                        className="text-xs px-4 py-2 rounded border border-[#cccccc] text-[#333333] hover:bg-white transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="text-xs px-4 py-2 rounded-lg border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container-high transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         Edit Automation
                       </button>
@@ -781,51 +781,51 @@ export default function AutomationsPage() {
                     {/* Run History */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-[#333333]">Recent Runs</h3>
+                        <h3 className="font-bold text-md-on-surface">Recent Runs</h3>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             loadRunsForCard(automation.id)
                           }}
                           disabled={isLoadingRuns}
-                          className="text-xs px-3 py-1 rounded border border-[#cccccc] text-[#666666] hover:bg-white transition-colors disabled:opacity-60"
+                          className="text-xs px-3 py-1 rounded-lg border border-md-outline-variant text-md-on-surface-variant hover:bg-md-surface-container-high transition-colors disabled:opacity-60"
                         >
                           {isLoadingRuns ? "Loading..." : "Refresh"}
                         </button>
                       </div>
 
                       {isLoadingRuns ? (
-                        <div className="text-sm text-[#666666] py-4">Loading runs...</div>
+                        <div className="text-sm text-md-on-surface-variant py-4">Loading runs...</div>
                       ) : runs.length === 0 ? (
-                        <div className="text-sm text-[#666666] py-4">
+                        <div className="text-sm text-md-on-surface-variant py-4">
                           No runs yet. Execute the automation to see results here.
                         </div>
                       ) : (
                         <div className="space-y-2">
                           {runs.map(run => (
-                            <div key={run.id} className="bg-white rounded border border-[#e5e7eb] p-3">
+                            <div key={run.id} className="bg-md-surface rounded-lg border border-md-outline-variant p-3">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-3">
                                     <span className={`text-xs font-bold ${getStatusColor(run.status)}`}>
                                       {run.status}
                                     </span>
-                                    <span className="text-xs text-[#999999]">
+                                    <span className="text-xs text-md-on-surface-variant">
                                       {run.triggeredBy}
                                     </span>
                                   </div>
-                                  <div className="text-xs text-[#666666] mt-1">
+                                  <div className="text-xs text-md-on-surface-variant mt-1">
                                     Started: {formatDateTime(run.startedAt)}
                                   </div>
                                   {run.finishedAt && (
-                                    <div className="text-xs text-[#666666]">
+                                    <div className="text-xs text-md-on-surface-variant">
                                       Finished: {formatDateTime(run.finishedAt)}
                                     </div>
                                   )}
                                 </div>
                               </div>
                               {run.errorMessage && (
-                                <div className="text-xs text-[#e41f13] mt-2 p-2 bg-[#fff5f5] rounded">
+                                <div className="text-xs text-[#e41f13] mt-2 p-2 bg-[#e41f13]/10 rounded">
                                   {run.errorMessage}
                                 </div>
                               )}
@@ -897,14 +897,14 @@ export default function AutomationsPage() {
       {showPreview && previewResult && (
         <Modal onClose={() => setShowPreview(false)} wide>
           <div className="mb-6">
-            <h3 className="text-2xl font-bold text-[#333333]">Query Preview</h3>
-            <p className="mt-1 text-base text-[#666666]">
+            <h3 className="text-2xl font-bold text-md-on-surface">Query Preview</h3>
+            <p className="mt-1 text-base text-md-on-surface-variant">
               Showing {previewResult.rowCount} sample rows
             </p>
           </div>
 
           {previewResult.error ? (
-            <div className="bg-[#fef2f2] border border-[#fca5a5] rounded p-4 text-sm text-[#991b1b]">
+            <div className="bg-[#e41f13]/10 border border-[#e41f13] rounded-lg p-4 text-sm text-[#e41f13]">
               <div className="font-bold mb-2">Error:</div>
               <div>{previewResult.error}</div>
             </div>
@@ -912,27 +912,27 @@ export default function AutomationsPage() {
             <>
               {/* Validation Messages */}
               {!previewResult.hasApplicationId && (
-                <div className="bg-[#fff7ed] border border-[#fed7aa] rounded p-4 text-sm text-[#9a3412] mb-4">
+                <div className="bg-[#f59e0b]/10 border border-[#f59e0b] rounded-lg p-4 text-sm text-[#f59e0b] mb-4">
                   <div className="font-bold mb-2">⚠️ Missing Required Column:</div>
                   <div>
-                    Query must return a column named <code className="bg-white px-2 py-0.5 rounded">application_id</code>
+                    Query must return a column named <code className="bg-md-surface px-2 py-0.5 rounded">application_id</code>
                     {" "}to link assessment evidence to applications.
                   </div>
                 </div>
               )}
 
               {!previewResult.hasCompliancePercentage && (
-                <div className="bg-[#fff7ed] border border-[#fed7aa] rounded p-4 text-sm text-[#9a3412] mb-4">
+                <div className="bg-[#f59e0b]/10 border border-[#f59e0b] rounded-lg p-4 text-sm text-[#f59e0b] mb-4">
                   <div className="font-bold mb-2">⚠️ Missing Required Column:</div>
                   <div>
-                    Query must return a column named <code className="bg-white px-2 py-0.5 rounded">compliance_percentage</code>
+                    Query must return a column named <code className="bg-md-surface px-2 py-0.5 rounded">compliance_percentage</code>
                     {" "}for percentage-based scoring.
                   </div>
                 </div>
               )}
 
               {previewResult.hasApplicationId && previewResult.hasCompliancePercentage && (
-                <div className="bg-[#f0fdf4] border border-[#86efac] rounded p-4 text-sm text-[#166534] mb-4">
+                <div className="bg-[#00a758]/10 border border-[#00a758] rounded-lg p-4 text-sm text-[#00a758] mb-4">
                   <div className="font-bold mb-2">✓ Valid Query</div>
                   <div>Query includes all required columns (application_id, compliance_percentage).</div>
                   
@@ -970,14 +970,14 @@ export default function AutomationsPage() {
 
           {previewResult.rows.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="min-w-full border border-[#cccccc] text-sm">
-                <thead className="bg-[#f9f9f9]">
+              <table className="min-w-full border border-md-outline-variant text-sm">
+                <thead className="bg-md-surface-container">
                   <tr>
                     {previewResult.columns.map(col => (
-                      <th key={col} className="border border-[#cccccc] px-4 py-3 text-left font-bold text-[#333333]">
+                      <th key={col} className="border border-md-outline-variant px-4 py-3 text-left font-bold text-md-on-surface">
                         {col}
                         {col === "compliance_percentage" && (
-                          <span className="ml-2 text-xs px-2 py-0.5 rounded bg-[#ffe600] text-[#333333] font-bold">
+                          <span className="ml-2 text-xs px-2 py-0.5 rounded bg-md-primary-container text-md-on-primary-container font-bold">
                             REQUIRED
                           </span>
                         )}
@@ -987,9 +987,9 @@ export default function AutomationsPage() {
                 </thead>
                 <tbody>
                   {previewResult.rows.map((row, i) => (
-                    <tr key={i} className="odd:bg-white even:bg-[#fafafa] hover:bg-[#f5f5f5]">
+                    <tr key={i} className="odd:bg-md-surface-container even:bg-md-surface hover:bg-md-surface-container-high">
                       {previewResult.columns.map(col => (
-                        <td key={col} className="border border-[#e5e7eb] px-4 py-3 text-[#666666]">
+                        <td key={col} className="border border-md-outline-variant px-4 py-3 text-md-on-surface-variant">
                           {row[col] === null || row[col] === undefined
                             ? "—"
                             : typeof row[col] === "boolean"
@@ -1037,14 +1037,14 @@ function Step1BasicInfo({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-lg font-bold text-[#333333] mb-1">Basic Information</h4>
-        <p className="text-sm text-[#666666]">
+        <h4 className="text-lg font-bold text-md-on-surface mb-1">Basic Information</h4>
+        <p className="text-sm text-md-on-surface-variant">
           Define the name and compliance requirement that this automation will test.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#333333] mb-2">
+        <label className="block text-sm font-medium text-md-on-surface mb-2">
           Automation Name <span className="text-[#e41f13]">*</span>
         </label>
         <input
@@ -1052,12 +1052,12 @@ function Step1BasicInfo({
           value={formData.name}
           onChange={e => setFormData({ ...formData, name: e.target.value })}
           placeholder="e.g., TLS 1.3 Compliance Check"
-          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+          className="w-full border border-md-outline-variant rounded px-3 py-2.5 text-md-on-surface focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#333333] mb-2">
+        <label className="block text-sm font-medium text-md-on-surface mb-2">
           Description
         </label>
         <textarea
@@ -1065,12 +1065,12 @@ function Step1BasicInfo({
           onChange={e => setFormData({ ...formData, description: e.target.value })}
           placeholder="Describe what this automation tests and how it works..."
           rows={3}
-          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+          className="w-full border border-md-outline-variant rounded px-3 py-2.5 text-md-on-surface focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#333333] mb-2">
+        <label className="block text-sm font-medium text-md-on-surface mb-2">
           Control <span className="text-[#e41f13]">*</span>
         </label>
         <CustomSelect
@@ -1080,7 +1080,7 @@ function Step1BasicInfo({
           placeholder="Select a control..."
           searchable
         />
-        <p className="text-xs text-[#999999] mt-1">
+        <p className="text-xs text-md-on-surface-variant mt-1">
           Select the compliance requirement that this automation will assess
         </p>
       </div>
@@ -1102,18 +1102,18 @@ function Step2ApplicationScope({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-lg font-bold text-[#333333] mb-1">Application Scope</h4>
-        <p className="text-sm text-[#666666]">
+        <h4 className="text-lg font-bold text-md-on-surface mb-1">Application Scope</h4>
+        <p className="text-sm text-md-on-surface-variant">
           Define which applications this automation will assess.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#333333] mb-3">
+        <label className="block text-sm font-medium text-md-on-surface mb-3">
           Apply To <span className="text-[#e41f13]">*</span>
         </label>
         <div className="space-y-2">
-          <label className="flex items-start gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+          <label className="flex items-start gap-3 p-3 border border-md-outline-variant rounded hover:bg-md-surface-container-high cursor-pointer">
             <input
               type="radio"
               checked={formData.applyScope === "AllApplications"}
@@ -1121,14 +1121,14 @@ function Step2ApplicationScope({
               className="mt-1"
             />
             <div>
-              <div className="font-medium text-[#333333]">All Applications</div>
-              <div className="text-xs text-[#666666]">
+              <div className="font-medium text-md-on-surface">All Applications</div>
+              <div className="text-xs text-md-on-surface-variant">
                 Run this automation for every application in the system
               </div>
             </div>
           </label>
 
-          <label className="flex items-start gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+          <label className="flex items-start gap-3 p-3 border border-md-outline-variant rounded hover:bg-md-surface-container-high cursor-pointer">
             <input
               type="radio"
               checked={formData.applyScope === "ByApplicability"}
@@ -1136,14 +1136,14 @@ function Step2ApplicationScope({
               className="mt-1"
             />
             <div>
-              <div className="font-medium text-[#333333]">By Applicability Category</div>
-              <div className="text-xs text-[#666666]">
+              <div className="font-medium text-md-on-surface">By Applicability Category</div>
+              <div className="text-xs text-md-on-surface-variant">
                 Run for applications in selected categories (e.g., Internet-facing, Production)
               </div>
             </div>
           </label>
 
-          <label className="flex items-start gap-3 p-3 border border-[#cccccc] rounded hover:bg-[#f9f9f9] cursor-pointer">
+          <label className="flex items-start gap-3 p-3 border border-md-outline-variant rounded hover:bg-md-surface-container-high cursor-pointer">
             <input
               type="radio"
               checked={formData.applyScope === "SelectedApplications"}
@@ -1151,8 +1151,8 @@ function Step2ApplicationScope({
               className="mt-1"
             />
             <div>
-              <div className="font-medium text-[#333333]">Selected Applications</div>
-              <div className="text-xs text-[#666666]">
+              <div className="font-medium text-md-on-surface">Selected Applications</div>
+              <div className="text-xs text-md-on-surface-variant">
                 Run only for specific applications you choose
               </div>
             </div>
@@ -1162,10 +1162,10 @@ function Step2ApplicationScope({
 
       {formData.applyScope === "ByApplicability" && (
         <div>
-          <label className="block text-sm font-medium text-[#333333] mb-2">
+          <label className="block text-sm font-medium text-md-on-surface mb-2">
             Select Categories <span className="text-[#e41f13]">*</span>
           </label>
-          <div className="space-y-2 max-h-64 overflow-y-auto border border-[#cccccc] rounded p-3">
+          <div className="space-y-2 max-h-64 overflow-y-auto border border-md-outline-variant rounded p-3">
             {applicabilityOptions.map(category => (
               <label key={category.id} className="flex items-start gap-2 cursor-pointer">
                 <input
@@ -1180,9 +1180,9 @@ function Step2ApplicationScope({
                   className="mt-1"
                 />
                 <div>
-                  <div className="text-sm font-medium text-[#333333]">{category.name}</div>
+                  <div className="text-sm font-medium text-md-on-surface">{category.name}</div>
                   {category.description && (
-                    <div className="text-xs text-[#666666]">{category.description}</div>
+                    <div className="text-xs text-md-on-surface-variant">{category.description}</div>
                   )}
                 </div>
               </label>
@@ -1193,10 +1193,10 @@ function Step2ApplicationScope({
 
       {formData.applyScope === "SelectedApplications" && (
         <div>
-          <label className="block text-sm font-medium text-[#333333] mb-2">
+          <label className="block text-sm font-medium text-md-on-surface mb-2">
             Select Applications <span className="text-[#e41f13]">*</span>
           </label>
-          <div className="space-y-2 max-h-64 overflow-y-auto border border-[#cccccc] rounded p-3">
+          <div className="space-y-2 max-h-64 overflow-y-auto border border-md-outline-variant rounded p-3">
             {applicationOptions.map(app => (
               <label key={app.id} className="flex items-start gap-2 cursor-pointer">
                 <input
@@ -1211,8 +1211,8 @@ function Step2ApplicationScope({
                   className="mt-1"
                 />
                 <div>
-                  <div className="text-sm font-medium text-[#333333]">{app.name}</div>
-                  <div className="text-xs text-[#666666]">
+                  <div className="text-sm font-medium text-md-on-surface">{app.name}</div>
+                  <div className="text-xs text-md-on-surface-variant">
                     {app.primaryUrl} • {app.criticality}
                   </div>
                 </div>
@@ -1429,11 +1429,11 @@ function Step3QueryBuilder({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-lg font-bold text-[#333333] mb-1">SQL Query Builder</h4>
-        <p className="text-sm text-[#666666]">
+        <h4 className="text-lg font-bold text-md-on-surface mb-1">SQL Query Builder</h4>
+        <p className="text-sm text-md-on-surface-variant">
           Build the SQL query that will test this control. The query must return both 
-          <code className="bg-[#f5f5f5] px-2 py-0.5 rounded mx-1">application_id</code> and 
-          <code className="bg-[#f5f5f5] px-2 py-0.5 rounded mx-1">compliance_percentage</code> columns.
+          <code className="bg-md-surface-container-high px-2 py-0.5 rounded mx-1">application_id</code> and 
+          <code className="bg-md-surface-container-high px-2 py-0.5 rounded mx-1">compliance_percentage</code> columns.
         </p>
       </div>
 
@@ -1442,8 +1442,8 @@ function Step3QueryBuilder({
           onClick={() => setUseVisualBuilder(false)}
           className={`px-4 py-2 rounded font-medium transition-colors ${
             !useVisualBuilder
-              ? "bg-[#333333] text-white"
-              : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+              ? "bg-md-primary text-md-on-primary"
+              : "bg-md-surface-container text-md-on-surface-variant hover:bg-md-surface-container-high"
           }`}
         >
           Raw SQL
@@ -1459,8 +1459,8 @@ function Step3QueryBuilder({
           }}
           className={`px-4 py-2 rounded font-medium transition-colors ${
             useVisualBuilder
-              ? "bg-[#333333] text-white"
-              : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+              ? "bg-md-primary text-md-on-primary"
+              : "bg-md-surface-container text-md-on-surface-variant hover:bg-md-surface-container-high"
           }`}
         >
           Visual Builder
@@ -1468,10 +1468,10 @@ function Step3QueryBuilder({
       </div>
 
       {useVisualBuilder && (
-        <div className="space-y-4 border border-[#cccccc] rounded p-4 bg-[#fafafa]">
+        <div className="space-y-4 border border-md-outline-variant rounded p-4 bg-md-surface">
           {/* FROM */}
           <div>
-            <label className="block text-sm font-bold text-[#333333] mb-2">FROM Table</label>
+            <label className="block text-sm font-bold text-md-on-surface mb-2">FROM Table</label>
             <div className="flex gap-2">
               <CustomSelect
                 value={queryBuilder.fromTable}
@@ -1488,7 +1488,7 @@ function Step3QueryBuilder({
                 value={queryBuilder.fromAlias}
                 onChange={e => setQueryBuilder({ ...queryBuilder, fromAlias: e.target.value })}
                 placeholder="Alias (e.g., a)"
-                className="w-24 border border-[#cccccc] rounded px-3 py-2 text-sm text-[#333333]"
+                className="w-24 border border-md-outline-variant rounded px-3 py-2 text-sm text-md-on-surface"
               />
             </div>
           </div>
@@ -1496,23 +1496,23 @@ function Step3QueryBuilder({
           {/* JOINs */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-bold text-[#333333]">JOIN Tables</label>
+              <label className="text-sm font-bold text-md-on-surface">JOIN Tables</label>
               <button
                 onClick={addJoin}
-                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+                className="text-xs px-3 py-1 rounded bg-md-primary-container text-md-on-primary-container font-bold hover:bg-md-primary hover:text-md-on-primary transition-colors"
               >
                 + Add Join
               </button>
             </div>
             {queryBuilder.joins.length === 0 ? (
-              <div className="text-sm text-[#999999] italic">No joins added</div>
+              <div className="text-sm text-md-on-surface-variant italic">No joins added</div>
             ) : (
               <div className="space-y-3">
                 {queryBuilder.joins.map(join => {
                   const allColumns = getAllAvailableColumns()
                   
                   return (
-                    <div key={join.id} className="bg-white p-3 rounded border border-[#e5e7eb] space-y-2">
+                    <div key={join.id} className="bg-md-surface-container p-3 rounded border border-md-outline-variant space-y-2">
                       <div className="flex gap-2 items-start">
                         <CustomSelect
                           value={join.type}
@@ -1536,7 +1536,7 @@ function Step3QueryBuilder({
                           value={join.alias}
                           onChange={e => updateJoin(join.id, { alias: e.target.value })}
                           placeholder="Alias"
-                          className="w-20 border border-[#cccccc] rounded px-2 py-1 text-sm"
+                          className="w-20 border border-md-outline-variant rounded px-2 py-1 text-sm"
                         />
                         <button
                           onClick={() => removeJoin(join.id)}
@@ -1546,7 +1546,7 @@ function Step3QueryBuilder({
                         </button>
                       </div>
                       <div className="flex gap-2 items-center pl-2">
-                        <span className="text-xs text-[#666666] font-bold">ON</span>
+                        <span className="text-xs text-md-on-surface-variant font-bold">ON</span>
                         <CustomSelect
                           value={join.onLeft}
                           onChange={value => updateJoin(join.id, { onLeft: value })}
@@ -1555,7 +1555,7 @@ function Step3QueryBuilder({
                           searchable
                           className="flex-1"
                         />
-                        <span className="text-sm text-[#666666]">=</span>
+                        <span className="text-sm text-md-on-surface-variant">=</span>
                         <CustomSelect
                           value={join.onRight}
                           onChange={value => updateJoin(join.id, { onRight: value })}
@@ -1575,10 +1575,10 @@ function Step3QueryBuilder({
           {/* SELECT */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-bold text-[#333333]">SELECT Columns</label>
+              <label className="text-sm font-bold text-md-on-surface">SELECT Columns</label>
               <button
                 onClick={addSelect}
-                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+                className="text-xs px-3 py-1 rounded bg-md-primary-container text-md-on-primary-container font-bold hover:bg-md-primary hover:text-md-on-primary transition-colors"
               >
                 + Add Column
               </button>
@@ -1588,7 +1588,7 @@ function Step3QueryBuilder({
                 const allColumns = getAllAvailableColumns()
                 
                 return (
-                  <div key={sel.id} className="flex gap-2 items-start bg-white p-3 rounded border border-[#e5e7eb]">
+                  <div key={sel.id} className="flex gap-2 items-start bg-md-surface-container p-3 rounded border border-md-outline-variant">
                     <CustomSelect
                       value={sel.aggregate || ""}
                       onChange={value => updateSelect(sel.id, { aggregate: value || null as any })}
@@ -1609,7 +1609,7 @@ function Step3QueryBuilder({
                       value={sel.alias}
                       onChange={e => updateSelect(sel.id, { alias: e.target.value })}
                       placeholder="Alias"
-                      className="w-40 border border-[#cccccc] rounded px-2 py-1 text-sm"
+                      className="w-40 border border-md-outline-variant rounded px-2 py-1 text-sm"
                     />
                     <button
                       onClick={() => removeSelect(sel.id)}
@@ -1627,16 +1627,16 @@ function Step3QueryBuilder({
           {/* WHERE */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-bold text-[#333333]">WHERE Conditions</label>
+              <label className="text-sm font-bold text-md-on-surface">WHERE Conditions</label>
               <button
                 onClick={addWhere}
-                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+                className="text-xs px-3 py-1 rounded bg-md-primary-container text-md-on-primary-container font-bold hover:bg-md-primary hover:text-md-on-primary transition-colors"
               >
                 + Add Condition
               </button>
             </div>
             {queryBuilder.whereConditions.length === 0 ? (
-              <div className="text-sm text-[#999999] italic">No conditions added</div>
+              <div className="text-sm text-md-on-surface-variant italic">No conditions added</div>
             ) : (
               <div className="space-y-2">
                 {queryBuilder.whereConditions.map((cond, i) => {
@@ -1644,7 +1644,7 @@ function Step3QueryBuilder({
                   const isColumnMode = columnComparisonMode.get(cond.id) || false
                   
                   return (
-                    <div key={cond.id} className="bg-white p-3 rounded border border-[#e5e7eb] space-y-2">
+                    <div key={cond.id} className="bg-md-surface-container p-3 rounded border border-md-outline-variant space-y-2">
                       <div className="flex gap-2 items-start">
                         {i > 0 && (
                           <CustomSelect
@@ -1683,8 +1683,8 @@ function Step3QueryBuilder({
                               onClick={() => toggleComparisonMode(cond.id, false)}
                               className={`text-xs px-3 py-1 rounded transition-colors ${
                                 !isColumnMode
-                                  ? "bg-[#333333] text-white"
-                                  : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+                                  ? "bg-md-primary text-md-on-primary"
+                                  : "bg-md-surface-container text-md-on-surface-variant hover:bg-md-surface-container-high"
                               }`}
                             >
                               Compare to Value
@@ -1693,8 +1693,8 @@ function Step3QueryBuilder({
                               onClick={() => toggleComparisonMode(cond.id, true)}
                               className={`text-xs px-3 py-1 rounded transition-colors ${
                                 isColumnMode
-                                  ? "bg-[#333333] text-white"
-                                  : "bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e7eb]"
+                                  ? "bg-md-primary text-md-on-primary"
+                                  : "bg-md-surface-container text-md-on-surface-variant hover:bg-md-surface-container-high"
                               }`}
                             >
                               Compare to Column
@@ -1715,7 +1715,7 @@ function Step3QueryBuilder({
                               value={cond.right}
                               onChange={e => updateWhere(cond.id, { right: e.target.value })}
                               placeholder="Enter value (e.g., 'text', 100, true)"
-                              className="w-full border border-[#cccccc] rounded px-3 py-2 text-sm"
+                              className="w-full border border-md-outline-variant rounded px-3 py-2 text-sm"
                             />
                           )}
                         </div>
@@ -1730,23 +1730,23 @@ function Step3QueryBuilder({
           {/* GROUP BY */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-bold text-[#333333]">GROUP BY Columns</label>
+              <label className="text-sm font-bold text-md-on-surface">GROUP BY Columns</label>
               <button
                 onClick={addGroupBy}
-                className="text-xs px-3 py-1 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors"
+                className="text-xs px-3 py-1 rounded bg-md-primary-container text-md-on-primary-container font-bold hover:bg-md-primary hover:text-md-on-primary transition-colors"
               >
                 + Add Column
               </button>
             </div>
             {queryBuilder.groupByColumns.length === 0 ? (
-              <div className="text-sm text-[#999999] italic">No group by columns (required if using aggregates)</div>
+              <div className="text-sm text-md-on-surface-variant italic">No group by columns (required if using aggregates)</div>
             ) : (
               <div className="space-y-2">
                 {queryBuilder.groupByColumns.map((col, i) => {
                   const allColumns = getAllAvailableColumns()
                   
                   return (
-                    <div key={i} className="flex gap-2 items-start bg-white p-3 rounded border border-[#e5e7eb]">
+                    <div key={i} className="flex gap-2 items-start bg-md-surface-container p-3 rounded border border-md-outline-variant">
                       <CustomSelect
                         value={col}
                         onChange={value => updateGroupBy(i, value)}
@@ -1766,14 +1766,14 @@ function Step3QueryBuilder({
                 })}
               </div>
             )}
-            <p className="text-xs text-[#999999] mt-1">
+            <p className="text-xs text-md-on-surface-variant mt-1">
               If using aggregate functions (COUNT, BOOL_AND, etc.), list all non-aggregated SELECT columns here
             </p>
           </div>
 
           <button
             onClick={updateQueryFromBuilder}
-            className="w-full bg-[#333333] text-white px-4 py-2.5 rounded font-bold hover:bg-[#555555] transition-colors"
+            className="w-full bg-md-primary text-md-on-primary px-4 py-2.5 rounded-lg font-bold hover:opacity-90 transition-colors"
           >
             Generate SQL from Builder
           </button>
@@ -1782,7 +1782,7 @@ function Step3QueryBuilder({
 
       {/* SQL Text Editor */}
       <div>
-        <label className="block text-sm font-bold text-[#333333] mb-2">
+        <label className="block text-sm font-bold text-md-on-surface mb-2">
           SQL Query <span className="text-[#e41f13]">*</span>
         </label>
         <textarea
@@ -1790,9 +1790,9 @@ function Step3QueryBuilder({
           onChange={e => setFormData({ ...formData, sqlText: e.target.value })}
           placeholder="SELECT a.id AS application_id, ... AS compliance_percentage FROM applications a ..."
           rows={10}
-          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-sm font-mono text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+          className="w-full border border-md-outline-variant rounded px-3 py-2.5 text-sm font-mono text-md-on-surface focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
-        <p className="text-xs text-[#999999] mt-1">
+        <p className="text-xs text-md-on-surface-variant mt-1">
           Query must return columns named "application_id" and "compliance_percentage" (0-100)
         </p>
       </div>
@@ -1800,7 +1800,7 @@ function Step3QueryBuilder({
       <button
         onClick={onPreview}
         disabled={loadingPreview || !formData.sqlText.trim()}
-        className="w-full bg-[#ffe600] text-[#333333] px-4 py-2.5 rounded font-bold hover:bg-[#333333] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full bg-md-primary-container text-md-on-primary-container px-4 py-2.5 rounded-lg font-bold hover:bg-md-primary hover:text-md-on-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {loadingPreview ? "Loading Preview..." : "Preview Query Results"}
       </button>
@@ -1818,15 +1818,15 @@ function Step4ResultTemplate({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-lg font-bold text-[#333333] mb-1">Result Template</h4>
-        <p className="text-sm text-[#666666]">
+        <h4 className="text-lg font-bold text-md-on-surface mb-1">Result Template</h4>
+        <p className="text-sm text-md-on-surface-variant">
           Define the message template that will be shown in assessment evidence. 
           The template will be rendered with the compliance percentage and other application details.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#333333] mb-2">
+        <label className="block text-sm font-medium text-md-on-surface mb-2">
           Answer Template <span className="text-[#e41f13]">*</span>
         </label>
         <textarea
@@ -1834,9 +1834,9 @@ function Step4ResultTemplate({
           onChange={e => setFormData({ ...formData, answerTemplate: e.target.value })}
           placeholder="e.g., Application {{application_name}} has {{non_compliant_rows}} out of {{total_rows}} servers failing {{control_code}} compliance ({{compliance_percentage}} overall)."
           rows={4}
-          className="w-full border border-[#cccccc] rounded px-3 py-2.5 text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
+          className="w-full border border-md-outline-variant rounded px-3 py-2.5 text-md-on-surface focus:outline-none focus:ring-2 focus:ring-[#ffe600] focus:border-transparent"
         />
-        <p className="text-xs text-[#999999] mt-1">
+        <p className="text-xs text-md-on-surface-variant mt-1">
           Available placeholders: {"{{compliance_percentage}}"}, {"{{total_rows}}"}, {"{{compliant_rows}}"}, {"{{partial_gap_rows}}"}, {"{{non_compliant_rows}}"}, {"{{application_name}}"}, {"{{host}}"}, {"{{control_code}}"}
         </p>
       </div>
@@ -1847,7 +1847,7 @@ function Step4ResultTemplate({
         <div className="space-y-3">
           <div>
             <div className="text-xs font-bold text-[#00a758] mb-1">Compliant (≥80%):</div>
-            <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+            <div className="text-sm text-[#0c4a6e] bg-md-surface-container rounded p-3">
               {formData.answerTemplate 
                 ? formData.answerTemplate
                     .replace(/\{\{compliance_percentage\}\}/g, "95.0%")
@@ -1865,7 +1865,7 @@ function Step4ResultTemplate({
 
           <div>
             <div className="text-xs font-bold text-[#f59e0b] mb-1">Partial Gap (40-79%):</div>
-            <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+            <div className="text-sm text-[#0c4a6e] bg-md-surface-container rounded p-3">
               {formData.answerTemplate 
                 ? formData.answerTemplate
                     .replace(/\{\{compliance_percentage\}\}/g, "65.0%")
@@ -1883,7 +1883,7 @@ function Step4ResultTemplate({
 
           <div>
             <div className="text-xs font-bold text-[#e41f13] mb-1">Not Compliant (&lt;40%):</div>
-            <div className="text-sm text-[#0c4a6e] bg-white rounded p-3">
+            <div className="text-sm text-[#0c4a6e] bg-md-surface-container rounded p-3">
               {formData.answerTemplate 
                 ? formData.answerTemplate
                     .replace(/\{\{compliance_percentage\}\}/g, "25.0%")
@@ -1914,11 +1914,11 @@ function Step4ResultTemplate({
 
 function KpiCard({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-[#cccccc] bg-white p-6 shadow-sm">
-      <div className="text-sm font-medium text-[#666666] uppercase tracking-wide">
+    <div className="rounded-lg border border-md-outline-variant bg-md-surface-container p-6 shadow-sm">
+      <div className="text-sm font-medium text-md-on-surface-variant uppercase tracking-wide">
         {title}
       </div>
-      <div className="mt-3 text-4xl font-bold text-[#333333]">
+      <div className="mt-3 text-4xl font-bold text-md-on-surface">
         {value}
       </div>
     </div>
@@ -1941,7 +1941,7 @@ function Modal({
     >
       <div
         className={[
-          "relative bg-white rounded-lg shadow-lg w-full",
+          "relative bg-md-surface-container rounded-lg shadow-lg w-full",
           wide ? "max-w-5xl" : "max-w-xl",
           "max-h-[90vh] flex flex-col",
         ].join(" ")}
@@ -1949,7 +1949,7 @@ function Modal({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl font-bold text-[#666666] hover:text-[#333333] transition-colors z-10"
+          className="absolute top-4 right-4 text-2xl font-bold text-md-on-surface-variant hover:text-md-on-surface transition-colors z-10"
           title="Close"
         >
           ×
@@ -1990,32 +1990,32 @@ function MultiStepModal({
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col"
+        className="relative bg-md-surface-container rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl font-bold text-[#666666] hover:text-[#333333] transition-colors z-10"
+          className="absolute top-4 right-4 text-2xl font-bold text-md-on-surface-variant hover:text-md-on-surface transition-colors z-10"
           title="Close"
         >
           ×
         </button>
 
         {/* Header */}
-        <div className="p-6 border-b border-[#e5e7eb]">
-          <h3 className="text-2xl font-bold text-[#333333] mb-4">{title}</h3>
+        <div className="p-6 border-b border-md-outline-variant">
+          <h3 className="text-2xl font-bold text-md-on-surface mb-4">{title}</h3>
           
           {/* Progress Bar */}
           <div className="flex items-center gap-2">
             {Array.from({ length: totalSteps }, (_, i) => i + 1).map(step => (
               <div key={step} className="flex-1">
                 <div className={`h-2 rounded ${
-                  step <= currentStep ? "bg-[#ffe600]" : "bg-[#e5e7eb]"
+                  step <= currentStep ? "bg-md-primary-container" : "bg-md-outline-variant"
                 }`} />
               </div>
             ))}
           </div>
-          <div className="mt-2 text-sm text-[#666666]">
+          <div className="mt-2 text-sm text-md-on-surface-variant">
             Step {currentStep} of {totalSteps}
           </div>
         </div>
@@ -2026,11 +2026,11 @@ function MultiStepModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-[#e5e7eb] flex justify-between">
+        <div className="p-6 border-t border-md-outline-variant flex justify-between">
           <button
             onClick={onPrev}
             disabled={currentStep === 1 || submitting}
-            className="px-5 py-2.5 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f5f5f5] transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container-high transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -2039,7 +2039,7 @@ function MultiStepModal({
             <button
               onClick={onClose}
               disabled={submitting}
-              className="px-5 py-2.5 rounded border border-[#cccccc] text-[#333333] hover:bg-[#f5f5f5] transition-colors font-medium disabled:opacity-60"
+              className="px-5 py-2.5 rounded border border-md-outline-variant text-md-on-surface hover:bg-md-surface-container-high transition-colors font-medium disabled:opacity-60"
             >
               Cancel
             </button>
@@ -2048,7 +2048,7 @@ function MultiStepModal({
               <button
                 onClick={onNext}
                 disabled={!canProceed || submitting}
-                className="px-5 py-2.5 rounded bg-[#333333] text-white font-medium hover:bg-[#555555] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-lg bg-md-primary text-md-on-primary font-medium hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Next
               </button>
@@ -2056,7 +2056,7 @@ function MultiStepModal({
               <button
                 onClick={onSubmit}
                 disabled={!canProceed || submitting}
-                className="px-5 py-2.5 rounded bg-[#ffe600] text-[#333333] font-bold hover:bg-[#333333] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded bg-md-primary-container text-md-on-primary-container font-bold hover:bg-md-primary hover:text-md-on-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? "Saving..." : "Create Automation"}
               </button>

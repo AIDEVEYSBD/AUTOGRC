@@ -67,14 +67,14 @@ export default async function ApplicationDetailPage({
   const nonCompliantControls = app.summary.notCompliant + app.summary.partialGap
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-md-surface">
       <div className="mx-auto max-w-full px-8 py-8 space-y-6">
         {/* Header Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="bg-md-surface-container rounded-xl border border-md-outline-variant p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
             <div className="space-y-4">
               {/* Application Name */}
-              <h1 className="text-2xl font-semibold text-gray-900">
+              <h1 className="text-2xl font-semibold text-md-on-surface">
                 {app.name}
               </h1>
 
@@ -82,7 +82,7 @@ export default async function ApplicationDetailPage({
               <div className="flex flex-wrap items-start gap-4 py-1">
                 {/* Service Criticality */}
                 <div className="space-y-2">
-                  <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                  <div className="text-[10px] font-semibold text-md-on-surface-variant uppercase tracking-wide">
                     Service Criticality
                   </div>
                   <div className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export default async function ApplicationDetailPage({
                 {/* Info Classification */}
                 {app.informationClassification && (
                   <div className="space-y-2">
-                    <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                    <div className="text-[10px] font-semibold text-md-on-surface-variant uppercase tracking-wide">
                       Info Classification
                     </div>
                     <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export default async function ApplicationDetailPage({
 
                 {/* Compliance Status */}
                 <div className="space-y-2">
-                  <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                  <div className="text-[10px] font-semibold text-md-on-surface-variant uppercase tracking-wide">
                     Compliance Status
                   </div>
                   <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export default async function ApplicationDetailPage({
 
                 {/* Asset Lifecycle Status */}
                 <div className="space-y-2">
-                  <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                  <div className="text-[10px] font-semibold text-md-on-surface-variant uppercase tracking-wide">
                     Asset Lifecycle Status
                   </div>
                   <div className="flex items-center gap-2">
@@ -132,39 +132,39 @@ export default async function ApplicationDetailPage({
                   href={app.primaryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 hover:underline"
+                  className="text-md-primary hover:opacity-80 hover:underline"
                 >
                   {app.primaryFqdn}
                 </a>
                 {app.cloudProvider && (
                   <>
-                    <span className="text-gray-400">•</span>
-                    <span className="text-gray-600">{app.cloudProvider}</span>
+                    <span className="text-md-on-surface-variant">•</span>
+                    <span className="text-md-on-surface-variant">{app.cloudProvider}</span>
                   </>
                 )}
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-600">{app.serviceManagement}</span>
+                <span className="text-md-on-surface-variant">•</span>
+                <span className="text-md-on-surface-variant">{app.serviceManagement}</span>
               </div>
             </div>
 
             {/* Overall Score Display */}
             <div className="flex flex-col items-end">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+              <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide mb-1">
                 Overall Score
               </div>
               <div className="flex items-baseline gap-2">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-bold text-gray-900">
+                  <span className="text-5xl font-bold text-md-on-surface">
                     {app.overallScore}
                   </span>
-                  <span className="text-2xl font-semibold text-gray-400">
+                  <span className="text-2xl font-semibold text-md-on-surface-variant">
                     %
                   </span>
                 </div>
                 <ScoreChangeIndicator change={scoreChange} />
               </div>
               {app.lastAssessedAt && (
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-md-on-surface-variant mt-2">
                   Last assessed{" "}
                   {new Date(app.lastAssessedAt).toLocaleDateString()}
                 </div>
@@ -173,7 +173,7 @@ export default async function ApplicationDetailPage({
           </div>
 
           {/* Additional Details Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 border-t border-gray-200">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 border-t border-md-outline-variant">
             <DetailItem label="Service Owner" value={app.serviceOwner} />
             <DetailItem label="Business Owner" value={app.businessOwner} />
             {app.serviceDirector && (
@@ -188,7 +188,7 @@ export default async function ApplicationDetailPage({
           </div>
 
           {app.endOfLifeDate && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-md-outline-variant">
               <div className="flex items-center gap-2 text-sm text-amber-700">
                 <svg
                   className="w-5 h-5"
@@ -242,12 +242,12 @@ export default async function ApplicationDetailPage({
         </div>
 
         {/* Compliance Trends Chart */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="bg-md-surface-container rounded-xl border border-md-outline-variant p-6 shadow-sm">
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-md-on-surface">
               Compliance Trends
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-md-on-surface-variant mt-1">
               Historical compliance score over the past 6 months
             </p>
           </div>
@@ -257,10 +257,10 @@ export default async function ApplicationDetailPage({
         {/* Controls Table */}
         <div>
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-md-on-surface">
               Control Assessments
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-md-on-surface-variant mt-1">
               Detailed breakdown of all evaluated controls with evidence
             </p>
           </div>
@@ -281,7 +281,7 @@ function ScoreChangeIndicator({ change }: { change: number }) {
 
   if (isNeutral) {
     return (
-      <div className="flex items-center gap-1 text-gray-500">
+      <div className="flex items-center gap-1 text-md-on-surface-variant">
         <span className="text-sm font-medium">—</span>
       </div>
     )
@@ -329,7 +329,7 @@ function StatusBadge({ status }: { status: string }) {
 
   const className =
     variants[status as keyof typeof variants] ||
-    "bg-gray-50 text-gray-700 border-gray-200"
+    "bg-md-surface-container text-md-on-surface border-md-outline-variant"
 
   return (
     <span
@@ -368,7 +368,7 @@ function DRLevelBadge({ level }: { level: number }) {
     1: "bg-red-50 text-red-700 border-red-200",
     2: "bg-orange-50 text-orange-700 border-orange-200",
     3: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    4: "bg-blue-50 text-blue-700 border-blue-200",
+    4: "bg-md-primary-container text-md-on-primary-container border-md-primary-container",
     5: "bg-green-50 text-green-700 border-green-200",
   }
 
@@ -376,7 +376,7 @@ function DRLevelBadge({ level }: { level: number }) {
     <span
       className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${
         variants[level as keyof typeof variants] ||
-        "bg-gray-50 text-gray-700 border-gray-200"
+        "bg-md-surface-container text-md-on-surface border-md-outline-variant"
       }`}
     >
       DR {level}
@@ -392,7 +392,7 @@ function LifecycleBadge({
   const variants = {
     Active: "bg-green-50 text-green-700 border-green-200",
     Deprecated: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    Decommissioned: "bg-gray-50 text-gray-700 border-gray-200",
+    Decommissioned: "bg-md-surface-container text-md-on-surface border-md-outline-variant",
   }
 
   return (
@@ -407,10 +407,10 @@ function LifecycleBadge({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-1">
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+      <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide">
         {label}
       </div>
-      <div className="text-sm font-medium text-gray-900">{value}</div>
+      <div className="text-sm font-medium text-md-on-surface">{value}</div>
     </div>
   )
 }
@@ -426,20 +426,20 @@ function Stat({
 }) {
   const variantStyles = {
     neutral: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900",
+      container: "bg-md-surface-container border-md-outline-variant",
+      value: "text-md-on-surface",
     },
     success: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900",
+      container: "bg-md-surface-container border-md-outline-variant",
+      value: "text-md-on-surface",
     },
     warning: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900",
+      container: "bg-md-surface-container border-md-outline-variant",
+      value: "text-md-on-surface",
     },
     danger: {
-      container: "bg-white border-gray-200",
-      value: "text-gray-900",
+      container: "bg-md-surface-container border-md-outline-variant",
+      value: "text-md-on-surface",
     },
   }
 
@@ -448,7 +448,7 @@ function Stat({
   return (
     <div className={`rounded-lg border shadow-sm ${styles.container} p-5`}>
       <div className="space-y-1">
-        <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+        <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide">
           {label}
         </div>
         <div className={`text-3xl font-bold ${styles.value}`}>{value}</div>

@@ -195,10 +195,10 @@ export function ComparisonTable({
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[#333333]">
+          <h2 className="text-2xl font-bold text-md-on-surface">
             Controls frameworks baselined to master framework
           </h2>
-          <p className="mt-1 text-base text-[#666666] max-w-4xl">
+          <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
             Following section give a detailed comparison between different
             frameworks uploaded in the platform vis-avis internal controls
             framework of the organization (master framework)
@@ -208,7 +208,7 @@ export function ComparisonTable({
         <button
           onClick={handleExport}
           disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 bg-[#ffe600] hover:bg-[#ffd700] disabled:bg-[#cccccc] text-[#333333] font-semibold rounded-md transition-colors duration-200 shadow-sm disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-md-primary-container hover:opacity-90 disabled:opacity-50 text-md-on-primary-container font-semibold rounded-md transition-colors duration-200 shadow-sm disabled:cursor-not-allowed"
         >
           <svg
             className="w-5 h-5"
@@ -229,11 +229,11 @@ export function ComparisonTable({
 
       {/* Filter Status Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm">
+          <div className="text-sm text-md-on-surface-variant">
             {visibleRows.length} of {domainFiltered.length} controls
             {activeFilterCount > 0 && (
-              <span className="ml-2 text-gray-500">
+              <span className="ml-2 text-md-on-surface-variant">
                 • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
               </span>
             )}
@@ -243,19 +243,19 @@ export function ComparisonTable({
               setMasterFilter("")
               setFrameworkFilters({})
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-md-primary hover:opacity-80 font-medium"
           >
             Clear all filters
           </button>
         </div>
       )}
 
-      <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden">
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr]">
-          <aside className="border-b md:border-b-0 md:border-r border-[#cccccc] bg-[#f9f9f9]">
+          <aside className="border-b md:border-b-0 md:border-r border-md-outline-variant bg-md-surface-container">
             <div
-              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
-              style={{ backgroundColor: "#ffe600" }}
+              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-md-on-surface border-b border-md-outline-variant"
+              style={{ backgroundColor: "var(--md-primary-container)" }}
             >
               Control Domains
             </div>
@@ -283,15 +283,15 @@ export function ComparisonTable({
             </div>
           </aside>
 
-          <section className="min-w-0 bg-white">
+          <section className="min-w-0 bg-md-surface-container">
             <div className="max-h-[720px] overflow-auto">
               <div style={{ minWidth: minGridWidth }}>
                 <div
-                  className="sticky top-0 z-10 border-b border-[#cccccc]"
-                  style={{ backgroundColor: "#ffe600" }}
+                  className="sticky top-0 z-10 border-b border-md-outline-variant"
+                  style={{ backgroundColor: "var(--md-primary-container)" }}
                 >
                   <div className="grid" style={{ gridTemplateColumns }}>
-                    <div className="h-12 px-4 flex items-center gap-2 font-bold text-[#333333]">
+                    <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-surface">
                       <span>{comparison.masterFramework?.name ?? "Master"} (Master)</span>
                       <FilterDropdown
                         label={`${comparison.masterFramework?.name ?? "Master"} controls`}
@@ -304,7 +304,7 @@ export function ComparisonTable({
                     {activeFrameworks.map(fw => (
                       <div
                         key={fw.id}
-                        className="h-12 px-4 flex items-center gap-2 font-bold text-sm text-[#333333] whitespace-nowrap"
+                        className="h-12 px-4 flex items-center gap-2 font-bold text-sm text-md-on-surface whitespace-nowrap"
                       >
                         <span>{fw.name}</span>
                         <FilterDropdown
@@ -323,7 +323,7 @@ export function ComparisonTable({
                 </div>
 
                 {visibleRows.length === 0 ? (
-                  <div className="p-6 text-sm text-[#666666]">
+                  <div className="p-6 text-sm text-md-on-surface-variant">
                     {activeFilterCount > 0
                       ? "No controls match your filters."
                       : "No controls found for this domain."}
@@ -332,16 +332,16 @@ export function ComparisonTable({
                   visibleRows.map(row => (
                     <div
                       key={row.controlId}
-                      className="border-b border-[#e5e7eb] last:border-b-0 hover:bg-[#f9f9f9] transition-colors"
+                      className="border-b border-md-outline-variant last:border-b-0 hover:bg-md-surface-container transition-colors"
                     >
                       <div className="grid" style={{ gridTemplateColumns }}>
                         <div className="px-4 py-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="text-sm font-bold text-[#333333]">
+                            <div className="text-sm font-bold text-md-on-surface">
                               {row.controlCode}
                             </div>
                             {row.isAutomated && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-md-primary-container/30 text-md-on-surface">
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
@@ -381,7 +381,7 @@ export function ComparisonTable({
                             </div>
                           )}
 
-                          <div className="mt-2 text-sm text-[#666666] leading-relaxed">
+                          <div className="mt-2 text-sm text-md-on-surface-variant leading-relaxed">
                             {row.statement}
                           </div>
                         </div>
@@ -495,10 +495,10 @@ export function UnmappedControlsTable({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-bold text-[#333333]">
+        <h2 className="text-2xl font-bold text-md-on-surface">
           Additional controls vis-a-vis reference controls frameworks
         </h2>
-        <p className="mt-1 text-base text-[#666666] max-w-4xl">
+        <p className="mt-1 text-base text-md-on-surface-variant max-w-4xl">
           Summary of controls that are not present in the internal (master)
           controls framework when compared against activated reference
           frameworks.
@@ -507,11 +507,11 @@ export function UnmappedControlsTable({
 
       {/* Filter Status Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm">
+          <div className="text-sm text-md-on-surface-variant">
             {visibleRows.length} of {gaps.rows.length} controls
             {activeFilterCount > 0 && (
-              <span className="ml-2 text-gray-500">
+              <span className="ml-2 text-md-on-surface-variant">
                 • {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
               </span>
             )}
@@ -525,20 +525,20 @@ export function UnmappedControlsTable({
                 statement: "",
               })
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-md-primary hover:opacity-80 font-medium"
           >
             Clear all filters
           </button>
         </div>
       )}
 
-      <div className="rounded-lg border border-[#cccccc] bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden">
         <div className="flex flex-col md:grid md:grid-cols-[280px_1fr]">
           {/* Framework selector */}
-          <aside className="border-b md:border-b-0 md:border-r border-[#cccccc] bg-[#f9f9f9]">
+          <aside className="border-b md:border-b-0 md:border-r border-md-outline-variant bg-md-surface-container">
             <div
-              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-[#333333] border-b border-[#cccccc]"
-              style={{ backgroundColor: "#ffe600" }}
+              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-md-on-surface border-b border-md-outline-variant"
+              style={{ backgroundColor: "var(--md-primary-container)" }}
             >
               Frameworks
             </div>
@@ -557,15 +557,15 @@ export function UnmappedControlsTable({
                     className={[
                       "block rounded-md p-4 transition-all duration-200",
                       active
-                        ? "bg-[#ffe600] text-[#333333] shadow-sm"
-                        : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
+                        ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
+                        : "bg-md-primary hover:opacity-90 text-md-on-primary",
                     ].join(" ")}
                   >
                     <div className="text-sm font-bold">{fw.name}</div>
                     <div
                       className={[
                         "text-xs mt-1",
-                        active ? "text-[#666666]" : "text-[#cccccc]",
+                        active ? "text-md-on-surface-variant" : "text-[#cccccc]",
                       ].join(" ")}
                     >
                       {fw.unmappedCount.toLocaleString()} unmapped controls
@@ -577,13 +577,13 @@ export function UnmappedControlsTable({
           </aside>
 
           {/* Table */}
-          <section className="min-w-0 bg-white">
+          <section className="min-w-0 bg-md-surface-container">
             <div className="max-h-[720px] overflow-auto">
               <div style={{ minWidth: minGridWidth }}>
                 {/* Header */}
                 <div
-                  className="sticky top-0 z-10 border-b border-[#cccccc]"
-                  style={{ backgroundColor: "#ffe600" }}
+                  className="sticky top-0 z-10 border-b border-md-outline-variant"
+                  style={{ backgroundColor: "var(--md-primary-container)" }}
                 >
                   <div
                     className="grid"
@@ -618,7 +618,7 @@ export function UnmappedControlsTable({
 
                 {/* Rows */}
                 {visibleRows.length === 0 ? (
-                  <div className="p-6 text-sm text-[#666666]">
+                  <div className="p-6 text-sm text-md-on-surface-variant">
                     {activeFilterCount > 0
                       ? "No controls match your filters."
                       : "No unmapped controls for this framework."}
@@ -627,7 +627,7 @@ export function UnmappedControlsTable({
                   visibleRows.map(r => (
                     <div
                       key={r.id}
-                      className="border-b border-[#e5e7eb] last:border-b-0 hover:bg-[#f9f9f9] transition-colors"
+                      className="border-b border-md-outline-variant last:border-b-0 hover:bg-md-surface-container transition-colors"
                     >
                       <div
                         className="grid"
@@ -635,9 +635,9 @@ export function UnmappedControlsTable({
                       >
                         <BodyCell>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-[#333333]">{r.controlCode}</span>
+                            <span className="font-bold text-md-on-surface">{r.controlCode}</span>
                             {r.isAutomated && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-md-primary-container/30 text-md-on-surface">
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
@@ -687,8 +687,8 @@ function FilterDropdown({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`p-1 rounded hover:bg-gray-900/10 transition-colors ${
-          value ? "text-blue-600" : "text-gray-600"
+        className={`p-1 rounded hover:bg-md-surface-container-high transition-colors ${
+          value ? "text-md-primary" : "text-md-on-surface-variant"
         }`}
         title={`Filter ${label}`}
       >
@@ -713,14 +713,14 @@ function FilterDropdown({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-gray-200 shadow-lg p-3 min-w-[250px]">
+          <div className="absolute top-full left-0 mt-2 z-20 bg-md-surface-container rounded-xl border border-md-outline-variant shadow-lg p-3 min-w-[250px]">
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={`Filter ${label.toLowerCase()}...`}
-                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="flex-1 px-3 py-1.5 text-sm border border-md-outline-variant rounded-lg bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
@@ -730,7 +730,7 @@ function FilterDropdown({
                     e.stopPropagation()
                     onClear()
                   }}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  className="p-1.5 text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-container-high rounded"
                   title="Clear filter"
                 >
                   <svg
@@ -768,7 +768,7 @@ function HeaderCellWithFilter({
   onClear: () => void
 }) {
   return (
-    <div className="h-12 px-4 flex items-center gap-2 text-sm font-bold text-[#333333]">
+    <div className="h-12 px-4 flex items-center gap-2 text-sm font-bold text-md-on-surface">
       <span>{label}</span>
       <FilterDropdown
         label={label}
@@ -784,7 +784,7 @@ function HeaderCellWithFilter({
 
 function HeaderCell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-12 px-4 flex items-center text-sm font-bold text-[#333333]">
+    <div className="h-12 px-4 flex items-center text-sm font-bold text-md-on-surface">
       {children}
     </div>
   )
@@ -804,9 +804,9 @@ function BodyCell({
       <div
         className={[
           "text-sm leading-relaxed",
-          strong && "font-bold text-[#333333]",
-          muted && "text-[#666666]",
-          !strong && !muted && "text-[#333333]",
+          strong && "font-bold text-md-on-surface",
+          muted && "text-md-on-surface-variant",
+          !strong && !muted && "text-md-on-surface",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -833,8 +833,8 @@ function DomainLink({
       className={[
         "block rounded-md px-3 py-3 transition-all duration-200",
         active
-          ? "bg-[#ffe600] text-[#333333] shadow-sm"
-          : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
+          ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
+          : "bg-md-primary hover:opacity-90 text-md-on-primary",
       ].join(" ")}
     >
       <div className="text-sm font-bold">{label}</div>
@@ -857,9 +857,9 @@ function MappingCard({
   const badgeColor = status === "Full Overlap" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
 
   return (
-    <div className="rounded border border-[#cccccc] bg-white p-3 shadow-sm">
+    <div className="rounded-lg border border-md-outline-variant bg-md-surface-container p-3 shadow-sm">
       <div className="flex items-start justify-between gap-2 mb-1">
-        <div className="text-sm font-bold text-[#333333]">{code}</div>
+        <div className="text-sm font-bold text-md-on-surface">{code}</div>
         <div className="flex items-center gap-1">
           <span className={`text-xs font-bold ${scoreColor}`}>{overlapScore}%</span>
           <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${badgeColor}`}>
@@ -867,7 +867,7 @@ function MappingCard({
           </span>
         </div>
       </div>
-      <div className="mt-1 text-xs text-[#666666] leading-relaxed line-clamp-5">
+      <div className="mt-1 text-xs text-md-on-surface-variant leading-relaxed line-clamp-5">
         {statement}
       </div>
     </div>

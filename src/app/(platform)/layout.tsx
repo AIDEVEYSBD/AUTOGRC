@@ -1,4 +1,4 @@
-import Navbar from "../../components/Navbar";
+import NavigationRail from "../../components/NavigationRail";
 
 export default function PlatformLayout({
   children,
@@ -7,13 +7,10 @@ export default function PlatformLayout({
 }) {
   return (
     <>
-      <Navbar />
+      <NavigationRail />
 
-      {/* 
-        Stable top padding so content never jumps.
-        Navbar height = h-16 (64px) → pt-20 gives breathing room.
-      */}
-      <main className="pt-20">
+      {/* Desktop: offset for rail (80px). Mobile: offset for bottom nav (64px). */}
+      <main className="md:pl-20 pb-16 md:pb-0 min-h-screen" style={{ backgroundColor: "var(--md-surface)" }}>
         {children}
       </main>
     </>
