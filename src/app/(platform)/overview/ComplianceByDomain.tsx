@@ -388,16 +388,7 @@ export function ComplianceByDomain({
                                   {control.subDomain}
                                 </div>
                               )}
-                              {control.isAutomated && (
-                                <div className="mt-1">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-md-primary-container/30 text-md-on-surface">
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                    Auto
-                                  </span>
-                                </div>
-                              )}
+                            
                             </div>
 
                             {/* Statement */}

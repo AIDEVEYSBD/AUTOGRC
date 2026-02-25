@@ -166,7 +166,7 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-6">
             Ready to Transform Your Compliance Operations?
           </h2>
-          <p className="text-xl text-md-on-primary/80 mb-8">
+          <p className="text-xl mb-8" style={{ color: 'inherit' }}>
             Join leading organizations using AutoGRC to automate compliance and 
             reduce audit preparation time by 80%.
           </p>

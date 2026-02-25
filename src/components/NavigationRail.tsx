@@ -18,16 +18,6 @@ const NAV_ITEMS = [
     ),
   },
   {
-    href: "/applications",
-    label: "Apps",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2"/>
-        <path d="M8 21h8M12 17v4"/>
-      </svg>
-    ),
-  },
-  {
     href: "/frameworks",
     label: "Frameworks",
     icon: (
@@ -35,6 +25,16 @@ const NAV_ITEMS = [
         <path d="M12 2L2 7l10 5 10-5-10-5z"/>
         <path d="M2 17l10 5 10-5"/>
         <path d="M2 12l10 5 10-5"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/applications",
+    label: "Applications",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <path d="M8 21h8M12 17v4"/>
       </svg>
     ),
   },
