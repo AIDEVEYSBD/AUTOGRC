@@ -1,10 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import ChatModal from './ChatModal';
 
 export default function ChatBubble() {
+  const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  if (!isAuthenticated) return null;
 
   const handleOpen = () => {
     setIsOpen(true);

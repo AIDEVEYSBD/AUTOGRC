@@ -19,7 +19,7 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Link href="/overview">
+              <Link href="/login">
                 <button className="px-8 py-4 font-bold bg-md-primary-container text-md-on-primary-container rounded-xl hover:bg-md-primary hover:text-md-on-primary transition-colors text-lg">
                   Enter Platform
                 </button>
@@ -170,7 +170,7 @@ export default function LandingPage() {
             Join leading organizations using AutoGRC to automate compliance and 
             reduce audit preparation time by 80%.
           </p>
-          <Link href="/overview">
+          <Link href="/login">
             <button className="px-8 py-4 font-bold bg-md-primary-container text-md-on-primary-container rounded-xl hover:opacity-90 transition-opacity text-lg">
               Get Started Now
             </button>
