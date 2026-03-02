@@ -36,7 +36,7 @@ export type ToolResult = {
 
 type QueryDatabaseParams = {
   queryType: string;
-  params?: Record<string, string | number>;
+  params?: Record<string, string | number | boolean>;
 };
 
 async function queryDatabase(params: QueryDatabaseParams): Promise<ToolResult> {
@@ -328,6 +328,332 @@ async function queryDatabase(params: QueryDatabaseParams): Promise<ToolResult> {
       }
 
       // ── App-specific Controls ─────────────────────────────────────────────
+      case "least_compliant_controls": {
+        if (!masterFrameworkId) {
+          return { status: "error", error_type: "no_data", message: "No master framework configured" };
+        }
+
+        const appName = String(params.params?.applicationName ?? "");
+        const appId = String(params.params?.applicationId ?? "");
+        const limitRaw = Number(params.params?.limit ?? 10);
+        const limit = Number.isFinite(limitRaw) ? Math.max(1, Math.min(50, Math.floor(limitRaw))) : 10;
+
+        if (appName || appId) {
+          const appRows = await db<{ id: string; name: string }[]>`
+            SELECT id, name FROM applications
+            WHERE ${appId ? db`id = ${appId}` : db`LOWER(name) LIKE LOWER(${"%" + appName + "%"})`}
+            LIMIT 5
+          `;
+
+          if (!appRows.length) {
+            return {
+              status: "error",
+              error_type: "no_data",
+              message: `No application found matching "${appName || appId}".`,
+            };
+          }
+
+          const targetAppId = appRows[0].id;
+          const targetAppName = appRows[0].name;
+
+          const controls = await db<{
+            controlId: string;
+            controlCode: string;
+            controlStatement: string;
+            domain: string;
+            avgScore: number;
+            assessedRows: string;
+          }[]>`
+            SELECT
+              c.id AS "controlId",
+              c.control_code AS "controlCode",
+              c.control_statement AS "controlStatement",
+              c.domain,
+              COALESCE(ROUND(AVG(ca.final_score)::numeric, 1), 0) AS "avgScore",
+              COUNT(ca.id) AS "assessedRows"
+            FROM controls c
+            LEFT JOIN control_assessments ca
+              ON ca.control_id = c.id
+             AND ca.application_id = ${targetAppId}
+            WHERE c.framework_id = ${masterFrameworkId}
+            GROUP BY c.id, c.control_code, c.control_statement, c.domain
+            HAVING COUNT(ca.id) > 0
+            ORDER BY "avgScore" ASC
+            LIMIT ${limit}
+          `;
+
+          return {
+            status: "success",
+            data: controls.map(c => ({
+              scope: "application",
+              applicationId: targetAppId,
+              applicationName: targetAppName,
+              controlId: c.controlId,
+              controlCode: c.controlCode,
+              controlStatement: c.controlStatement,
+              domain: c.domain,
+              avgScore: Number(c.avgScore),
+              assessedRows: Number(c.assessedRows),
+            })),
+          };
+        }
+
+        const controls = await db<{
+          controlId: string;
+          controlCode: string;
+          controlStatement: string;
+          domain: string;
+          avgScore: number;
+          nonCompliantApps: string;
+          assessedApps: string;
+        }[]>`
+          SELECT
+            c.id AS "controlId",
+            c.control_code AS "controlCode",
+            c.control_statement AS "controlStatement",
+            c.domain,
+            COALESCE(ROUND(AVG(ca.final_score)::numeric, 1), 0) AS "avgScore",
+            COUNT(DISTINCT ca.application_id) FILTER (WHERE ca.final_score <= 50) AS "nonCompliantApps",
+            COUNT(DISTINCT ca.application_id) AS "assessedApps"
+          FROM controls c
+          LEFT JOIN control_assessments ca ON ca.control_id = c.id
+          WHERE c.framework_id = ${masterFrameworkId}
+          GROUP BY c.id, c.control_code, c.control_statement, c.domain
+          HAVING COUNT(ca.id) > 0
+          ORDER BY "avgScore" ASC
+          LIMIT ${limit}
+        `;
+
+        return {
+          status: "success",
+          data: controls.map(c => ({
+            scope: "portfolio",
+            controlId: c.controlId,
+            controlCode: c.controlCode,
+            controlStatement: c.controlStatement,
+            domain: c.domain,
+            avgScore: Number(c.avgScore),
+            nonCompliantApps: Number(c.nonCompliantApps),
+            assessedApps: Number(c.assessedApps),
+          })),
+        };
+      }
+
+      case "integrations_catalog": {
+        const rows = await db<{
+          id: string;
+          type: string;
+          displayName: string;
+          status: string;
+          schemaInitialized: boolean;
+          lastSyncAt: string | null;
+          successfulRuns: string;
+        }[]>`
+          SELECT
+            i.id,
+            i.type,
+            i.display_name AS "displayName",
+            i.status,
+            i.schema_initialized AS "schemaInitialized",
+            i.last_sync_at AS "lastSyncAt",
+            (
+              SELECT COUNT(*)::int
+              FROM integration_runs ir
+              WHERE ir.integration_id = i.id
+                AND ir.status = 'Success'
+            ) AS "successfulRuns"
+          FROM integrations i
+          ORDER BY i.display_name
+        `;
+
+        return {
+          status: "success",
+          data: rows.map(r => ({
+            ...r,
+            successfulRuns: Number(r.successfulRuns),
+          })),
+        };
+      }
+
+      case "control_integration_recommendations": {
+        if (!masterFrameworkId) {
+          return { status: "error", error_type: "no_data", message: "No master framework configured" };
+        }
+
+        const controlId = String(params.params?.controlId ?? "");
+        const controlCode = String(params.params?.controlCode ?? "");
+        const appName = String(params.params?.applicationName ?? "");
+        const appId = String(params.params?.applicationId ?? "");
+        const limitRaw = Number(params.params?.limit ?? 5);
+        const limit = Number.isFinite(limitRaw) ? Math.max(1, Math.min(20, Math.floor(limitRaw))) : 5;
+
+        let appContext: { id: string; name: string } | null = null;
+        if (appName || appId) {
+          const appRows = await db<{ id: string; name: string }[]>`
+            SELECT id, name FROM applications
+            WHERE ${appId ? db`id = ${appId}` : db`LOWER(name) LIKE LOWER(${"%" + appName + "%"})`}
+            LIMIT 5
+          `;
+          if (!appRows.length) {
+            return {
+              status: "error",
+              error_type: "no_data",
+              message: `No application found matching "${appName || appId}".`,
+            };
+          }
+          appContext = appRows[0];
+        }
+
+        let controlRow: { id: string; controlCode: string; controlStatement: string; domain: string } | null = null;
+
+        if (controlId || controlCode) {
+          const controlRows = await db<{
+            id: string;
+            controlCode: string;
+            controlStatement: string;
+            domain: string;
+          }[]>`
+            SELECT
+              c.id,
+              c.control_code AS "controlCode",
+              c.control_statement AS "controlStatement",
+              c.domain
+            FROM controls c
+            WHERE c.framework_id = ${masterFrameworkId}
+              AND ${controlId ? db`c.id = ${controlId}` : db`LOWER(c.control_code) = LOWER(${controlCode})`}
+            LIMIT 1
+          `;
+          controlRow = controlRows[0] ?? null;
+        }
+
+        if (!controlRow) {
+          if (appContext) {
+            const rows = await db<{
+              id: string;
+              controlCode: string;
+              controlStatement: string;
+              domain: string;
+            }[]>`
+              SELECT
+                c.id,
+                c.control_code AS "controlCode",
+                c.control_statement AS "controlStatement",
+                c.domain
+              FROM controls c
+              JOIN control_assessments ca
+                ON ca.control_id = c.id
+               AND ca.application_id = ${appContext.id}
+              WHERE c.framework_id = ${masterFrameworkId}
+              GROUP BY c.id, c.control_code, c.control_statement, c.domain
+              ORDER BY AVG(ca.final_score) ASC
+              LIMIT 1
+            `;
+            controlRow = rows[0] ?? null;
+          } else {
+            const rows = await db<{
+              id: string;
+              controlCode: string;
+              controlStatement: string;
+              domain: string;
+            }[]>`
+              SELECT
+                c.id,
+                c.control_code AS "controlCode",
+                c.control_statement AS "controlStatement",
+                c.domain
+              FROM controls c
+              JOIN control_assessments ca ON ca.control_id = c.id
+              WHERE c.framework_id = ${masterFrameworkId}
+              GROUP BY c.id, c.control_code, c.control_statement, c.domain
+              ORDER BY AVG(ca.final_score) ASC
+              LIMIT 1
+            `;
+            controlRow = rows[0] ?? null;
+          }
+        }
+
+        if (!controlRow) {
+          return {
+            status: "error",
+            error_type: "no_data",
+            message: "Could not resolve a target control for recommendations.",
+          };
+        }
+
+        const integrationRows = await db<{
+          id: string;
+          type: string;
+          displayName: string;
+          status: string;
+          schemaInitialized: boolean;
+          lastSyncAt: string | null;
+          successfulRuns: string;
+        }[]>`
+          SELECT
+            i.id,
+            i.type,
+            i.display_name AS "displayName",
+            i.status,
+            i.schema_initialized AS "schemaInitialized",
+            i.last_sync_at AS "lastSyncAt",
+            (
+              SELECT COUNT(*)::int
+              FROM integration_runs ir
+              WHERE ir.integration_id = i.id
+                AND ir.status = 'Success'
+            ) AS "successfulRuns"
+          FROM integrations i
+          ORDER BY i.display_name
+        `;
+
+        const linkedIntegrations = await db<{ integrationId: string }[]>`
+          SELECT DISTINCT jsonb_array_elements_text(a.source_integrations::jsonb) AS "integrationId"
+          FROM automations a
+          WHERE a.control_id = ${controlRow.id}
+            AND a.source_integrations IS NOT NULL
+        `;
+
+        const linkedSet = new Set(linkedIntegrations.map(r => r.integrationId));
+
+        const normalized = integrationRows.map(r => ({
+          ...r,
+          successfulRuns: Number(r.successfulRuns),
+          selectedInAutomations: linkedSet.has(r.id),
+        }));
+
+        const active = normalized.filter(r => r.status === "Active");
+        const inactive = normalized.filter(r => r.status !== "Active");
+
+        const recommendedToActivate = [...inactive]
+          .sort((a, b) => {
+            if (a.selectedInAutomations !== b.selectedInAutomations) {
+              return a.selectedInAutomations ? -1 : 1;
+            }
+            if (a.successfulRuns !== b.successfulRuns) {
+              return b.successfulRuns - a.successfulRuns;
+            }
+            return a.displayName.localeCompare(b.displayName);
+          })
+          .slice(0, limit)
+          .map(r => ({
+            ...r,
+            reason: r.selectedInAutomations
+              ? "Used in existing automations mapped to this control but currently inactive."
+              : "Currently inactive and available for activation.",
+          }));
+
+        return {
+          status: "success",
+          data: {
+            control: controlRow,
+            scope: appContext ? { type: "application", applicationId: appContext.id, applicationName: appContext.name } : { type: "portfolio" },
+            recommendedToActivate,
+            activeIntegrations: active,
+            inactiveIntegrations: inactive,
+          },
+        };
+      }
+
       case "app_controls": {
         if (!masterFrameworkId) {
           return { status: "error", error_type: "no_data", message: "No master framework configured" };
@@ -713,6 +1039,97 @@ async function generateChartSpec(params: GenerateChartSpecParams, cache?: Reques
 
 // ─── Dispatcher ───────────────────────────────────────────────────────────────
 
+type ManageIntegrationStatusParams = {
+  action: "activate" | "deactivate";
+  integrationId?: string;
+  integrationName?: string;
+};
+
+async function manageIntegrationStatus(params: ManageIntegrationStatusParams): Promise<ToolResult> {
+  try {
+    const { action, integrationId = "", integrationName = "" } = params;
+    if (!integrationId && !integrationName) {
+      return {
+        status: "error",
+        error_type: "missing_params",
+        message: "Provide integrationId or integrationName.",
+      };
+    }
+
+    const desiredStatus = action === "activate" ? "Active" : "Disabled";
+    const rows = await db<{
+      id: string;
+      displayName: string;
+      status: string;
+      type: string;
+      schemaInitialized: boolean;
+      lastSyncAt: string | null;
+    }[]>`
+      SELECT
+        i.id,
+        i.display_name AS "displayName",
+        i.status,
+        i.type,
+        i.schema_initialized AS "schemaInitialized",
+        i.last_sync_at AS "lastSyncAt"
+      FROM integrations i
+      WHERE ${integrationId ? db`i.id = ${integrationId}` : db`LOWER(i.display_name) LIKE LOWER(${"%" + integrationName + "%"})`}
+      ORDER BY i.display_name
+      LIMIT 5
+    `;
+
+    if (!rows.length) {
+      return {
+        status: "error",
+        error_type: "no_data",
+        message: `No integration found matching "${integrationId || integrationName}".`,
+      };
+    }
+
+    const integration = rows[0];
+    if (integration.status === desiredStatus) {
+      return {
+        status: "success",
+        data: {
+          changed: false,
+          action,
+          integration: {
+            ...integration,
+            statusAfter: integration.status,
+          },
+          message: `${integration.displayName} is already ${desiredStatus}.`,
+        },
+      };
+    }
+
+    await db`
+      UPDATE integrations
+      SET status = ${desiredStatus}
+      WHERE id = ${integration.id}
+    `;
+
+    return {
+      status: "success",
+      data: {
+        changed: true,
+        action,
+        integration: {
+          ...integration,
+          statusBefore: integration.status,
+          statusAfter: desiredStatus,
+        },
+        message: `${integration.displayName} status updated to ${desiredStatus}.`,
+      },
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      error_type: "integration_action_error",
+      message: err instanceof Error ? err.message : "Failed to update integration status",
+    };
+  }
+}
+
 export async function executeTool(
   name: string,
   args: Record<string, unknown>,
@@ -731,6 +1148,8 @@ export async function executeTool(
       return analyzeDataset(args as AnalyzeDatasetParams, cache);
     case "generateChartSpec":
       return generateChartSpec(args as GenerateChartSpecParams, cache);
+    case "manageIntegrationStatus":
+      return manageIntegrationStatus(args as ManageIntegrationStatusParams);
     default:
       return { status: "error", error_type: "unknown_tool", message: `Unknown tool: "${name}"` };
   }
@@ -746,7 +1165,7 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
       description:
         "Query the AutoGRC live compliance database for real data. " +
         "Call this FIRST before answering any question about compliance scores, application status, " +
-        "framework mappings, control failures, or security domains. Never guess numbers.",
+        "framework mappings, control failures, security domains, or integration status. Never guess numbers.",
       parameters: {
         type: "object",
         properties: {
@@ -760,8 +1179,11 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "compliance_trends",
               "controls_by_domain",
               "failing_controls",
+              "least_compliant_controls",
               "app_controls",
               "app_details",
+              "integrations_catalog",
+              "control_integration_recommendations",
             ],
             description:
               "overview_kpis: global KPIs. " +
@@ -771,16 +1193,22 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "compliance_trends: 6-month score trend. " +
               "controls_by_domain: controls in one domain (requires params.domain). " +
               "failing_controls: top 10 worst-performing controls (portfolio-wide). " +
+              "least_compliant_controls: lowest-scoring controls. Use portfolio scope or pass params.applicationName/applicationId for one app. " +
               "app_controls: all controls + compliance scores for ONE specific application (requires params.applicationName or params.applicationId). Use this to answer 'what controls is [app] failing?'. " +
-              "app_details: metadata + compliance summary for ONE specific application (requires params.applicationName or params.applicationId).",
+              "app_details: metadata + compliance summary for ONE specific application (requires params.applicationName or params.applicationId). " +
+              "integrations_catalog: all integrations with current status/health. " +
+              "control_integration_recommendations: recommended inactive integrations to activate for a target control.",
           },
           params: {
             type: "object",
-            description: "Optional parameters. Use { domain: 'Protect' } for controls_by_domain. Use { applicationName: 'MS Active Directory' } for app_controls and app_details.",
+            description: "Optional parameters. Use domain/app/control filters depending on queryType.",
             properties: {
               domain: { type: "string", description: "Security domain name (e.g. 'Protect', 'Identify')" },
               applicationName: { type: "string", description: "Application name (partial match supported, e.g. 'Active Directory')" },
               applicationId: { type: "string", description: "Exact application UUID (use instead of applicationName for precision)" },
+              controlCode: { type: "string", description: "Control code (e.g. 'AC-2')" },
+              controlId: { type: "string", description: "Control UUID" },
+              limit: { type: "number", description: "Result size limit (defaults vary by queryType)" },
             },
           },
         },
@@ -819,8 +1247,10 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "compliance_trends",
               "controls_by_domain",
               "failing_controls",
+              "least_compliant_controls",
               "app_controls",
               "app_details",
+              "integrations_catalog",
             ],
             description:
               "Alternative to 'data'. Set this to a queryType (e.g. 'applications_overview') " +
@@ -873,6 +1303,8 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
               "compliance_trends",
               "controls_by_domain",
               "failing_controls",
+              "least_compliant_controls",
+              "integrations_catalog",
             ],
             description:
               "Preferred way to supply data. Set to the queryType you previously fetched " +
@@ -903,6 +1335,35 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
           },
         },
         required: ["chartType", "xKey", "yKeys"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "manageIntegrationStatus",
+      description:
+        "Activate or deactivate an integration. " +
+        "Use ONLY after explicit user confirmation (e.g., 'yes activate X', 'ok add it'). " +
+        "Never call this tool for recommendation-only questions.",
+      parameters: {
+        type: "object",
+        properties: {
+          action: {
+            type: "string",
+            enum: ["activate", "deactivate"],
+            description: "activate sets integration status to Active; deactivate sets it to Disabled.",
+          },
+          integrationId: {
+            type: "string",
+            description: "Exact integration ID (preferred when available).",
+          },
+          integrationName: {
+            type: "string",
+            description: "Integration display name (partial match supported).",
+          },
+        },
+        required: ["action"],
       },
     },
   },
