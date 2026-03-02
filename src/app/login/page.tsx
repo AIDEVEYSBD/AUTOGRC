@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,21 +22,23 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        router.push('/overview');
-        router.refresh(); // refresh so layout re-reads the cookie
+        // Full page navigation so the server layout re-reads the cookie
+        // and isAuthenticated propagates correctly. Keep loading=true
+        // so the spinner stays visible during the (potentially slow) transition.
+        window.location.href = '/overview';
       } else {
         setError('Invalid username or password.');
+        setLoading(false);
       }
     } catch {
       setError('Something went wrong. Please try again.');
-    } finally {
       setLoading(false);
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-md-surface px-4">
-      {/* Background accent */}
+      {/* Background accents */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-md-primary-container/10 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-md-primary-container/5 rounded-full blur-3xl -ml-48 -mb-48 pointer-events-none" />
 
@@ -58,10 +58,7 @@ export default function LoginPage() {
         <div className="bg-md-surface-container border border-md-outline-variant rounded-2xl p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-md-on-surface mb-1.5"
-              >
+              <label htmlFor="username" className="block text-sm font-medium text-md-on-surface mb-1.5">
                 Username
               </label>
               <input
@@ -71,16 +68,14 @@ export default function LoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-md-surface border border-md-outline-variant text-md-on-surface placeholder-md-on-surface-variant focus:outline-none focus:ring-2 focus:ring-[#FFE600] focus:border-transparent transition-all"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-xl bg-md-surface border border-md-outline-variant text-md-on-surface placeholder-md-on-surface-variant focus:outline-none focus:ring-2 focus:ring-[#FFE600] focus:border-transparent transition-all disabled:opacity-50"
                 placeholder="Enter username"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-md-on-surface mb-1.5"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-md-on-surface mb-1.5">
                 Password
               </label>
               <input
@@ -90,7 +85,8 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-md-surface border border-md-outline-variant text-md-on-surface placeholder-md-on-surface-variant focus:outline-none focus:ring-2 focus:ring-[#FFE600] focus:border-transparent transition-all"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-xl bg-md-surface border border-md-outline-variant text-md-on-surface placeholder-md-on-surface-variant focus:outline-none focus:ring-2 focus:ring-[#FFE600] focus:border-transparent transition-all disabled:opacity-50"
                 placeholder="Enter password"
               />
             </div>
@@ -104,18 +100,41 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 font-bold rounded-xl bg-[#FFE600] text-[#2E2E38] hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-base"
+              className="relative w-full py-3 px-4 font-bold rounded-xl bg-[#FFE600] text-[#2E2E38] hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed text-base flex items-center justify-center gap-2"
             >
-              {loading ? 'Signing in…' : 'Sign In'}
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-[#2E2E38]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Signing in…
+                </>
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
         </div>
 
         <div className="text-center mt-6">
-          <Link
-            href="/"
-            className="text-sm text-md-on-surface-variant hover:text-md-on-surface transition-colors"
-          >
+          <Link href="/" className="text-sm text-md-on-surface-variant hover:text-md-on-surface transition-colors">
             ← Back to home
           </Link>
         </div>
