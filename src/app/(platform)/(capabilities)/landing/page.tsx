@@ -17,6 +17,21 @@ export const metadata: Metadata = {
 };
 const CAPABILITIES: Capability[] = [
   {
+    key: "framework_workbench",
+    name: "Framework Workbench",
+    description:
+      "Explore active and upcoming regulations by industry sector and geography, assess enforceability timelines, and baseline your master framework against regulatory control requirements in a single interactive workspace.",
+    href: "/framework-workbench",
+    status: "Ready",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="8" height="8" rx="1" stroke="currentColor" strokeWidth="2" />
+        <path d="M3 17h18M7 21l4-4-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M14 7h7M14 11h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
     key: "framework_baseliner",
     name: "Framework Baseliner",
     description:
