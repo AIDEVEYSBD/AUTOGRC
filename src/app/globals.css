@@ -98,6 +98,12 @@ html, body {
 }
 
 /* ── Chat Modal Markdown ───────────────────── */
+/*
+ * The chat modal has a fixed light background (bg-white / bg-gray-100) that does
+ * NOT change in dark mode. Pin all chat text to hardcoded dark values so the
+ * dark-mode CSS variable overrides (warm cream #E8E2CF etc.) never bleed in.
+ */
+
 .user-bubble,
 .user-bubble p {
   color: #ffffff !important;
@@ -111,20 +117,20 @@ html, body {
 .chat-markdown h4 {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--md-on-surface);
+  color: #1a1a1a !important;
   margin-top: 0.75rem;
   margin-bottom: 0.35rem;
 }
 
 .chat-markdown h2 {
   font-size: 0.875rem;
-  border-bottom: 1px solid var(--md-outline-variant);
+  border-bottom: 1px solid #e5e7eb;
   padding-bottom: 0.2rem;
 }
 
 .chat-markdown p {
   font-size: 0.875rem;
-  color: var(--md-on-surface);
+  color: #1a1a1a !important;
   margin: 0.25rem 0;
   line-height: 1.6;
 }
@@ -137,25 +143,25 @@ html, body {
 
 .chat-markdown li {
   font-size: 0.875rem;
-  color: var(--md-on-surface);
+  color: #1a1a1a !important;
   margin: 0.15rem 0;
   line-height: 1.55;
 }
 
-.chat-markdown strong { font-weight: 600; color: var(--md-on-surface); }
-.chat-markdown em     { font-style: italic; color: var(--md-on-surface-variant); }
+.chat-markdown strong { font-weight: 600; color: #000000 !important; }
+.chat-markdown em     { font-style: italic; color: #4b5563 !important; }
 
 .chat-markdown code {
   font-size: 0.8rem;
-  background: var(--md-surface-container);
+  background: #f3f4f6;
   border-radius: 6px;
   padding: 0.1rem 0.35rem;
-  color: var(--md-error);
+  color: #b91c1c !important;
   font-family: 'Courier New', monospace;
 }
 
 .chat-markdown pre {
-  background: var(--md-primary);
+  background: #1e1e2e;
   border-radius: 12px;
   padding: 0.75rem;
   margin: 0.5rem 0;
@@ -164,16 +170,16 @@ html, body {
 
 .chat-markdown pre code {
   background: none;
-  color: var(--md-primary-container);
+  color: #FFE600 !important;
   padding: 0;
   font-size: 0.78rem;
 }
 
 .chat-markdown blockquote {
-  border-left: 3px solid var(--md-primary-container);
+  border-left: 3px solid #FFE600;
   padding-left: 0.75rem;
   margin: 0.5rem 0;
-  color: var(--md-on-surface-variant);
+  color: #6b7280 !important;
   font-style: italic;
 }
 
@@ -185,8 +191,8 @@ html, body {
 }
 
 .chat-markdown th {
-  background: var(--md-primary);
-  color: var(--md-on-primary);
+  background: #2E2E38;
+  color: #ffffff !important;
   padding: 0.35rem 0.6rem;
   text-align: left;
   font-weight: 600;
@@ -194,15 +200,15 @@ html, body {
 
 .chat-markdown td {
   padding: 0.3rem 0.6rem;
-  border-bottom: 1px solid var(--md-outline-variant);
-  color: var(--md-on-surface);
+  border-bottom: 1px solid #e5e7eb;
+  color: #1a1a1a !important;
 }
 
 .chat-markdown tr:nth-child(even) td {
-  background: var(--md-surface-container);
+  background: #f9fafb;
 }
 
-.chat-markdown a { color: #2563eb; text-decoration: underline; }
+.chat-markdown a { color: #2563eb !important; text-decoration: underline; }
 
 /* ── Typography ────────────────────────────── */
 h1 {
