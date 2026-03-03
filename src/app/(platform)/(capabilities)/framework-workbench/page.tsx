@@ -34,7 +34,6 @@ type RegulationEntry = {
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const REGULATIONS: RegulationEntry[] = [
-  // ── EU AI Act ──────────────────────────────────────────────────────────────
   {
     id: "eu-ai-act",
     name: "EU Artificial Intelligence Act",
@@ -92,7 +91,7 @@ const REGULATIONS: RegulationEntry[] = [
         ],
         suggestedControls: [
           { code: "AI-R1", domain: "Risk Management", statement: "Implement a documented AI risk management framework covering identification, analysis, evaluation, and treatment of risks throughout the AI system lifecycle." },
-          { code: "AI-R2", domain: "Risk Management", statement: "Conduct and document foreseeable misuse analysis for each high-risk AI system, with findings reviewed by a risk committee at least annually." },
+          { code: "AI-R2", domain: "Risk Management", statement: "Conduct and document foreseeable misuse analysis for each high-risk AI system, reviewed by a risk committee at least annually." },
           { code: "AI-R3", domain: "Change Management", statement: "Ensure AI risk assessment is re-triggered for material changes to model architecture, training data, or intended use." },
         ],
       },
@@ -139,7 +138,6 @@ const REGULATIONS: RegulationEntry[] = [
         highlights: [
           "High-risk AI systems must include built-in human oversight measures as part of their design.",
           "Designated natural persons must be able to monitor, understand, and intervene in AI operation.",
-          "Deployers must assign qualified individuals with defined oversight responsibilities.",
           "Technical override and halt capabilities must be implemented and tested.",
         ],
         suggestedControls: [
@@ -158,7 +156,6 @@ const REGULATIONS: RegulationEntry[] = [
           "High-risk AI systems must achieve and maintain appropriate levels of accuracy as declared in technical documentation.",
           "Systems must be resilient to errors, faults, inconsistencies, and adversarial inputs.",
           "Cybersecurity measures must protect against attempts to alter system use, behaviour, or performance.",
-          "Accuracy metrics and robustness measures must be validated continuously through post-market monitoring.",
         ],
         suggestedControls: [
           { code: "AI-C1", domain: "AI Governance", statement: "Define accuracy benchmarks for each high-risk AI system and validate performance against these benchmarks at deployment and during post-market monitoring." },
@@ -169,8 +166,6 @@ const REGULATIONS: RegulationEntry[] = [
       },
     ],
   },
-
-  // ── GDPR ───────────────────────────────────────────────────────────────────
   {
     id: "gdpr",
     name: "General Data Protection Regulation",
@@ -186,7 +181,6 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2018,
         highlights: [
           "Personal data must be processed lawfully, fairly, and transparently.",
-          "Data must be collected for specified, explicit, and legitimate purposes and not further processed incompatibly.",
           "Data minimisation: only data adequate, relevant, and limited to what is necessary may be collected.",
           "Fines up to €20 million or 4% of global annual turnover for non-compliance.",
         ],
@@ -203,11 +197,10 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2018,
         highlights: [
           "Privacy controls must be integrated into systems and processes during design, not added afterwards.",
-          "By default, only personal data necessary for each purpose should be processed.",
           "Technical and organisational measures must be implemented to embed data protection principles.",
         ],
         suggestedControls: [
-          { code: "GDP-PBD1", domain: "Privacy", statement: "Integrate privacy-by-design reviews into the software development lifecycle (SDLC) as a mandatory gate prior to deployment of any system processing personal data." },
+          { code: "GDP-PBD1", domain: "Privacy", statement: "Integrate privacy-by-design reviews into the SDLC as a mandatory gate prior to deployment of any system processing personal data." },
           { code: "GDP-PBD2", domain: "Data Governance", statement: "Establish default privacy settings for all customer-facing systems such that the most privacy-protective options are enabled out-of-the-box." },
         ],
       },
@@ -218,9 +211,8 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementDate: "25 May 2018",
         enforcementYear: 2018,
         highlights: [
-          "Controllers and processors must implement appropriate technical and organisational security measures.",
+          "Controllers must implement appropriate technical and organisational security measures.",
           "Measures must include pseudonymisation and encryption of personal data.",
-          "Ongoing confidentiality, integrity, availability, and resilience of processing systems must be ensured.",
           "Regular testing and evaluation of effectiveness of security measures is required.",
         ],
         suggestedControls: [
@@ -237,7 +229,6 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2018,
         highlights: [
           "A DPIA is mandatory when processing is likely to result in high risk to individuals' rights and freedoms.",
-          "Processing that involves systematic profiling, sensitive data at scale, or public area monitoring requires a DPIA.",
           "DPIAs must assess necessity, proportionality, and mitigation measures for identified risks.",
         ],
         suggestedControls: [
@@ -247,8 +238,6 @@ const REGULATIONS: RegulationEntry[] = [
       },
     ],
   },
-
-  // ── HIPAA ──────────────────────────────────────────────────────────────────
   {
     id: "hipaa",
     name: "Health Insurance Portability and Accountability Act",
@@ -263,9 +252,8 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementDate: "14 Apr 2003",
         enforcementYear: 2003,
         highlights: [
-          "Covered entities may only use or disclose PHI for treatment, payment, healthcare operations, or with patient authorisation.",
-          "Patients have rights to access, amend, and obtain an accounting of disclosures of their PHI.",
-          "Minimum necessary standard: only the minimum amount of PHI needed to accomplish the intended purpose may be used.",
+          "Covered entities may only use or disclose PHI for treatment, payment, or with patient authorisation.",
+          "Minimum necessary standard: only the minimum PHI needed to accomplish the intended purpose may be used.",
           "Civil penalties range from $100 to $50,000 per violation, with annual caps up to $1.9 million.",
         ],
         suggestedControls: [
@@ -281,13 +269,12 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2005,
         highlights: [
           "Covered entities must implement administrative, physical, and technical safeguards to protect electronic PHI (ePHI).",
-          "A Security Risk Analysis must be conducted and documented on a regular basis.",
-          "Workforce training on PHI security policies is mandatory.",
+          "A Security Risk Analysis must be conducted and documented regularly.",
           "Access controls, audit controls, and transmission security must be implemented for all ePHI systems.",
         ],
         suggestedControls: [
-          { code: "HIP-SEC1", domain: "Risk Management", statement: "Conduct and document a HIPAA Security Risk Analysis at least annually and after any significant change to systems processing ePHI, with remediation plans tracked." },
-          { code: "HIP-SEC2", domain: "Access Control", statement: "Implement role-based access controls for all ePHI systems, with access reviews performed semi-annually and access removal completed within 24 hours of role change." },
+          { code: "HIP-SEC1", domain: "Risk Management", statement: "Conduct and document a HIPAA Security Risk Analysis at least annually and after any significant change to ePHI systems, with remediation plans tracked." },
+          { code: "HIP-SEC2", domain: "Access Control", statement: "Implement role-based access controls for all ePHI systems, with access reviews performed semi-annually and removal completed within 24 hours of role change." },
           { code: "HIP-SEC3", domain: "Training & Awareness", statement: "Deliver mandatory annual HIPAA security training to all workforce members with access to ePHI, with completion records maintained for six years." },
         ],
       },
@@ -299,9 +286,8 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2009,
         highlights: [
           "Covered entities must notify affected individuals within 60 days of discovering a breach of unsecured PHI.",
-          "Breaches affecting 500 or more individuals must be reported to HHS and prominent media in the affected state.",
-          "Business associates must notify covered entities of breaches without unreasonable delay.",
-          "A breach is presumed to have occurred unless a risk assessment demonstrates low probability of PHI compromise.",
+          "Breaches affecting 500 or more individuals require HHS notification and media disclosure in the affected state.",
+          "A breach is presumed unless a risk assessment demonstrates low probability of PHI compromise.",
         ],
         suggestedControls: [
           { code: "HIP-BNR1", domain: "Incident Management", statement: "Establish a HIPAA breach notification procedure including internal escalation timelines, HHS reporting workflows, and template notifications for affected individuals." },
@@ -310,8 +296,6 @@ const REGULATIONS: RegulationEntry[] = [
       },
     ],
   },
-
-  // ── NIS2 ───────────────────────────────────────────────────────────────────
   {
     id: "nis2",
     name: "Network and Information Security Directive 2",
@@ -326,9 +310,9 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementDate: "17 Oct 2024",
         enforcementYear: 2024,
         highlights: [
-          "Essential and important entities must adopt appropriate and proportionate technical and organisational measures to manage cybersecurity risks.",
-          "Required measures include policies on risk analysis, incident handling, business continuity, supply chain security, and cryptography.",
-          "Multi-factor authentication (MFA) or continuous authentication solutions must be used where appropriate.",
+          "Essential and important entities must adopt proportionate technical and organisational measures to manage cybersecurity risks.",
+          "Required measures include risk analysis, incident handling, business continuity, supply chain security, and cryptography.",
+          "Multi-factor authentication must be used where appropriate.",
           "Fines up to €10 million or 2% of global annual turnover for essential entities.",
         ],
         suggestedControls: [
@@ -344,10 +328,9 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementDate: "17 Oct 2024",
         enforcementYear: 2024,
         highlights: [
-          "Significant incidents must be reported to the national CSIRT or competent authority without undue delay.",
-          "An early warning must be submitted within 24 hours, a full incident notification within 72 hours.",
-          "A final report must follow within one month detailing root cause, impact, and remediation actions.",
-          "Cross-border incidents may require simultaneous notification to multiple national authorities.",
+          "Significant incidents must be reported to the national CSIRT without undue delay.",
+          "An early warning must be submitted within 24 hours; a full notification within 72 hours.",
+          "A final report must follow within one month detailing root cause, impact, and remediation.",
         ],
         suggestedControls: [
           { code: "NIS-REP1", domain: "Incident Management", statement: "Establish a NIS2-compliant incident reporting procedure with 24-hour early warning and 72-hour notification timelines, including templates for competent authority submissions." },
@@ -362,7 +345,6 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2024,
         highlights: [
           "Member States shall encourage the use of European cybersecurity certification schemes for ICT products and services.",
-          "Competent authorities may require entities to certify specific ICT products, services, or processes.",
           "Certification schemes should align with ENISA and the EU Cybersecurity Act framework.",
         ],
         suggestedControls: [
@@ -371,8 +353,6 @@ const REGULATIONS: RegulationEntry[] = [
       },
     ],
   },
-
-  // ── DORA ───────────────────────────────────────────────────────────────────
   {
     id: "dora",
     name: "Digital Operational Resilience Act",
@@ -387,14 +367,13 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementDate: "17 Jan 2025",
         enforcementYear: 2025,
         highlights: [
-          "Financial entities must have an internal governance and control framework for ICT risk management.",
+          "Financial entities must have an internal governance framework for ICT risk management.",
           "Management body bears ultimate responsibility for the ICT risk management framework.",
           "Entities must identify, classify, and document all ICT assets and their interdependencies.",
-          "ICT risk strategy must be integrated with the entity's overall business strategy.",
         ],
         suggestedControls: [
           { code: "DOR-ICT1", domain: "Risk Management", statement: "Establish an ICT risk management framework governing identification, classification, and treatment of ICT risks, with management body sign-off at least annually." },
-          { code: "DOR-ICT2", domain: "Asset Management", statement: "Maintain a comprehensive ICT asset register documenting all hardware, software, and service components, including their interdependencies and criticality ratings." },
+          { code: "DOR-ICT2", domain: "Asset Management", statement: "Maintain a comprehensive ICT asset register documenting all hardware, software, and service components, including interdependencies and criticality ratings." },
           { code: "DOR-ICT3", domain: "Governance", statement: "Assign and document accountabilities for ICT risk management at management body level, with clear escalation paths and reporting lines to the board." },
         ],
       },
@@ -407,8 +386,7 @@ const REGULATIONS: RegulationEntry[] = [
         highlights: [
           "Financial entities must have ICT business continuity policies as part of their operational resilience framework.",
           "Business continuity plans must be tested at least annually, with lessons learned incorporated.",
-          "Recovery time and point objectives (RTO/RPO) must be defined for all critical ICT systems.",
-          "Crisis communication plans for ICT disruptions must address regulators, staff, clients, and media.",
+          "RTO/RPO must be defined for all critical ICT systems.",
         ],
         suggestedControls: [
           { code: "DOR-BC1", domain: "Business Continuity", statement: "Define and document RTO/RPO targets for all critical ICT systems based on business impact analysis, with annual testing validating achievability." },
@@ -423,13 +401,12 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementYear: 2025,
         highlights: [
           "Financial entities must classify ICT incidents as major or non-major based on defined criteria.",
-          "Classification criteria include number of clients affected, duration, geographic spread, and data losses.",
-          "Major ICT incidents must be reported to competent authorities with initial notification within 4 hours of classification.",
+          "Major ICT incidents must be reported to competent authorities with initial notification within 4 hours.",
           "A final incident report must be submitted within one month of incident closure.",
         ],
         suggestedControls: [
           { code: "DOR-INC1", domain: "Incident Management", statement: "Implement an ICT incident classification procedure aligned with DORA criteria, enabling consistent determination of major vs. non-major incidents within defined timeframes." },
-          { code: "DOR-INC2", domain: "Incident Management", statement: "Establish DORA-compliant major incident reporting workflows with 4-hour initial notification and one-month final report capabilities, including templates for competent authority submissions." },
+          { code: "DOR-INC2", domain: "Incident Management", statement: "Establish DORA-compliant major incident reporting workflows with 4-hour initial notification and one-month final report capabilities." },
         ],
       },
       {
@@ -439,13 +416,12 @@ const REGULATIONS: RegulationEntry[] = [
         enforcementDate: "17 Jan 2025",
         enforcementYear: 2025,
         highlights: [
-          "Financial entities must maintain a register of all contractual arrangements with third-party ICT service providers.",
-          "Critical ICT third-party providers are subject to an EU oversight framework by supervisory authorities.",
+          "Financial entities must maintain a register of all contractual arrangements with third-party ICT providers.",
+          "Critical ICT third-party providers are subject to an EU oversight framework.",
           "Exit strategies must be in place for all critical or important ICT third-party arrangements.",
-          "Contractual agreements must include provisions on accessibility, availability, integrity, security, and service levels.",
         ],
         suggestedControls: [
-          { code: "DOR-TPM1", domain: "Supply Chain", statement: "Maintain a DORA-compliant register of all ICT third-party service arrangements, updated upon each new contract or material change, with criticality classifications documented." },
+          { code: "DOR-TPM1", domain: "Supply Chain", statement: "Maintain a DORA-compliant register of all ICT third-party service arrangements, updated on each new contract or material change, with criticality classifications documented." },
           { code: "DOR-TPM2", domain: "Supply Chain", statement: "Develop and test exit strategies for all critical or important ICT third-party arrangements, ensuring continuity of service in the event of provider failure or termination." },
         ],
       },
@@ -453,7 +429,7 @@ const REGULATIONS: RegulationEntry[] = [
   },
 ]
 
-// ─── Derived constants ────────────────────────────────────────────────────────
+// ─── Derived ──────────────────────────────────────────────────────────────────
 
 const ALL_SECTORS = Array.from(
   new Set(REGULATIONS.flatMap((r) => r.sectors))
@@ -461,18 +437,9 @@ const ALL_SECTORS = Array.from(
 
 const ALL_GEOS = Array.from(new Set(REGULATIONS.flatMap((r) => r.geographies))).sort()
 
-// Flat list of all articles across all regulations (for baseline modal)
-type FlatArticle = Article & { regulationId: string; regulationShortName: string }
+const ALL_ARTICLES = REGULATIONS.flatMap((r) => r.articles)
 
-const ALL_ARTICLES: FlatArticle[] = REGULATIONS.flatMap((reg) =>
-  reg.articles.map((art) => ({
-    ...art,
-    regulationId: reg.id,
-    regulationShortName: reg.shortName,
-  }))
-)
-
-// ─── Helper components ────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function enforceabilityStyle(level: Enforceability) {
   if (level === "Enforceable with penalty") return { bg: "bg-[#e41f13]/10", text: "text-[#e41f13]" }
@@ -483,97 +450,104 @@ function enforceabilityStyle(level: Enforceability) {
 function EnforceabilityBadge({ level }: { level: Enforceability }) {
   const { bg, text } = enforceabilityStyle(level)
   return (
-    <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${bg} ${text}`}>
+    <span className={`inline-block text-xs font-bold px-2.5 py-0.5 rounded-full ${bg} ${text}`}>
       {level}
     </span>
   )
 }
 
-function TrendChart({ data }: { data: { year: number; count: number }[] }) {
-  const maxCount = Math.max(...data.map((d) => d.count), 1)
-  const barWidth = 32
-  const gap = 14
-  const chartHeight = 72
+// ─── Timeline ─────────────────────────────────────────────────────────────────
+
+function TimelineChart({ data }: { data: { year: number; count: number }[] }) {
   const currentYear = new Date().getFullYear()
-  const totalWidth = data.length * (barWidth + gap) - gap
 
   return (
-    <svg width={totalWidth} height={chartHeight + 26} className="overflow-visible">
-      {data.map((d, i) => {
-        const barH = Math.max(Math.round((d.count / maxCount) * chartHeight), 4)
-        const x = i * (barWidth + gap)
-        const y = chartHeight - barH
-        const isCurrentYear = d.year === currentYear
+    <div className="relative flex justify-between items-end" style={{ paddingBottom: "14px" }}>
+      {/* Horizontal line at the bottom */}
+      <div
+        className="absolute left-0 right-0 h-px"
+        style={{ bottom: "5px", backgroundColor: "var(--md-outline-variant)" }}
+      />
+
+      {data.map((d) => {
+        const isPast = d.year < currentYear
+        const isCurrent = d.year === currentYear
+        const isUpcoming = d.year > currentYear
+
+        const boxBg = isCurrent
+          ? "var(--md-primary)"
+          : isUpcoming
+          ? "var(--md-primary-container)"
+          : "var(--md-surface-container-high)"
+        const boxColor = isCurrent
+          ? "var(--md-on-primary)"
+          : isUpcoming
+          ? "var(--md-on-primary-container)"
+          : "var(--md-on-surface-variant)"
+        const dotBg = isCurrent
+          ? "var(--md-primary)"
+          : isUpcoming
+          ? "var(--md-primary-container)"
+          : "var(--md-outline-variant)"
+
         return (
-          <g key={d.year}>
-            <rect x={x} y={y} width={barWidth} height={barH} rx={3}
-              fill={isCurrentYear ? "var(--md-primary)" : "var(--md-primary-container)"} />
-            <text x={x + barWidth / 2} y={y - 3} textAnchor="middle" fontSize={10} fontWeight={700}
-              fill="var(--md-on-surface)">{d.count}</text>
-            <text x={x + barWidth / 2} y={chartHeight + 16} textAnchor="middle" fontSize={10}
-              fill="var(--md-on-surface-variant)" fontWeight={isCurrentYear ? 700 : 400}>{d.year}</text>
-          </g>
+          <div key={d.year} className="relative z-10 flex flex-col items-center">
+            {/* Box */}
+            <div
+              className="rounded border px-2 py-1 text-center"
+              style={{
+                backgroundColor: boxBg,
+                borderColor: isPast ? "var(--md-outline-variant)" : boxBg,
+                color: boxColor,
+                minWidth: "44px",
+              }}
+            >
+              <div className="text-sm font-bold leading-none">{d.count}</div>
+              <div className="text-[10px] font-medium mt-0.5 opacity-80">{d.year}</div>
+            </div>
+
+            {/* Connector */}
+            <div
+              className="w-px h-2"
+              style={{ backgroundColor: isCurrent ? "var(--md-primary)" : "var(--md-outline-variant)" }}
+            />
+
+            {/* Dot on the line */}
+            <div
+              className="w-2.5 h-2.5 rounded-full border-2"
+              style={{
+                backgroundColor: dotBg,
+                borderColor: isPast ? "var(--md-outline-variant)" : dotBg,
+              }}
+            />
+          </div>
         )
       })}
-    </svg>
+    </div>
   )
 }
 
-// ─── Baseline Modal ───────────────────────────────────────────────────────────
+// ─── Baseline Modal (scoped to active regulation) ─────────────────────────────
 
-function BaselineModal({
-  initialArticleId,
-  onClose,
-}: {
-  initialArticleId: string | null
-  onClose: () => void
-}) {
-  // Build initial checked state — all controls checked
-  const allControls = ALL_ARTICLES.flatMap((a) => a.suggestedControls.map((c) => c.code))
+function BaselineModal({ regulation, onClose }: { regulation: RegulationEntry; onClose: () => void }) {
+  const allCodes = regulation.articles.flatMap((a) => a.suggestedControls.map((c) => c.code))
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    Object.fromEntries(allControls.map((code) => [code, true]))
+    Object.fromEntries(allCodes.map((c) => [c, true]))
   )
-  const [expandedRegIds, setExpandedRegIds] = useState<Set<string>>(
-    // Expand the regulation that owns the initially selected article
-    () => {
-      if (!initialArticleId) return new Set(REGULATIONS.map((r) => r.id))
-      const ownerReg = REGULATIONS.find((r) => r.articles.some((a) => a.id === initialArticleId))
-      return new Set(ownerReg ? [ownerReg.id] : REGULATIONS.map((r) => r.id))
-    }
-  )
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(regulation.articles.map((a) => a.id)))
   const [done, setDone] = useState(false)
 
-  const toggleExpandReg = (regId: string) =>
-    setExpandedRegIds((prev) => {
-      const next = new Set(prev)
-      next.has(regId) ? next.delete(regId) : next.add(regId)
-      return next
-    })
+  const toggleExpand = (id: string) =>
+    setExpandedIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
-  const toggleRegAll = (reg: RegulationEntry, val: boolean) => {
-    const codes = reg.articles.flatMap((a) => a.suggestedControls.map((c) => c.code))
-    setChecked((prev) => ({ ...prev, ...Object.fromEntries(codes.map((c) => [c, val])) }))
-  }
-
-  const toggleArticleAll = (article: Article, val: boolean) => {
-    const codes = article.suggestedControls.map((c) => c.code)
-    setChecked((prev) => ({ ...prev, ...Object.fromEntries(codes.map((c) => [c, val])) }))
-  }
-
-  const isRegAllChecked = (reg: RegulationEntry) =>
-    reg.articles.flatMap((a) => a.suggestedControls).every((c) => checked[c.code])
-  const isRegIndeterminate = (reg: RegulationEntry) => {
-    const controls = reg.articles.flatMap((a) => a.suggestedControls)
-    const someChecked = controls.some((c) => checked[c.code])
-    const allChecked = controls.every((c) => checked[c.code])
-    return someChecked && !allChecked
-  }
+  const toggleArticleAll = (article: Article, val: boolean) =>
+    setChecked((prev) => ({
+      ...prev,
+      ...Object.fromEntries(article.suggestedControls.map((c) => [c.code, val])),
+    }))
 
   const selectedCount = Object.values(checked).filter(Boolean).length
-  const totalCount = allControls.length
-
-  const handleSelectAll = (val: boolean) =>
-    setChecked(Object.fromEntries(allControls.map((code) => [code, val])))
+  const totalCount = allCodes.length
 
   return (
     <div
@@ -582,212 +556,143 @@ function BaselineModal({
     >
       <div className="bg-md-surface-container w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-md-outline-variant flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-md-outline-variant flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: "var(--md-primary-container)" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke="var(--md-on-primary-container)" strokeWidth="2" strokeLinecap="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
+                <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
               </svg>
             </div>
             <div>
-              <h3 className="text-base font-bold text-md-on-surface">Baseline Master Framework</h3>
-              <p className="text-xs text-md-on-surface-variant mt-0.5">
-                Framework Mapper detected regulatory controls missing from your master framework
+              <h3 className="text-sm font-bold text-md-on-surface">Baseline Master Framework</h3>
+              <p className="text-xs text-md-on-surface-variant">
+                Framework Mapper detected the following controls missing from your master framework
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-md-on-surface-variant hover:text-md-on-surface transition-colors">
+          <button onClick={onClose} className="text-md-on-surface-variant hover:text-md-on-surface transition-colors ml-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
+        {/* Regulation label */}
+        {!done && (
+          <div className="px-5 py-2.5 border-b border-md-outline-variant flex-shrink-0 flex items-center justify-between"
+            style={{ backgroundColor: "var(--md-surface-container-high)" }}>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-md-on-surface">{regulation.shortName}</span>
+              <span className="text-xs text-md-on-surface-variant">— {regulation.name}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-md-on-surface-variant">{selectedCount}/{totalCount} selected</span>
+              <button onClick={() => setChecked(Object.fromEntries(allCodes.map((c) => [c, true])))}
+                className="text-xs font-bold text-md-on-surface-variant hover:text-md-on-surface underline underline-offset-2 transition-colors">All</button>
+              <button onClick={() => setChecked(Object.fromEntries(allCodes.map((c) => [c, false])))}
+                className="text-xs font-bold text-md-on-surface-variant hover:text-md-on-surface underline underline-offset-2 transition-colors">None</button>
+            </div>
+          </div>
+        )}
+
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-3">
+        <div className="flex-1 overflow-y-auto">
           {done ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center gap-4">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: "#e8f5e9" }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                  stroke="#00a758" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <div className="flex flex-col items-center justify-center py-10 text-center gap-3 px-6">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "#e8f5e9" }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00a758" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
               <div>
-                <p className="text-base font-bold text-md-on-surface">Controls queued for addition</p>
-                <p className="text-sm text-md-on-surface-variant mt-1">
-                  {selectedCount} control{selectedCount !== 1 ? "s" : ""} have been queued for addition to your master framework.
+                <p className="text-sm font-bold text-md-on-surface">Controls queued for addition</p>
+                <p className="text-xs text-md-on-surface-variant mt-1">
+                  {selectedCount} control{selectedCount !== 1 ? "s" : ""} from <strong>{regulation.shortName}</strong> have been queued for addition to your master framework.
                 </p>
               </div>
               <button onClick={onClose}
-                className="mt-2 px-6 py-2 font-bold bg-md-primary-container text-md-on-primary-container rounded-lg hover:bg-md-primary hover:text-md-on-primary transition-colors">
+                className="mt-1 px-5 py-2 text-sm font-bold bg-md-primary-container text-md-on-primary-container rounded-lg hover:bg-md-primary hover:text-md-on-primary transition-colors">
                 Done
               </button>
             </div>
           ) : (
-            <>
-              <p className="text-sm text-md-on-surface-variant leading-relaxed">
-                The following suggested control activities were identified as potentially missing from your master framework.
-                Select the controls you would like to add across all regulations and acts.
-              </p>
+            <div className="divide-y divide-md-outline-variant">
+              {regulation.articles.map((article) => {
+                const isExpanded = expandedIds.has(article.id)
+                const artChecked = article.suggestedControls.filter((c) => checked[c.code]).length
+                const artAll = artChecked === article.suggestedControls.length
+                const artIndeterminate = artChecked > 0 && !artAll
 
-              {/* Global select all / none */}
-              <div className="flex items-center justify-between py-1">
-                <span className="text-xs text-md-on-surface-variant">
-                  {selectedCount} of {totalCount} controls selected
-                </span>
-                <div className="flex gap-3">
-                  <button onClick={() => handleSelectAll(true)}
-                    className="text-xs font-bold text-md-on-surface-variant hover:text-md-on-surface underline underline-offset-2 transition-colors">
-                    Select all
-                  </button>
-                  <button onClick={() => handleSelectAll(false)}
-                    className="text-xs font-bold text-md-on-surface-variant hover:text-md-on-surface underline underline-offset-2 transition-colors">
-                    Deselect all
-                  </button>
-                </div>
-              </div>
-
-              {/* Regulations accordion */}
-              <div className="space-y-2">
-                {REGULATIONS.map((reg) => {
-                  const isExpanded = expandedRegIds.has(reg.id)
-                  const allChecked = isRegAllChecked(reg)
-                  const indeterminate = isRegIndeterminate(reg)
-                  const regControlCount = reg.articles.flatMap((a) => a.suggestedControls).length
-                  const regCheckedCount = reg.articles
-                    .flatMap((a) => a.suggestedControls)
-                    .filter((c) => checked[c.code]).length
-
-                  return (
-                    <div key={reg.id} className="rounded-lg border border-md-outline-variant overflow-hidden">
-                      {/* Regulation header */}
-                      <div className="flex items-center gap-3 px-4 py-3 bg-md-surface-container-high">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 flex-shrink-0 accent-[var(--md-primary)]"
-                          checked={allChecked}
-                          ref={(el) => { if (el) el.indeterminate = indeterminate }}
-                          onChange={(e) => toggleRegAll(reg, e.target.checked)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <button
-                          onClick={() => toggleExpandReg(reg.id)}
-                          className="flex-1 flex items-center justify-between gap-2 text-left"
-                        >
-                          <div>
-                            <span className="text-sm font-bold text-md-on-surface">{reg.shortName}</span>
-                            <span className="ml-2 text-xs text-md-on-surface-variant">{reg.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className="text-xs text-md-on-surface-variant">
-                              {regCheckedCount}/{regControlCount}
-                            </span>
-                            <svg
-                              width="14" height="14" viewBox="0 0 24 24" fill="none"
-                              stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                              className={`text-md-on-surface-variant transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                            >
-                              <polyline points="6 9 12 15 18 9" />
-                            </svg>
-                          </div>
-                        </button>
-                      </div>
-
-                      {/* Articles */}
-                      {isExpanded && (
-                        <div className="divide-y divide-md-outline-variant">
-                          {reg.articles.map((article) => {
-                            const artCheckedCount = article.suggestedControls.filter((c) => checked[c.code]).length
-                            const artAllChecked = artCheckedCount === article.suggestedControls.length
-                            const artIndeterminate = artCheckedCount > 0 && !artAllChecked
-
-                            return (
-                              <div key={article.id} className="bg-md-surface">
-                                {/* Article sub-header */}
-                                <div className="flex items-center gap-3 px-4 py-2.5 pl-8">
-                                  <input
-                                    type="checkbox"
-                                    className="w-3.5 h-3.5 flex-shrink-0 accent-[var(--md-primary)]"
-                                    checked={artAllChecked}
-                                    ref={(el) => { if (el) el.indeterminate = artIndeterminate }}
-                                    onChange={(e) => toggleArticleAll(article, e.target.checked)}
-                                  />
-                                  <span className="text-xs font-bold text-md-on-surface flex-1">{article.name}</span>
-                                  <span className="text-xs text-md-on-surface-variant flex-shrink-0">
-                                    {artCheckedCount}/{article.suggestedControls.length}
-                                  </span>
-                                </div>
-
-                                {/* Controls */}
-                                <div className="pb-2">
-                                  {article.suggestedControls.map((ctrl) => (
-                                    <label
-                                      key={ctrl.code}
-                                      className={`flex items-start gap-3 px-4 py-2 pl-12 cursor-pointer transition-colors ${
-                                        checked[ctrl.code]
-                                          ? "bg-md-primary-container/15"
-                                          : "hover:bg-md-surface-container"
-                                      }`}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        className="mt-0.5 w-3.5 h-3.5 flex-shrink-0 accent-[var(--md-primary)]"
-                                        checked={!!checked[ctrl.code]}
-                                        onChange={(e) =>
-                                          setChecked((prev) => ({ ...prev, [ctrl.code]: e.target.checked }))
-                                        }
-                                      />
-                                      <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          <span className="text-xs font-bold text-md-on-surface font-mono">{ctrl.code}</span>
-                                          <span className="text-xs px-1.5 py-0.5 rounded text-md-on-surface-variant"
-                                            style={{ backgroundColor: "var(--md-surface-container-high)" }}>
-                                            {ctrl.domain}
-                                          </span>
-                                        </div>
-                                        <p className="text-xs text-md-on-surface-variant mt-0.5 leading-relaxed">{ctrl.statement}</p>
-                                      </div>
-                                    </label>
-                                  ))}
-                                </div>
-                              </div>
-                            )
-                          })}
+                return (
+                  <div key={article.id}>
+                    {/* Article header */}
+                    <div className="flex items-center gap-3 px-5 py-2.5"
+                      style={{ backgroundColor: "var(--md-surface-container)" }}>
+                      <input type="checkbox" className="w-3.5 h-3.5 flex-shrink-0 accent-[var(--md-primary)]"
+                        checked={artAll}
+                        ref={(el) => { if (el) el.indeterminate = artIndeterminate }}
+                        onChange={(e) => toggleArticleAll(article, e.target.checked)}
+                        onClick={(e) => e.stopPropagation()} />
+                      <button onClick={() => toggleExpand(article.id)}
+                        className="flex-1 flex items-center justify-between text-left gap-2">
+                        <span className="text-xs font-bold text-md-on-surface">{article.name}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs text-md-on-surface-variant">{artChecked}/{article.suggestedControls.length}</span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                            className={`text-md-on-surface-variant transition-transform ${isExpanded ? "rotate-180" : ""}`}>
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
                         </div>
-                      )}
+                      </button>
                     </div>
-                  )
-                })}
-              </div>
-            </>
+
+                    {/* Controls */}
+                    {isExpanded && (
+                      <div className="pb-1 bg-md-surface">
+                        {article.suggestedControls.map((ctrl) => (
+                          <label key={ctrl.code}
+                            className={`flex items-start gap-3 px-5 py-2 pl-10 cursor-pointer transition-colors ${
+                              checked[ctrl.code] ? "bg-md-primary-container/15" : "hover:bg-md-surface-container"
+                            }`}>
+                            <input type="checkbox" className="mt-0.5 w-3.5 h-3.5 flex-shrink-0 accent-[var(--md-primary)]"
+                              checked={!!checked[ctrl.code]}
+                              onChange={(e) => setChecked((p) => ({ ...p, [ctrl.code]: e.target.checked }))} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-bold text-md-on-surface font-mono">{ctrl.code}</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded text-md-on-surface-variant"
+                                  style={{ backgroundColor: "var(--md-surface-container-high)" }}>{ctrl.domain}</span>
+                              </div>
+                              <p className="text-xs text-md-on-surface-variant mt-0.5 leading-relaxed">{ctrl.statement}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
 
         {/* Footer */}
         {!done && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-md-outline-variant flex-shrink-0">
-            <span className="text-sm text-md-on-surface-variant">
-              {selectedCount} control{selectedCount !== 1 ? "s" : ""} selected
-            </span>
-            <div className="flex gap-3">
+          <div className="flex items-center justify-between px-5 py-3 border-t border-md-outline-variant flex-shrink-0">
+            <span className="text-xs text-md-on-surface-variant">{selectedCount} control{selectedCount !== 1 ? "s" : ""} selected</span>
+            <div className="flex gap-2">
               <button onClick={onClose}
-                className="px-4 py-2 text-sm font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors">
+                className="px-3 py-1.5 text-xs font-bold border border-md-outline-variant text-md-on-surface rounded-lg hover:bg-md-surface-container-high transition-colors">
                 Cancel
               </button>
-              <button
-                onClick={() => setDone(true)}
-                disabled={selectedCount === 0}
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
+              <button onClick={() => setDone(true)} disabled={selectedCount === 0}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
                   selectedCount === 0
                     ? "bg-md-outline-variant text-md-on-surface-variant cursor-not-allowed"
                     : "bg-md-primary-container text-md-on-primary-container hover:bg-md-primary hover:text-md-on-primary"
-                }`}
-              >
+                }`}>
                 Add to Master Framework
               </button>
             </div>
@@ -803,180 +708,122 @@ function BaselineModal({
 export default function FrameworkWorkbenchPage() {
   const [selectedSector, setSelectedSector] = useState("All")
   const [selectedGeo, setSelectedGeo] = useState("All")
-  const [expandedRegIds, setExpandedRegIds] = useState<Set<string>>(new Set([REGULATIONS[0].id]))
-  const [selectedArticleId, setSelectedArticleId] = useState<string>(REGULATIONS[0].articles[0].id)
+  const [selectedRegId, setSelectedRegId] = useState<string>(REGULATIONS[0].id)
+  const [expandedArticleIds, setExpandedArticleIds] = useState<Set<string>>(new Set())
   const [showBaselineModal, setShowBaselineModal] = useState(false)
 
-  // Filter regulations
   const filteredRegs = useMemo(() => {
     return REGULATIONS.filter((r) => {
-      const sectorMatch =
-        selectedSector === "All" ||
-        r.sectors.includes(selectedSector) ||
-        r.sectors.includes("All Sectors")
-      const geoMatch = selectedGeo === "All" || r.geographies.includes(selectedGeo)
-      return sectorMatch && geoMatch
+      const sectorOk = selectedSector === "All" || r.sectors.includes(selectedSector) || r.sectors.includes("All Sectors")
+      const geoOk = selectedGeo === "All" || r.geographies.includes(selectedGeo)
+      return sectorOk && geoOk
     })
   }, [selectedSector, selectedGeo])
 
-  // Find selected article across all regulations
-  const selectedArticle = useMemo(() => {
-    for (const reg of REGULATIONS) {
-      const art = reg.articles.find((a) => a.id === selectedArticleId)
-      if (art) return { article: art, regulation: reg }
-    }
-    return null
-  }, [selectedArticleId])
-
-  const toggleRegExpand = (regId: string) =>
-    setExpandedRegIds((prev) => {
-      const next = new Set(prev)
-      next.has(regId) ? next.delete(regId) : next.add(regId)
-      return next
-    })
-
-  // KPI calculations
-  const totalRegulations = REGULATIONS.length
-  const totalArticles = useMemo(() => REGULATIONS.reduce((s, r) => s + r.articles.length, 0), [])
-  const uniqueSectors = useMemo(
-    () => new Set(REGULATIONS.flatMap((r) => r.sectors.filter((s) => s !== "All Sectors"))).size,
-    []
-  )
-  const uniqueGeos = useMemo(
-    () => new Set(REGULATIONS.flatMap((r) => r.geographies)).size,
-    []
+  const selectedReg = useMemo(
+    () => filteredRegs.find((r) => r.id === selectedRegId) ?? filteredRegs[0] ?? null,
+    [filteredRegs, selectedRegId]
   )
 
+  const toggleArticle = (id: string) =>
+    setExpandedArticleIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+
+  // KPI
   const now = new Date()
-  const oneYearFromNow = new Date(now)
-  oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
+  const oneYearLater = new Date(now); oneYearLater.setFullYear(oneYearLater.getFullYear() + 1)
+  const MONTHS: Record<string, number> = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 }
 
   const enforceableNextYear = useMemo(() => {
-    const MONTHS: Record<string, number> = {
-      Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-      Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
-    }
     return ALL_ARTICLES.filter((a) => {
-      const parts = a.enforcementDate.split(" ")
-      const d = new Date(parseInt(parts[2]), MONTHS[parts[1]] ?? 0, parseInt(parts[0]))
-      return d >= now && d <= oneYearFromNow
+      const p = a.enforcementDate.split(" ")
+      const d = new Date(parseInt(p[2]), MONTHS[p[1]] ?? 0, parseInt(p[0]))
+      return d >= now && d <= oneYearLater
     }).length
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const upcomingYears = ALL_ARTICLES.filter((a) => a.enforcementYear >= now.getFullYear()).map((a) => a.enforcementYear)
-  const nextEnforcementYear = upcomingYears.length > 0 ? Math.min(...upcomingYears) : now.getFullYear()
+  const nextYear = upcomingYears.length ? Math.min(...upcomingYears) : now.getFullYear()
 
   const trendData = useMemo(() => {
-    const byYear: Record<number, number> = {}
-    ALL_ARTICLES.forEach((a) => { byYear[a.enforcementYear] = (byYear[a.enforcementYear] ?? 0) + 1 })
-    return Object.entries(byYear)
-      .map(([year, count]) => ({ year: parseInt(year), count }))
-      .sort((a, b) => a.year - b.year)
+    const m: Record<number, number> = {}
+    ALL_ARTICLES.forEach((a) => { m[a.enforcementYear] = (m[a.enforcementYear] ?? 0) + 1 })
+    return Object.entries(m).map(([y, c]) => ({ year: +y, count: c })).sort((a, b) => a.year - b.year)
   }, [])
 
+  const uniqueSectors = useMemo(
+    () => new Set(REGULATIONS.flatMap((r) => r.sectors.filter((s) => s !== "All Sectors"))).size, []
+  )
+  const uniqueGeos = useMemo(() => new Set(REGULATIONS.flatMap((r) => r.geographies)).size, [])
+
   return (
-    <div className="space-y-6 p-6">
+    <div className="flex flex-col h-full space-y-4 p-5">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl font-bold text-md-on-surface">Framework Workbench</h1>
-          <p className="mt-1 text-base text-md-on-surface-variant max-w-3xl">
-            Explore active and upcoming regulations by industry sector and geography, assess enforceability
-            timelines, and baseline your master framework against regulatory control requirements.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowBaselineModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-lg bg-md-primary-container text-md-on-primary-container hover:bg-md-primary hover:text-md-on-primary transition-colors flex-shrink-0"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
-          Baseline Master Framework
-        </button>
+      <div>
+        <h1 className="text-2xl font-bold text-md-on-surface">Framework Workbench</h1>
+        <p className="mt-1 text-sm text-md-on-surface-variant max-w-3xl">
+          A curated regulatory intelligence board presenting regulations from across global compliance domains —
+          AI governance, data privacy, cybersecurity, financial resilience, and healthcare. Explore enforceability
+          timelines, assess sector and geographic applicability, and baseline your master framework against emerging regulatory requirements.
+        </p>
       </div>
 
       {/* ── Filters + KPI Row ──────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-5 shadow-sm">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm flex-shrink-0">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
           {/* Filters */}
-          <div className="flex flex-wrap gap-4 flex-shrink-0">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">
-                Industry Sector
-              </label>
-              <select
-                value={selectedSector}
-                onChange={(e) => setSelectedSector(e.target.value)}
-                className="border border-md-outline-variant rounded-lg px-3 py-2 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container min-w-[180px]"
-              >
+          <div className="flex flex-wrap gap-3 flex-shrink-0">
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Sector</label>
+              <select value={selectedSector} onChange={(e) => setSelectedSector(e.target.value)}
+                className="border border-md-outline-variant rounded-lg px-3 py-1.5 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container min-w-[160px]">
                 <option value="All">All Sectors</option>
-                {ALL_SECTORS.filter((s) => s !== "All Sectors").map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
+                {ALL_SECTORS.filter((s) => s !== "All Sectors").map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">
-                Geography
-              </label>
-              <select
-                value={selectedGeo}
-                onChange={(e) => setSelectedGeo(e.target.value)}
-                className="border border-md-outline-variant rounded-lg px-3 py-2 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container min-w-[180px]"
-              >
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Geography</label>
+              <select value={selectedGeo} onChange={(e) => setSelectedGeo(e.target.value)}
+                className="border border-md-outline-variant rounded-lg px-3 py-1.5 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container min-w-[160px]">
                 <option value="All">All Geographies</option>
-                {ALL_GEOS.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
+                {ALL_GEOS.map((g) => <option key={g} value={g}>{g}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="hidden lg:block w-px self-stretch bg-md-outline-variant mx-2" />
+          <div className="hidden lg:block w-px self-stretch bg-md-outline-variant" />
 
           {/* KPI cards */}
-          <div className="flex flex-wrap gap-4 flex-1">
-            <div className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface p-4 min-w-[120px]">
-              <span className="text-xs font-medium text-md-on-surface-variant leading-snug">Regulations in DB</span>
-              <span className="text-3xl font-bold text-md-on-surface mt-2">{totalRegulations}</span>
-            </div>
-            <div className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface p-4 min-w-[120px]">
-              <span className="text-xs font-medium text-md-on-surface-variant leading-snug">Total Acts / Articles</span>
-              <span className="text-3xl font-bold text-md-on-surface mt-2">{totalArticles}</span>
-            </div>
-            <div className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface p-4 min-w-[130px]">
-              <span className="text-xs font-medium text-md-on-surface-variant leading-snug">Industry Sectors Covered</span>
-              <span className="text-3xl font-bold text-md-on-surface mt-2">{uniqueSectors}</span>
-            </div>
-            <div className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface p-4 min-w-[130px]">
-              <span className="text-xs font-medium text-md-on-surface-variant leading-snug">Geographic Locations</span>
-              <span className="text-3xl font-bold text-md-on-surface mt-2">{uniqueGeos}</span>
-            </div>
+          <div className="flex flex-wrap gap-3 flex-1">
+            {[
+              { label: "Regulations", value: REGULATIONS.length },
+              { label: "Acts / Articles", value: ALL_ARTICLES.length },
+              { label: "Sectors Covered", value: uniqueSectors },
+              { label: "Geographies", value: uniqueGeos },
+            ].map(({ label, value }) => (
+              <div key={label} className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface px-4 py-3 min-w-[110px]">
+                <span className="text-xs font-medium text-md-on-surface-variant leading-snug">{label}</span>
+                <span className="text-2xl font-bold text-md-on-surface mt-1">{value}</span>
+              </div>
+            ))}
 
-            {/* Summary box */}
-            <div className="flex flex-col gap-3 rounded-lg border border-md-outline-variant bg-md-surface p-4 flex-1 min-w-[280px]">
-              <span className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Summary</span>
-              <div className="flex items-start gap-4 flex-wrap">
-                <div className="flex flex-col">
-                  <span className="text-xs text-md-on-surface-variant leading-snug max-w-[110px]">
-                    Acts enforceable in next 1 year
-                  </span>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-3xl font-bold text-md-on-surface">{enforceableNextYear}</span>
-                    <span className="text-sm font-bold px-2 py-0.5 rounded-full"
+            {/* Summary + Timeline */}
+            <div className="flex flex-col gap-2 rounded-lg border border-md-outline-variant bg-md-surface px-4 py-3 flex-1 min-w-[280px]">
+              <span className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Enforcement Timeline</span>
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col flex-shrink-0">
+                  <span className="text-xs text-md-on-surface-variant leading-snug">Enforceable next 1 yr</span>
+                  <div className="flex items-baseline gap-1.5 mt-1">
+                    <span className="text-2xl font-bold text-md-on-surface">{enforceableNextYear}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full"
                       style={{ backgroundColor: "var(--md-primary-container)", color: "var(--md-on-primary-container)" }}>
-                      {nextEnforcementYear}
+                      {nextYear}
                     </span>
                   </div>
                 </div>
-                <div className="w-px self-stretch bg-md-outline-variant" />
-                <div className="flex flex-col flex-1 min-w-[160px]">
-                  <span className="text-xs text-md-on-surface-variant mb-2">Enforcement date trend</span>
-                  <TrendChart data={trendData} />
+                <div className="w-px self-stretch bg-md-outline-variant flex-shrink-0" />
+                <div className="flex-1 min-w-[200px]">
+                  <TimelineChart data={trendData} />
                 </div>
               </div>
             </div>
@@ -985,217 +832,193 @@ export default function FrameworkWorkbenchPage() {
       </div>
 
       {/* ── Two-panel layout ───────────────────────────────────────────────── */}
-      <div className="flex gap-4 min-h-[540px]">
-        {/* Left panel — regulations accordion */}
-        <div className="w-68 flex-shrink-0 rounded-xl border border-md-outline-variant bg-md-surface-container overflow-hidden shadow-sm flex flex-col" style={{ width: "17rem" }}>
-          <div className="px-4 py-3 border-b border-md-outline-variant flex-shrink-0">
-            <h2 className="text-sm font-bold text-md-on-surface">Regulations</h2>
-            {filteredRegs.length !== REGULATIONS.length && (
-              <p className="text-xs text-md-on-surface-variant mt-0.5">
-                {filteredRegs.length} of {REGULATIONS.length} shown
-              </p>
-            )}
+      <div className="flex gap-4 flex-1 min-h-0">
+        {/* Left panel */}
+        <div className="w-52 flex-shrink-0 rounded-xl border border-md-outline-variant bg-md-surface-container overflow-hidden shadow-sm flex flex-col">
+          <div className="px-3 py-2.5 border-b border-md-outline-variant flex-shrink-0">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Regulations</h2>
           </div>
-
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {filteredRegs.length === 0 ? (
-              <p className="text-xs text-md-on-surface-variant p-4 text-center">
-                No regulations match the selected filters.
-              </p>
+              <p className="text-xs text-md-on-surface-variant p-3 text-center">No matches.</p>
             ) : (
               filteredRegs.map((reg) => {
-                const isExpanded = expandedRegIds.has(reg.id)
+                const isActive = selectedReg?.id === reg.id
                 return (
-                  <div key={reg.id} className="border-b border-md-outline-variant last:border-b-0">
-                    {/* Regulation header */}
-                    <button
-                      onClick={() => toggleRegExpand(reg.id)}
-                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-md-surface-container-high transition-colors"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-md-on-surface truncate">{reg.shortName}</p>
-                        <p className="text-xs text-md-on-surface-variant truncate mt-0.5">{reg.articles.length} articles</p>
-                      </div>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        strokeWidth="2" strokeLinecap="round"
-                        className={`text-md-on-surface-variant flex-shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}>
-                        <polyline points="6 9 12 15 18 9" />
-                      </svg>
-                    </button>
-
-                    {/* Articles list */}
-                    {isExpanded && (
-                      <div className="bg-md-surface pb-1">
-                        {reg.articles.map((article) => {
-                          const isActive = selectedArticleId === article.id
-                          return (
-                            <button
-                              key={article.id}
-                              onClick={() => setSelectedArticleId(article.id)}
-                              className={`w-full text-left px-4 py-2.5 pl-7 text-xs transition-all flex items-start gap-2 ${
-                                isActive
-                                  ? "text-md-on-primary-container font-semibold"
-                                  : "text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-container"
-                              }`}
-                              style={isActive ? { backgroundColor: "var(--md-primary-container)" } : {}}
-                            >
-                              <span
-                                className="mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                                style={{
-                                  backgroundColor: isActive
-                                    ? "var(--md-on-primary-container)"
-                                    : "var(--md-outline-variant)",
-                                }}
-                              />
-                              <span className="leading-snug">{article.name}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
+                  <button key={reg.id}
+                    onClick={() => { setSelectedRegId(reg.id); setExpandedArticleIds(new Set()) }}
+                    className={`w-full text-left px-3 py-2.5 rounded-lg transition-all ${isActive ? "text-md-on-primary-container" : "text-md-on-surface hover:bg-md-surface-container-high"}`}
+                    style={isActive ? { backgroundColor: "var(--md-primary-container)" } : {}}>
+                    <p className="text-sm font-bold leading-tight">{reg.shortName}</p>
+                    <p className={`text-xs mt-0.5 ${isActive ? "opacity-70" : "text-md-on-surface-variant"}`}>
+                      {reg.articles.length} articles
+                    </p>
+                  </button>
                 )
               })
             )}
           </div>
         </div>
 
-        {/* Right panel — article detail */}
-        <div className="flex-1 rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden flex flex-col">
-          {selectedArticle ? (
+        {/* Right panel */}
+        <div className="flex-1 rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden flex flex-col min-h-0">
+          {selectedReg ? (
             <>
-              {/* Detail header */}
-              <div className="px-6 py-4 border-b border-md-outline-variant flex-shrink-0">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant mb-1">
-                      {selectedArticle.regulation.shortName} · {selectedArticle.regulation.name}
-                    </p>
-                    <h2 className="text-xl font-bold text-md-on-surface">{selectedArticle.article.name}</h2>
-                  </div>
-                  <EnforceabilityBadge level={selectedArticle.article.enforceability} />
+              {/* Regulation header */}
+              <div className="px-5 py-3 border-b border-md-outline-variant flex-shrink-0">
+                <h2 className="text-base font-bold text-md-on-surface">{selectedReg.name}</h2>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {selectedReg.geographies.map((g) => (
+                    <span key={g} className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface-variant">{g}</span>
+                  ))}
+                  {selectedReg.sectors.slice(0, 4).map((s) => (
+                    <span key={s} className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface-variant">{s}</span>
+                  ))}
+                  {selectedReg.sectors.length > 4 && (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface-variant">+{selectedReg.sectors.length - 4}</span>
+                  )}
                 </div>
               </div>
 
-              {/* Detail body */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {/* Applicability + Enforceability */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="rounded-lg border border-md-outline-variant bg-md-surface p-4 space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Applicability</p>
-                    <div>
-                      <p className="text-xs text-md-on-surface-variant mb-1.5">Industry Sector</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedArticle.regulation.sectors.map((s) => (
-                          <span key={s} className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs text-md-on-surface-variant mb-1.5">Geography</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedArticle.regulation.geographies.map((g) => (
-                          <span key={g} className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface">
-                            {g}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+              {/* Articles accordion */}
+              <div className="flex-1 overflow-y-auto divide-y divide-md-outline-variant">
+                {selectedReg.articles.map((article) => {
+                  const isExpanded = expandedArticleIds.has(article.id)
+                  const { bg, text } = enforceabilityStyle(article.enforceability)
 
-                  <div className="rounded-lg border border-md-outline-variant bg-md-surface p-4 space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Enforceability</p>
-                    <EnforceabilityBadge level={selectedArticle.article.enforceability} />
-                    <div>
-                      <p className="text-xs text-md-on-surface-variant">Enforcement date</p>
-                      <p className="text-sm font-bold text-md-on-surface mt-0.5">{selectedArticle.article.enforcementDate}</p>
+                  return (
+                    <div key={article.id}>
+                      {/* Article row */}
+                      <button
+                        onClick={() => toggleArticle(article.id)}
+                        className="w-full flex items-center justify-between gap-3 px-5 py-3 text-left hover:bg-md-surface-container-high transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-md-on-surface">{article.name}</p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${bg} ${text}`}>
+                              {article.enforceability}
+                            </span>
+                            <span className="text-xs text-md-on-surface-variant">{article.enforcementDate}</span>
+                          </div>
+                        </div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                          className={`text-md-on-surface-variant flex-shrink-0 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}>
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </button>
+
+                      {/* Expanded body */}
+                      {isExpanded && (
+                        <div className="px-5 pb-5 pt-3 space-y-4 bg-md-surface border-t border-md-outline-variant">
+                          {/* Applicability + Enforceability */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="rounded-lg border border-md-outline-variant bg-md-surface-container p-3 space-y-2">
+                              <p className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Applicability</p>
+                              <div>
+                                <p className="text-xs text-md-on-surface-variant mb-1">Industry Sector</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {selectedReg.sectors.map((s) => (
+                                    <span key={s} className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface">{s}</span>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-md-on-surface-variant mb-1">Geography</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {selectedReg.geographies.map((g) => (
+                                    <span key={g} className="text-xs font-medium px-2 py-0.5 rounded-full border border-md-outline-variant text-md-on-surface">{g}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="rounded-lg border border-md-outline-variant bg-md-surface-container p-3 space-y-2">
+                              <p className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Enforceability</p>
+                              <EnforceabilityBadge level={article.enforceability} />
+                              <div>
+                                <p className="text-xs text-md-on-surface-variant">Enforcement date</p>
+                                <p className="text-sm font-bold text-md-on-surface mt-0.5">{article.enforcementDate}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Highlights */}
+                          <div>
+                            <p className="text-xs font-bold text-md-on-surface mb-1.5">Key Highlights</p>
+                            <ul className="space-y-1.5">
+                              {article.highlights.map((h, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: "var(--md-primary)" }} />
+                                  <span className="text-xs text-md-on-surface-variant leading-relaxed">{h}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Suggested controls */}
+                          <div>
+                            <p className="text-xs font-bold text-md-on-surface mb-1.5">Suggested Control Activities</p>
+                            <div className="rounded-lg border border-md-outline-variant overflow-hidden">
+                              <table className="w-full text-xs">
+                                <thead className="border-b border-md-outline-variant"
+                                  style={{ backgroundColor: "var(--md-surface-container-high)" }}>
+                                  <tr>
+                                    <th className="px-3 py-2 text-left font-bold text-md-on-surface w-20">Code</th>
+                                    <th className="px-3 py-2 text-left font-bold text-md-on-surface w-36">Domain</th>
+                                    <th className="px-3 py-2 text-left font-bold text-md-on-surface">Control Statement</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {article.suggestedControls.map((ctrl, i) => (
+                                    <tr key={ctrl.code}
+                                      className={`border-t border-md-outline-variant align-top ${i % 2 === 0 ? "bg-md-surface" : "bg-md-surface-container"}`}>
+                                      <td className="px-3 py-2.5 font-mono font-bold text-md-on-surface whitespace-nowrap">{ctrl.code}</td>
+                                      <td className="px-3 py-2.5 text-md-on-surface-variant whitespace-nowrap">{ctrl.domain}</td>
+                                      <td className="px-3 py-2.5 text-md-on-surface leading-relaxed">{ctrl.statement}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
+                  )
+                })}
+              </div>
 
-                {/* Key highlights */}
-                <div>
-                  <h3 className="text-sm font-bold text-md-on-surface mb-3">Key Highlights</h3>
-                  <ul className="space-y-2">
-                    {selectedArticle.article.highlights.map((h, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: "var(--md-primary)" }} />
-                        <span className="text-sm text-md-on-surface-variant leading-relaxed">{h}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {/* ── Bottom bar ─────────────────────────────────────────────── */}
+              <div
+                className="flex-shrink-0 border-t border-md-outline-variant px-5 py-3 flex items-center justify-between gap-4"
+                style={{ backgroundColor: "var(--md-surface-container-high)" }}
+              >
+                <div className="min-w-0">
+                  <p className="text-xs text-md-on-surface-variant">Active regulation</p>
+                  <p className="text-sm font-bold text-md-on-surface truncate">{selectedReg.shortName} — {selectedReg.name}</p>
                 </div>
-
-                {/* Suggested control activities */}
-                <div>
-                  <h3 className="text-sm font-bold text-md-on-surface mb-3">Suggested Control Activities</h3>
-                  <div className="rounded-lg border border-md-outline-variant overflow-hidden">
-                    <div className="overflow-x-auto max-h-[220px] overflow-y-auto">
-                      <table className="w-full min-w-[480px] text-sm">
-                        <thead className="sticky top-0 z-10 border-b border-md-outline-variant"
-                          style={{ backgroundColor: "var(--md-surface-container-high)" }}>
-                          <tr>
-                            <th className="px-4 py-2.5 text-left text-xs font-bold text-md-on-surface w-[90px]">Code</th>
-                            <th className="px-4 py-2.5 text-left text-xs font-bold text-md-on-surface w-[150px]">Domain</th>
-                            <th className="px-4 py-2.5 text-left text-xs font-bold text-md-on-surface">Control Statement</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedArticle.article.suggestedControls.map((ctrl, i) => (
-                            <tr key={ctrl.code}
-                              className={`border-t border-md-outline-variant align-top ${i % 2 === 0 ? "bg-md-surface" : "bg-md-surface-container"}`}>
-                              <td className="px-4 py-3 font-mono text-xs font-bold text-md-on-surface whitespace-nowrap">{ctrl.code}</td>
-                              <td className="px-4 py-3 text-xs text-md-on-surface-variant whitespace-nowrap">{ctrl.domain}</td>
-                              <td className="px-4 py-3 text-xs text-md-on-surface leading-relaxed">{ctrl.statement}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Baseline CTA */}
-                <div className="rounded-lg border border-md-outline-variant bg-md-surface p-4 flex items-center justify-between gap-4 flex-wrap">
-                  <div>
-                    <p className="text-sm font-bold text-md-on-surface">
-                      Baseline master framework with {selectedArticle.article.name.split(" – ")[0]}
-                    </p>
-                    <p className="text-xs text-md-on-surface-variant mt-0.5">
-                      Check for missing controls from this article, or run a full cross-regulation baseline check.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowBaselineModal(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-lg bg-md-primary-container text-md-on-primary-container hover:bg-md-primary hover:text-md-on-primary transition-colors flex-shrink-0"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                      <path d="M2 17l10 5 10-5" />
-                      <path d="M2 12l10 5 10-5" />
-                    </svg>
-                    Run Baseline Check
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowBaselineModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg flex-shrink-0 transition-colors bg-md-primary-container text-md-on-primary-container hover:bg-md-primary hover:text-md-on-primary"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+                  </svg>
+                  Baseline Master Framework
+                </button>
               </div>
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-sm text-md-on-surface-variant">Select an article from the list to view details.</p>
+              <p className="text-sm text-md-on-surface-variant">Select a regulation to view its articles.</p>
             </div>
           )}
         </div>
       </div>
 
       {/* ── Baseline Modal ─────────────────────────────────────────────────── */}
-      {showBaselineModal && (
-        <BaselineModal
-          initialArticleId={selectedArticleId}
-          onClose={() => setShowBaselineModal(false)}
-        />
+      {showBaselineModal && selectedReg && (
+        <BaselineModal regulation={selectedReg} onClose={() => setShowBaselineModal(false)} />
       )}
     </div>
   )
