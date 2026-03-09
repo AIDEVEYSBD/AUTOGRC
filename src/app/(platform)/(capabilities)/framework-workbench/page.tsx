@@ -427,6 +427,649 @@ const REGULATIONS: RegulationEntry[] = [
       },
     ],
   },
+  {
+    id: "sox",
+    name: "Sarbanes-Oxley Act",
+    shortName: "SOX",
+    sectors: ["Financial Services"],
+    geographies: ["Americas"],
+    articles: [
+      {
+        id: "sox-s302",
+        name: "Section 302 – Corporate Responsibility for Financial Reports",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "29 Aug 2002",
+        enforcementYear: 2002,
+        highlights: [
+          "CEO and CFO must personally certify the accuracy and completeness of financial reports filed with the SEC.",
+          "Executives must disclose any known material weaknesses in internal controls over financial reporting.",
+          "False certification carries criminal penalties of up to $5 million and 20 years imprisonment.",
+        ],
+        suggestedControls: [
+          { code: "SOX-302-1", domain: "Governance", statement: "Establish a formal CEO/CFO certification process supported by sub-certification packages from business unit controllers, documenting the evidential basis for each representation." },
+          { code: "SOX-302-2", domain: "Risk Management", statement: "Implement a material weakness identification and remediation process with defined escalation timelines and board-level reporting for all identified control deficiencies." },
+        ],
+      },
+      {
+        id: "sox-s404",
+        name: "Section 404 – Management Assessment of Internal Controls",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "15 Jun 2003",
+        enforcementYear: 2003,
+        highlights: [
+          "Management must assess and report on the effectiveness of internal controls over financial reporting (ICFR) annually.",
+          "External auditors must attest to management's ICFR assessment for accelerated filers.",
+          "Assessments must be based on a recognised control framework, typically COSO.",
+        ],
+        suggestedControls: [
+          { code: "SOX-404-1", domain: "Governance", statement: "Adopt the COSO Internal Control – Integrated Framework as the basis for annual ICFR assessments, with scoping decisions documented and approved by the CFO." },
+          { code: "SOX-404-2", domain: "Audit & Compliance", statement: "Maintain a centralised control inventory mapped to financial statement risk areas, with evidence of design and operating effectiveness testing documented and retained annually." },
+          { code: "SOX-404-3", domain: "Change Management", statement: "Implement a SOX change management process to evaluate the ICFR impact of significant business, system, and process changes prior to go-live." },
+        ],
+      },
+      {
+        id: "sox-s906",
+        name: "Section 906 – Criminal Penalties for False Certifications",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "30 Jul 2002",
+        enforcementYear: 2002,
+        highlights: [
+          "Wilful certification of a false financial report carries penalties of up to $5 million and 20 years imprisonment.",
+          "Knowingly false certifications carry penalties of up to $1 million and 10 years imprisonment.",
+          "Applies to all certifying officers regardless of whether they personally prepared the report.",
+        ],
+        suggestedControls: [
+          { code: "SOX-906-1", domain: "Governance", statement: "Implement a sub-certification process requiring business unit controllers to certify financial data accuracy prior to executive-level SOX certifications." },
+          { code: "SOX-906-2", domain: "Training & Awareness", statement: "Deliver annual SOX awareness training to all finance, accounting, and IT personnel with ICFR responsibilities, with completion records maintained." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ccpa",
+    name: "California Consumer Privacy Act / CPRA",
+    shortName: "CCPA / CPRA",
+    sectors: ["All Sectors"],
+    geographies: ["Americas"],
+    articles: [
+      {
+        id: "ccpa-rights",
+        name: "Consumer Rights – Access, Deletion & Opt-Out",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2020",
+        enforcementYear: 2020,
+        highlights: [
+          "California residents have the right to know what personal information is collected, used, shared, or sold.",
+          "Consumers may request deletion of their personal information, subject to limited exceptions.",
+          "Businesses must honour opt-out requests from the sale or sharing of personal information within 15 days.",
+          "Civil penalties up to $7,500 per intentional violation enforceable by the California Privacy Protection Agency.",
+        ],
+        suggestedControls: [
+          { code: "CCPA-R1", domain: "Privacy", statement: "Implement consumer request intake and fulfilment workflows for access, deletion, correction, and opt-out requests, with response timelines tracked against the 45-day statutory deadline." },
+          { code: "CCPA-R2", domain: "Privacy", statement: "Deploy a 'Do Not Sell or Share My Personal Information' mechanism on all consumer-facing digital properties, with opt-out signals honoured within 15 business days." },
+        ],
+      },
+      {
+        id: "ccpa-disclosure",
+        name: "Transparency & Privacy Notice Requirements",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2020",
+        enforcementYear: 2020,
+        highlights: [
+          "Businesses must disclose categories of personal information collected and purposes at or before the point of collection.",
+          "Privacy policies must be updated at least annually and disclose all consumer rights under CCPA/CPRA.",
+          "Sensitive personal information (SPI) requires separate notice and opt-out rights under CPRA amendments effective 2023.",
+        ],
+        suggestedControls: [
+          { code: "CCPA-D1", domain: "Privacy", statement: "Maintain a CCPA/CPRA-compliant privacy notice disclosing all categories of personal information collected, purposes of processing, and consumer rights, reviewed and updated at least annually." },
+          { code: "CCPA-D2", domain: "Data Governance", statement: "Conduct annual data mapping exercises to identify all personal information flows, third-party sharing arrangements, and sensitive personal information categories subject to CPRA." },
+        ],
+      },
+      {
+        id: "ccpa-security",
+        name: "Reasonable Security & Private Right of Action",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2020",
+        enforcementYear: 2020,
+        highlights: [
+          "Consumers have a private right of action for data breaches resulting from failure to implement reasonable security.",
+          "Statutory damages range from $100 to $750 per consumer per incident, or actual damages if greater.",
+          "Businesses must implement and maintain reasonable security procedures appropriate to the nature of personal information held.",
+        ],
+        suggestedControls: [
+          { code: "CCPA-S1", domain: "Cybersecurity", statement: "Implement a minimum baseline of CIS Controls mapped to the personal information categories held, with annual gap assessments documented to evidence reasonable security posture." },
+          { code: "CCPA-S2", domain: "Incident Management", statement: "Establish a data breach response plan with CCPA-specific notification procedures, documenting the legal basis for any determination that notification is not required." },
+        ],
+      },
+      {
+        id: "ccpa-cpra-2023",
+        name: "CPRA Amendments – Sensitive Personal Information & Data Minimisation",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2023",
+        enforcementYear: 2023,
+        highlights: [
+          "CPRA introduces a new category of sensitive personal information (SPI) with heightened protections.",
+          "Businesses must limit the collection and use of personal information to what is reasonably necessary for the disclosed purpose.",
+          "Consumers may direct businesses to limit the use and disclosure of their sensitive personal information.",
+          "New right to correct inaccurate personal information added alongside existing access and deletion rights.",
+        ],
+        suggestedControls: [
+          { code: "CCPA-SP1", domain: "Privacy", statement: "Identify, classify, and inventory all sensitive personal information (SPI) categories collected, with purpose limitation controls preventing use beyond the disclosed processing purpose." },
+          { code: "CCPA-SP2", domain: "Privacy", statement: "Implement a correction request workflow enabling consumers to request rectification of inaccurate personal information, with responses within the 45-day statutory window." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "pci-dss",
+    name: "Payment Card Industry Data Security Standard v4.0",
+    shortName: "PCI DSS v4",
+    sectors: ["Financial Services", "Retail"],
+    geographies: ["Global"],
+    articles: [
+      {
+        id: "pci-req3",
+        name: "Requirement 3 – Protect Stored Account Data",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "31 Mar 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Primary account numbers (PANs) must be rendered unreadable anywhere stored using strong cryptography.",
+          "Sensitive authentication data (SAD) must not be stored after authorisation, even if encrypted.",
+          "Cryptographic key management procedures must be formally documented and implemented.",
+          "PCI DSS v4.0 introduces targeted risk analysis for customised implementation approaches.",
+        ],
+        suggestedControls: [
+          { code: "PCI-D1", domain: "Cryptography", statement: "Implement strong cryptography (AES-256 or equivalent) for all stored PANs, with key management procedures covering generation, distribution, storage, retirement, and destruction." },
+          { code: "PCI-D2", domain: "Data Governance", statement: "Run automated data discovery scans quarterly to detect and remediate unprotected PANs stored outside the defined cardholder data environment (CDE)." },
+        ],
+      },
+      {
+        id: "pci-req6",
+        name: "Requirement 6 – Develop and Maintain Secure Systems and Software",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "31 Mar 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "All CDE system components must be protected from known vulnerabilities via a risk-ranked patch management programme.",
+          "Bespoke and custom software must follow a secure development lifecycle including code review.",
+          "Web-facing applications must be protected by a WAF or undergo regular application security testing.",
+        ],
+        suggestedControls: [
+          { code: "PCI-S1", domain: "Vulnerability Management", statement: "Implement a risk-ranked patch management programme applying critical patches within one month of release for all components within the cardholder data environment." },
+          { code: "PCI-S2", domain: "Secure Development", statement: "Integrate SAST and DAST tooling into the CI/CD pipeline for all applications handling cardholder data, with critical and high findings blocking deployment to production." },
+          { code: "PCI-S3", domain: "Cybersecurity", statement: "Deploy and configure a WAF for all public-facing web applications in the CDE, with rulesets reviewed and updated after each significant code change or newly disclosed threat." },
+        ],
+      },
+      {
+        id: "pci-req8",
+        name: "Requirement 8 – Identify Users and Authenticate Access",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "31 Mar 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Multi-factor authentication is required for all access into the CDE, expanding beyond remote access in v4.0.",
+          "Shared and generic accounts are prohibited; all users must have unique IDs.",
+          "Passwords must meet minimum length and complexity requirements; passphrases are explicitly permitted.",
+        ],
+        suggestedControls: [
+          { code: "PCI-A1", domain: "Access Control", statement: "Enforce multi-factor authentication for all interactive user access into the CDE including console access, with phishing-resistant MFA mandated for privileged and administrative accounts." },
+          { code: "PCI-A2", domain: "Access Control", statement: "Implement identity lifecycle management ensuring unique IDs per user, semi-annual access reviews, and immediate revocation within 24 hours of role termination or change." },
+        ],
+      },
+      {
+        id: "pci-req11",
+        name: "Requirement 11 – Test Security of Systems and Networks Regularly",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "31 Mar 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Internal and external penetration testing of the CDE must be conducted at least annually and after any significant infrastructure or application change.",
+          "Intrusion detection and prevention systems must monitor all traffic at the CDE perimeter and within the CDE.",
+          "PCI DSS v4.0 introduces a requirement for targeted penetration testing of segmentation controls.",
+        ],
+        suggestedControls: [
+          { code: "PCI-T1", domain: "Cybersecurity", statement: "Conduct annual penetration tests of the CDE perimeter and internal network by a qualified tester, with segmentation validation and remediation of exploitable findings prior to next assessment." },
+          { code: "PCI-T2", domain: "Cybersecurity", statement: "Deploy IDS/IPS covering all CDE network boundaries and internal segments, with alert review procedures and tuning reviewed at least every six months." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "mas-trm",
+    name: "MAS Technology Risk Management Guidelines",
+    shortName: "MAS TRM",
+    sectors: ["Financial Services"],
+    geographies: ["Asia-Pacific"],
+    articles: [
+      {
+        id: "mas-trm-gov",
+        name: "Section 3 – IT Governance",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "18 Jan 2021",
+        enforcementYear: 2021,
+        highlights: [
+          "Financial institutions must establish an IT governance framework with clear accountabilities for technology risk.",
+          "A Chief Information Officer or equivalent must have sufficient seniority and direct access to the board.",
+          "Technology risk appetite must be defined and aligned to the overall enterprise risk management framework.",
+        ],
+        suggestedControls: [
+          { code: "MAS-G1", domain: "Governance", statement: "Establish a technology risk governance framework with defined roles, responsibilities, and escalation paths from operational teams to the board, reviewed and approved annually." },
+          { code: "MAS-G2", domain: "Governance", statement: "Define and document a technology risk appetite statement aligned to the institution's enterprise risk framework, with board approval and quarterly monitoring reports to the risk committee." },
+        ],
+      },
+      {
+        id: "mas-trm-cyber",
+        name: "Section 11 – Cyber Hygiene",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "18 Jan 2021",
+        enforcementYear: 2021,
+        highlights: [
+          "Institutions must implement robust controls to mitigate cyber threats including malware, phishing, and ransomware.",
+          "Network security controls must include segmentation, continuous monitoring, and perimeter defences.",
+          "MAS expects institutions to perform regular adversarial simulation exercises such as TIBER-SG.",
+        ],
+        suggestedControls: [
+          { code: "MAS-C1", domain: "Cybersecurity", statement: "Implement a cyber hygiene programme covering asset patching SLAs, endpoint detection and response (EDR), email security gateways, and privileged access management." },
+          { code: "MAS-C2", domain: "Cybersecurity", statement: "Conduct annual adversarial simulation exercises (red team or TIBER-SG equivalent) targeting critical systems, with findings tracked to closure within agreed remediation timelines." },
+        ],
+      },
+      {
+        id: "mas-trm-resilience",
+        name: "Section 7 – IT Service Continuity",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "18 Jan 2021",
+        enforcementYear: 2021,
+        highlights: [
+          "Critical IT systems must have defined RTO/RPO targets with recovery capabilities tested at least annually.",
+          "Disaster recovery plans must be tested jointly with IT and business stakeholders to validate end-to-end recoverability.",
+          "Outsourced IT services must have equivalent resilience requirements imposed on vendors contractually.",
+        ],
+        suggestedControls: [
+          { code: "MAS-R1", domain: "Business Continuity", statement: "Define RTO/RPO targets for all critical IT systems via business impact analysis, validated through annual DR tests with documented results and lessons learned incorporated." },
+          { code: "MAS-R2", domain: "Supply Chain", statement: "Include IT service continuity requirements in all outsourcing contracts for critical functions, with annual assurance reviews confirming vendor resilience capabilities." },
+        ],
+      },
+      {
+        id: "mas-trm-data",
+        name: "Section 9 – Data & Infrastructure Security",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "18 Jan 2021",
+        enforcementYear: 2021,
+        highlights: [
+          "Sensitive data must be identified, classified, and protected using appropriate encryption and access controls.",
+          "Network segmentation must isolate systems of differing criticality and restrict lateral movement.",
+          "Security monitoring must provide visibility into both perimeter and internal network activity.",
+        ],
+        suggestedControls: [
+          { code: "MAS-D1", domain: "Data Governance", statement: "Implement a data classification scheme with technical controls (encryption, DLP, access restrictions) applied proportionately to each classification tier for all systems holding customer or sensitive data." },
+          { code: "MAS-D2", domain: "Cybersecurity", statement: "Deploy network segmentation isolating internet-facing systems, internal systems, and sensitive data environments, with firewall rules reviewed quarterly and anomalous traffic alerts reviewed daily." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "pdpa-sg",
+    name: "Personal Data Protection Act (Singapore)",
+    shortName: "PDPA (SG)",
+    sectors: ["All Sectors"],
+    geographies: ["Asia-Pacific"],
+    articles: [
+      {
+        id: "pdpa-sg-consent",
+        name: "Part III – Consent Obligation",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "2 Jul 2014",
+        enforcementYear: 2014,
+        highlights: [
+          "Organisations must obtain consent before collecting, using, or disclosing personal data.",
+          "Withdrawal of consent must be honoured within a reasonable timeframe with consequences communicated upfront.",
+          "2021 amendments introduced legitimate interests as an additional legal basis, reducing over-reliance on consent.",
+        ],
+        suggestedControls: [
+          { code: "PDPA-C1", domain: "Privacy", statement: "Implement consent management procedures covering collection, recording, and withdrawal of consent, with withdrawal requests processed within 10 business days." },
+          { code: "PDPA-C2", domain: "Data Governance", statement: "Document the legal basis for each personal data processing activity in a processing register, distinguishing consent, legitimate interests, contractual necessity, and legal obligation." },
+        ],
+      },
+      {
+        id: "pdpa-sg-protection",
+        name: "Part IV – Protection Obligation",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "2 Jul 2014",
+        enforcementYear: 2014,
+        highlights: [
+          "Organisations must make reasonable security arrangements to protect personal data from unauthorised access, collection, use, or disclosure.",
+          "The PDPC expects organisations to implement a baseline of both technical and organisational security measures.",
+          "Financial penalties under 2021 amendments can reach SGD 1 million or 10% of annual Singapore turnover for egregious breaches.",
+        ],
+        suggestedControls: [
+          { code: "PDPA-P1", domain: "Cybersecurity", statement: "Implement technical safeguards for personal data including encryption at rest and in transit, role-based access controls, and regular vulnerability assessments of systems holding personal data." },
+          { code: "PDPA-P2", domain: "Governance", statement: "Appoint a Data Protection Officer (DPO) with sufficient authority and resources, publish the DPO contact details on the organisation's website, and conduct annual PDPA compliance reviews." },
+        ],
+      },
+      {
+        id: "pdpa-sg-breach",
+        name: "Part VIA – Mandatory Data Breach Notification",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Oct 2021",
+        enforcementYear: 2021,
+        highlights: [
+          "Organisations must notify the PDPC within 3 calendar days of assessing that a breach is notifiable.",
+          "Affected individuals must be notified where the breach is likely to result in significant harm.",
+          "Organisations have up to 30 calendar days to assess whether a breach triggers notification obligations.",
+        ],
+        suggestedControls: [
+          { code: "PDPA-B1", domain: "Incident Management", statement: "Establish a PDPA breach assessment and notification procedure with 30-day assessment and 3-day PDPC notification timelines, including significance assessment decision trees." },
+          { code: "PDPA-B2", domain: "Incident Management", statement: "Implement logging and monitoring controls to detect personal data breach indicators across all systems holding personal data, with automated alerting to the DPO upon detection." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "eu-cra",
+    name: "EU Cyber Resilience Act",
+    shortName: "EU CRA",
+    sectors: ["IT Services", "Manufacturing"],
+    geographies: ["Europe"],
+    articles: [
+      {
+        id: "cra-art13",
+        name: "Article 13 – Obligations of Manufacturers",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "11 Dec 2027",
+        enforcementYear: 2027,
+        highlights: [
+          "Manufacturers must ensure products with digital elements are designed and developed with security by default.",
+          "A cybersecurity risk assessment must be conducted and documented before placing a product on the EU market.",
+          "Products must bear CE marking to demonstrate conformity with CRA essential cybersecurity requirements.",
+          "Fines up to €15 million or 2.5% of global annual turnover for non-compliance with essential requirements.",
+        ],
+        suggestedControls: [
+          { code: "CRA-M1", domain: "Secure Development", statement: "Integrate a product cybersecurity risk assessment into the product development lifecycle, documenting threat modelling outcomes, residual risks, and applied mitigations before market release." },
+          { code: "CRA-M2", domain: "Secure Development", statement: "Enforce secure-by-default configurations for all products with digital elements, minimising attack surface and disabling unnecessary features or services at point of supply." },
+          { code: "CRA-M3", domain: "Compliance", statement: "Establish and maintain a Software Bill of Materials (SBOM) for all products with digital elements, covering third-party and open-source components with active vulnerability tracking." },
+        ],
+      },
+      {
+        id: "cra-art14",
+        name: "Article 14 – Vulnerability Handling & Reporting to ENISA",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "11 Sep 2026",
+        enforcementYear: 2026,
+        highlights: [
+          "Manufacturers must report actively exploited vulnerabilities in their products to ENISA within 24 hours of awareness.",
+          "A more detailed vulnerability notification must be submitted within 72 hours of initial awareness.",
+          "Manufacturers must handle vulnerabilities in a coordinated manner and provide mechanisms for researchers to disclose findings.",
+        ],
+        suggestedControls: [
+          { code: "CRA-V1", domain: "Vulnerability Management", statement: "Implement a vulnerability disclosure policy (VDP) with a public contact point for researchers and internal 24/72-hour ENISA reporting workflows with pre-approved notification templates." },
+          { code: "CRA-V2", domain: "Vulnerability Management", statement: "Deploy automated monitoring for newly disclosed CVEs affecting product components, with triage SLAs and patch availability timelines aligned to CVSS severity classifications." },
+        ],
+      },
+      {
+        id: "cra-art19",
+        name: "Article 19 – Security Support Period",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "11 Dec 2027",
+        enforcementYear: 2027,
+        highlights: [
+          "Manufacturers must provide security updates for a product's expected lifetime or at least five years from market placement, whichever is longer.",
+          "End-of-support dates must be clearly communicated to users prior to purchase.",
+          "Security updates must be made available free of charge and distributed without undue delay.",
+        ],
+        suggestedControls: [
+          { code: "CRA-S1", domain: "Vulnerability Management", statement: "Define and publish a security support period for each product at point of sale, with patch release processes capable of delivering free security updates throughout the declared support lifecycle." },
+          { code: "CRA-S2", domain: "Governance", statement: "Implement a product end-of-life policy with advance customer notice of support termination dates, accompanied by documented migration options and transition guidance." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "apra-cps234",
+    name: "APRA Prudential Standard CPS 234",
+    shortName: "APRA CPS 234",
+    sectors: ["Financial Services", "Insurance"],
+    geographies: ["Asia-Pacific"],
+    articles: [
+      {
+        id: "cps234-roles",
+        name: "Paragraphs 15–17 – Roles and Responsibilities",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jul 2019",
+        enforcementYear: 2019,
+        highlights: [
+          "Boards of APRA-regulated entities bear ultimate responsibility for information security capability.",
+          "Management must clearly define information security responsibilities across all staff and roles.",
+          "Third parties managing APRA-regulated entity assets must maintain information security capabilities commensurate with associated risk.",
+        ],
+        suggestedControls: [
+          { code: "CPS-G1", domain: "Governance", statement: "Document and obtain board approval for information security roles and responsibilities, with annual information security reporting to the board including capability assessment outcomes." },
+          { code: "CPS-G2", domain: "Supply Chain", statement: "Assess information security capabilities of all third parties managing regulated entity assets, with contractual obligations and annual assurance reviews proportionate to the risk involved." },
+        ],
+      },
+      {
+        id: "cps234-capability",
+        name: "Paragraphs 18–23 – Information Security Capability",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jul 2019",
+        enforcementYear: 2019,
+        highlights: [
+          "Entities must maintain an information security capability commensurate with the size and extent of threats to their information assets.",
+          "An information security capability assessment must be conducted and documented at least annually.",
+          "Controls must be implemented to protect information assets classified according to criticality and sensitivity.",
+        ],
+        suggestedControls: [
+          { code: "CPS-C1", domain: "Risk Management", statement: "Conduct and document an annual information security capability assessment against a recognised framework (ISO 27001, NIST CSF), with identified gaps tracked to remediation." },
+          { code: "CPS-C2", domain: "Data Governance", statement: "Implement an information asset classification scheme with technical and organisational controls mapped to each classification tier, reviewed annually for completeness." },
+        ],
+      },
+      {
+        id: "cps234-testing",
+        name: "Paragraphs 27–30 – Testing Control Effectiveness",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jul 2019",
+        enforcementYear: 2019,
+        highlights: [
+          "Entities must test controls protecting information assets through a systematic, risk-based testing programme.",
+          "Testing must be conducted by appropriately skilled and independent personnel.",
+          "Results must be reported to the board or a board-level risk or audit committee.",
+        ],
+        suggestedControls: [
+          { code: "CPS-T1", domain: "Audit & Compliance", statement: "Implement an annual information security control testing programme including penetration testing, vulnerability assessments, and control design reviews with results reported to the board." },
+          { code: "CPS-T2", domain: "Audit & Compliance", statement: "Ensure information security testing is performed by parties independent of those responsible for implementing the controls, with findings validated through internal or external audit." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "nist-csf",
+    name: "NIST Cybersecurity Framework 2.0",
+    shortName: "NIST CSF 2.0",
+    sectors: ["All Sectors"],
+    geographies: ["Americas"],
+    articles: [
+      {
+        id: "nist-govern",
+        name: "Govern Function – Organisational Context & Risk Strategy",
+        enforceability: "Guidance",
+        enforcementDate: "26 Feb 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "New in CSF 2.0: the Govern function establishes organisational context, risk strategy, and cybersecurity oversight as a first-class pillar.",
+          "Organisations must define and communicate cybersecurity policy, roles, and responsibilities.",
+          "Supply chain cybersecurity risk management is explicitly embedded within the Govern function.",
+        ],
+        suggestedControls: [
+          { code: "NIST-GV1", domain: "Governance", statement: "Develop and communicate a cybersecurity policy establishing the organisation's risk tolerance, roles, responsibilities, and accountability mechanisms aligned to NIST CSF 2.0 Govern function outcomes." },
+          { code: "NIST-GV2", domain: "Supply Chain", statement: "Implement a cybersecurity supply chain risk management programme identifying critical suppliers, assessing their security practices, and incorporating security requirements in procurement contracts." },
+        ],
+      },
+      {
+        id: "nist-identify",
+        name: "Identify Function – Asset & Risk Management",
+        enforceability: "Guidance",
+        enforcementDate: "26 Feb 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Organisations must maintain current inventories of hardware, software, and data assets to understand cybersecurity risk exposure.",
+          "Vulnerabilities in assets must be identified and threat intelligence integrated into risk management decisions.",
+          "Business environment context is essential to prioritise cybersecurity investments appropriately.",
+        ],
+        suggestedControls: [
+          { code: "NIST-ID1", domain: "Asset Management", statement: "Maintain a current inventory of all hardware, software, and data assets with criticality ratings reviewed annually and updated on any material change to the environment." },
+          { code: "NIST-ID2", domain: "Risk Management", statement: "Conduct annual cybersecurity risk assessments using a documented methodology, with risk treatment decisions reviewed by leadership and remediation actions tracked to closure." },
+        ],
+      },
+      {
+        id: "nist-protect",
+        name: "Protect Function – Identity, Access & Awareness",
+        enforceability: "Guidance",
+        enforcementDate: "26 Feb 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Organisations must implement identity management and access controls to limit exposure to cybersecurity risks.",
+          "Security awareness and training programmes must be in place for all personnel.",
+          "Data security practices must protect the confidentiality, integrity, and availability of information assets.",
+        ],
+        suggestedControls: [
+          { code: "NIST-PR1", domain: "Access Control", statement: "Implement least-privilege access controls with regular access reviews, MFA for privileged and remote access, and an identity lifecycle process covering onboarding and offboarding." },
+          { code: "NIST-PR2", domain: "Training & Awareness", statement: "Deliver annual cybersecurity awareness training to all staff with role-specific training for technical and privileged users, tracking completion rates and testing awareness effectiveness." },
+        ],
+      },
+      {
+        id: "nist-respond-recover",
+        name: "Respond & Recover Functions – Incident Management",
+        enforceability: "Guidance",
+        enforcementDate: "26 Feb 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Organisations must have documented response plans for cybersecurity incidents, including communication and coordination procedures.",
+          "Recovery planning must cover restoration of capabilities and services affected by cybersecurity incidents.",
+          "Lessons learned from incidents and exercises must be incorporated into updated plans.",
+        ],
+        suggestedControls: [
+          { code: "NIST-RS1", domain: "Incident Management", statement: "Develop, maintain, and test an incident response plan covering detection, containment, eradication, recovery, and post-incident review, exercised at least annually through tabletop or simulation." },
+          { code: "NIST-RC1", domain: "Business Continuity", statement: "Develop recovery plans for critical systems with recovery objectives validated through annual testing, incorporating lessons learned from exercises and real incidents." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "hipaa-hitech",
+    name: "HITECH Act – Health Information Technology",
+    shortName: "HITECH",
+    sectors: ["Healthcare"],
+    geographies: ["Americas"],
+    articles: [
+      {
+        id: "hitech-breach",
+        name: "Section 13402 – Notification in Case of Breach",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "23 Sep 2009",
+        enforcementYear: 2009,
+        highlights: [
+          "Business associates are directly liable for HIPAA Security Rule compliance and breach notification obligations.",
+          "Covered entities must notify HHS and affected individuals within 60 days of discovering an unsecured PHI breach.",
+          "Breaches affecting 500+ individuals in a state require contemporaneous media notice in that state.",
+          "Wilful neglect carries minimum civil penalties of $10,000 per violation.",
+        ],
+        suggestedControls: [
+          { code: "HIT-BN1", domain: "Incident Management", statement: "Extend breach notification procedures to all business associates via contractual BAA obligations, with annual confirmation of their notification capability and contact details." },
+          { code: "HIT-BN2", domain: "Incident Management", statement: "Implement a breach log capturing all potential PHI exposures with documented risk assessments to determine notification obligations, retained for six years." },
+        ],
+      },
+      {
+        id: "hitech-enforcement",
+        name: "Section 13410 – Strengthened Enforcement",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "23 Sep 2009",
+        enforcementYear: 2009,
+        highlights: [
+          "OCR may impose civil monetary penalties of $100 to $50,000 per violation, capped at $1.9 million per violation category per year.",
+          "State Attorneys General may bring civil actions on behalf of state residents for HIPAA violations.",
+          "A percentage of civil penalties collected must be distributed to harmed individuals.",
+        ],
+        suggestedControls: [
+          { code: "HIT-E1", domain: "Governance", statement: "Establish a HIPAA/HITECH compliance programme with designated Privacy and Security Officers, annual risk analyses, and a corrective action plan process for identified gaps." },
+          { code: "HIT-E2", domain: "Audit & Compliance", statement: "Conduct annual HIPAA compliance audits covering Privacy Rule, Security Rule, and Breach Notification Rule requirements, with findings reported to senior leadership." },
+        ],
+      },
+      {
+        id: "hitech-meaningful-use",
+        name: "Section 13001 – Adoption of Certified Health IT",
+        enforceability: "Enforceable without penalty",
+        enforcementDate: "1 Jan 2011",
+        enforcementYear: 2011,
+        highlights: [
+          "Healthcare providers and hospitals are incentivised to adopt certified electronic health record (EHR) technology.",
+          "Certified EHR technology must meet security and interoperability standards defined by ONC.",
+          "Adoption enables access to Medicare and Medicaid incentive payments under meaningful use criteria.",
+        ],
+        suggestedControls: [
+          { code: "HIT-MU1", domain: "Data Governance", statement: "Ensure all deployed EHR systems hold current ONC certification and are configured to meet meaningful use security requirements, with certification status reviewed annually." },
+          { code: "HIT-MU2", domain: "Secure Development", statement: "Apply ONC security requirements to any custom EHR integrations or extensions, with third-party security assessments prior to connecting to certified EHR systems." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "csrd",
+    name: "EU Corporate Sustainability Reporting Directive",
+    shortName: "CSRD",
+    sectors: ["All Sectors"],
+    geographies: ["Europe"],
+    articles: [
+      {
+        id: "csrd-art19a",
+        name: "Article 19a – Sustainability Reporting Obligations",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Large EU companies must report sustainability information covering environmental, social, and governance (ESG) matters.",
+          "Reporting must follow the European Sustainability Reporting Standards (ESRS) adopted by the European Commission.",
+          "Sustainability statements must be included in the management report and subject to limited assurance.",
+          "Phased rollout: large PIEs from FY2024, other large companies from FY2025, listed SMEs from FY2026.",
+        ],
+        suggestedControls: [
+          { code: "CSRD-R1", domain: "Governance", statement: "Establish a sustainability reporting programme aligned to ESRS, with defined data collection processes, ownership, and an internal review and assurance workflow ahead of statutory deadlines." },
+          { code: "CSRD-R2", domain: "Governance", statement: "Appoint a Chief Sustainability Officer or equivalent with board reporting access, supported by cross-functional working groups covering environmental, social, and governance data domains." },
+        ],
+      },
+      {
+        id: "csrd-double-materiality",
+        name: "Double Materiality Assessment",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2024",
+        enforcementYear: 2024,
+        highlights: [
+          "Companies must perform a double materiality assessment identifying sustainability topics material from both impact and financial perspectives.",
+          "The assessment must consider impacts, risks, and opportunities across the value chain.",
+          "Methodology and outcomes of the materiality assessment must be disclosed.",
+        ],
+        suggestedControls: [
+          { code: "CSRD-DM1", domain: "Risk Management", statement: "Conduct and document an annual double materiality assessment covering impact materiality and financial materiality perspectives across the full value chain, with stakeholder input incorporated." },
+          { code: "CSRD-DM2", domain: "Data Governance", statement: "Implement data collection and validation processes for all material ESRS disclosure requirements, with defined data owners, quality controls, and audit trail documentation." },
+        ],
+      },
+      {
+        id: "csrd-digital",
+        name: "Digital Tagging & Machine-Readable Reporting",
+        enforceability: "Enforceable with penalty",
+        enforcementDate: "1 Jan 2026",
+        enforcementYear: 2026,
+        highlights: [
+          "Sustainability statements must be prepared in a machine-readable format using XHTML with inline XBRL tagging.",
+          "Digital tagging must follow the ESRS XBRL taxonomy published by EFRAG.",
+          "Machine-readable reports must be submitted to the European Single Access Point (ESAP).",
+        ],
+        suggestedControls: [
+          { code: "CSRD-DT1", domain: "Compliance", statement: "Implement XBRL tagging capabilities for sustainability disclosures aligned to the ESRS taxonomy, with quality assurance checks validating tag accuracy prior to submission." },
+          { code: "CSRD-DT2", domain: "Governance", statement: "Establish a digital reporting workflow integrating sustainability data collection, XBRL tagging, and ESAP submission with defined ownership and pre-submission review gates." },
+        ],
+      },
+    ],
+  },
 ]
 
 // ─── Derived ──────────────────────────────────────────────────────────────────
@@ -733,28 +1376,37 @@ export default function FrameworkWorkbenchPage() {
   const oneYearLater = new Date(now); oneYearLater.setFullYear(oneYearLater.getFullYear() + 1)
   const MONTHS: Record<string, number> = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 }
 
+  const filteredArticles = useMemo(
+    () => filteredRegs.flatMap((r) => r.articles),
+    [filteredRegs]
+  )
+
   const enforceableNextYear = useMemo(() => {
-    return ALL_ARTICLES.filter((a) => {
+    return filteredArticles.filter((a) => {
       const p = a.enforcementDate.split(" ")
       const d = new Date(parseInt(p[2]), MONTHS[p[1]] ?? 0, parseInt(p[0]))
       return d >= now && d <= oneYearLater
     }).length
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [filteredArticles])
 
-  const upcomingYears = ALL_ARTICLES.filter((a) => a.enforcementYear >= now.getFullYear()).map((a) => a.enforcementYear)
+  const upcomingYears = filteredArticles.filter((a) => a.enforcementYear >= now.getFullYear()).map((a) => a.enforcementYear)
   const nextYear = upcomingYears.length ? Math.min(...upcomingYears) : now.getFullYear()
 
   const trendData = useMemo(() => {
     const m: Record<number, number> = {}
-    ALL_ARTICLES.forEach((a) => { m[a.enforcementYear] = (m[a.enforcementYear] ?? 0) + 1 })
+    filteredArticles.forEach((a) => { m[a.enforcementYear] = (m[a.enforcementYear] ?? 0) + 1 })
     return Object.entries(m).map(([y, c]) => ({ year: +y, count: c })).sort((a, b) => a.year - b.year)
-  }, [])
+  }, [filteredArticles])
 
   const uniqueSectors = useMemo(
-    () => new Set(REGULATIONS.flatMap((r) => r.sectors.filter((s) => s !== "All Sectors"))).size, []
+    () => new Set(filteredRegs.flatMap((r) => r.sectors.filter((s) => s !== "All Sectors"))).size,
+    [filteredRegs]
   )
-  const uniqueGeos = useMemo(() => new Set(REGULATIONS.flatMap((r) => r.geographies)).size, [])
+  const uniqueGeos = useMemo(
+    () => new Set(filteredRegs.flatMap((r) => r.geographies)).size,
+    [filteredRegs]
+  )
 
   return (
     <div className="flex flex-col h-full space-y-4 p-5">
@@ -796,8 +1448,8 @@ export default function FrameworkWorkbenchPage() {
           {/* KPI cards */}
           <div className="flex flex-wrap gap-3 flex-1">
             {[
-              { label: "Regulations", value: REGULATIONS.length },
-              { label: "Acts / Articles", value: ALL_ARTICLES.length },
+              { label: "Regulations", value: filteredRegs.length },
+              { label: "Acts / Articles", value: filteredArticles.length },
               { label: "Sectors Covered", value: uniqueSectors },
               { label: "Geographies", value: uniqueGeos },
             ].map(({ label, value }) => (
