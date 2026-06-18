@@ -1,8 +1,8 @@
 "use client"
 
 import { useDeactivatedFrameworks } from "./deactivated-context"
-import Link from "next/link"
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useState, useTransition } from "react"
 import * as XLSX from "xlsx"
 
 type FrameworkComparisonCell = {
@@ -128,6 +128,9 @@ export function ComparisonTable({
   const [isExporting, setIsExporting] = useState(false)
   const [masterFilter, setMasterFilter] = useState("")
   const [frameworkFilters, setFrameworkFilters] = useState<Record<string, string>>({})
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const go = (href: string) => startTransition(() => router.push(href, { scroll: false }))
 
   const domains = comparison.domains ?? []
 
@@ -255,27 +258,21 @@ export function ComparisonTable({
           <aside className="border-b md:border-b-0 md:border-r border-md-outline-variant bg-md-surface-container">
             <div
               className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-md-on-surface border-b border-md-outline-variant"
-              style={{ backgroundColor: "var(--md-primary-container)" }}
+              style={{ backgroundColor: "var(--md-surface-variant)" }}
             >
               Control Domains
             </div>
 
             <div className="p-2 space-y-2">
               <DomainLink
-                href={buildFrameworksHref({
-                  domain: null,
-                  gapFramework: selectedGapFramework,
-                })}
+                onSelect={() => go(buildFrameworksHref({ domain: null, gapFramework: selectedGapFramework }))}
                 active={!activeDomain}
                 label="All Domains"
               />
               {domains.map(d => (
                 <DomainLink
                   key={d}
-                  href={buildFrameworksHref({
-                    domain: d,
-                    gapFramework: selectedGapFramework,
-                  })}
+                  onSelect={() => go(buildFrameworksHref({ domain: d, gapFramework: selectedGapFramework }))}
                   active={activeDomain === d}
                   label={d}
                 />
@@ -288,7 +285,7 @@ export function ComparisonTable({
               <div style={{ minWidth: minGridWidth }}>
                 <div
                   className="sticky top-0 z-10 border-b border-md-outline-variant"
-                  style={{ backgroundColor: "var(--md-primary-container)" }}
+                  style={{ backgroundColor: "var(--md-surface-variant)" }}
                 >
                   <div className="grid" style={{ gridTemplateColumns }}>
                     <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-surface">
@@ -322,7 +319,9 @@ export function ComparisonTable({
                   </div>
                 </div>
 
-                {visibleRows.length === 0 ? (
+                {pending ? (
+                  <SkeletonRows cols={activeFrameworks.length + 1} />
+                ) : visibleRows.length === 0 ? (
                   <div className="p-6 text-sm text-md-on-surface-variant">
                     {activeFilterCount > 0
                       ? "No controls match your filters."
@@ -432,6 +431,9 @@ export function UnmappedControlsTable({
   selectedGapFramework: string | null
 }) {
   const { deactivated, mounted } = useDeactivatedFrameworks()
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const go = (href: string) => startTransition(() => router.push(href, { scroll: false }))
   const [filters, setFilters] = useState({
     controlCode: "",
     domain: "",
@@ -538,7 +540,7 @@ export function UnmappedControlsTable({
           <aside className="border-b md:border-b-0 md:border-r border-md-outline-variant bg-md-surface-container">
             <div
               className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-md-on-surface border-b border-md-outline-variant"
-              style={{ backgroundColor: "var(--md-primary-container)" }}
+              style={{ backgroundColor: "var(--md-surface-variant)" }}
             >
               Frameworks
             </div>
@@ -547,30 +549,21 @@ export function UnmappedControlsTable({
               {activeFrameworks.map(fw => {
                 const active = effectiveActiveGap?.id === fw.id
                 return (
-                  <Link
+                  <button
                     key={fw.id}
-                    href={buildFrameworksHref({
-                      domain: activeDomain,
-                      gapFramework: fw.id,
-                    })}
-                    scroll={false}
+                    onClick={() => go(buildFrameworksHref({ domain: activeDomain, gapFramework: fw.id }))}
                     className={[
-                      "block rounded-md p-4 transition-all duration-200",
+                      "block w-full text-left p-4 transition-all duration-200",
                       active
-                        ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
-                        : "bg-md-primary hover:opacity-90 text-md-on-primary",
+                        ? "bg-md-primary-container text-md-on-primary-container"
+                        : "bg-md-surface-container-high border border-md-outline-variant text-md-on-surface hover:bg-md-surface-variant",
                     ].join(" ")}
                   >
                     <div className="text-sm font-bold">{fw.name}</div>
-                    <div
-                      className={[
-                        "text-xs mt-1",
-                        active ? "text-md-on-surface-variant" : "text-[#cccccc]",
-                      ].join(" ")}
-                    >
+                    <div className="text-xs mt-1 text-md-on-surface-variant">
                       {fw.unmappedCount.toLocaleString()} unmapped controls
                     </div>
-                  </Link>
+                  </button>
                 )
               })}
             </div>
@@ -583,7 +576,7 @@ export function UnmappedControlsTable({
                 {/* Header */}
                 <div
                   className="sticky top-0 z-10 border-b border-md-outline-variant"
-                  style={{ backgroundColor: "var(--md-primary-container)" }}
+                  style={{ backgroundColor: "var(--md-surface-variant)" }}
                 >
                   <div
                     className="grid"
@@ -617,7 +610,9 @@ export function UnmappedControlsTable({
                 </div>
 
                 {/* Rows */}
-                {visibleRows.length === 0 ? (
+                {pending ? (
+                  <SkeletonRows cols={4} />
+                ) : visibleRows.length === 0 ? (
                   <div className="p-6 text-sm text-md-on-surface-variant">
                     {activeFilterCount > 0
                       ? "No controls match your filters."
@@ -818,27 +813,42 @@ function BodyCell({
 }
 
 function DomainLink({
-  href,
+  onSelect,
   active,
   label,
 }: {
-  href: string
+  onSelect: () => void
   active: boolean
   label: string
 }) {
   return (
-    <Link
-      href={href}
-      scroll={false}
+    <button
+      onClick={onSelect}
       className={[
-        "block rounded-md px-3 py-3 transition-all duration-200",
+        "block w-full text-left px-3 py-3 transition-all duration-200",
         active
-          ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
-          : "bg-md-primary hover:opacity-90 text-md-on-primary",
+          ? "bg-md-primary-container text-md-on-primary-container"
+          : "bg-md-surface-container-high border border-md-outline-variant text-md-on-surface hover:bg-md-surface-variant",
       ].join(" ")}
     >
       <div className="text-sm font-bold">{label}</div>
-    </Link>
+    </button>
+  )
+}
+
+function SkeletonRows({ cols, rows = 8 }: { cols: number; rows?: number }) {
+  return (
+    <div>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="border-b border-md-outline-variant px-4 py-4">
+          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))` }}>
+            {Array.from({ length: cols }).map((_, j) => (
+              <div key={j} className="ey-skeleton h-4" style={{ width: j === 0 ? "70%" : "88%" }} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 

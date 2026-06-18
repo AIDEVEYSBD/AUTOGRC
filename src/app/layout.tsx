@@ -1,7 +1,6 @@
 import "./globals.css";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
-import { verifyToken, COOKIE_NAME } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ChatBubble from "@/components/Chatbot/ChatBubble";
 
@@ -21,9 +20,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-  const isAuthenticated = token ? await verifyToken(token) : false;
+  const session = await getSession();
+  const isAuthenticated = !!session;
+  const initialUser = session
+    ? { id: session.sub, name: session.name, email: session.email, role: session.role }
+    : null;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -49,7 +50,7 @@ export default async function RootLayout({
         className="min-h-screen"
         style={{ backgroundColor: "var(--md-surface)", color: "var(--md-on-surface)" }}
       >
-        <AuthProvider initialAuth={isAuthenticated}>
+        <AuthProvider initialAuth={isAuthenticated} initialUser={initialUser}>
           <div className="relative w-full min-h-screen">
             {children}
           </div>

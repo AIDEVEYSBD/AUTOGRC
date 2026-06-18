@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Fragment } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { ControlAssessmentRow, EvidenceRow } from "@/lib/application-detail.queries"
@@ -182,7 +182,7 @@ export default function ControlsTable({
       <div className="rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden">
         <div className="max-h-[600px] overflow-auto">
           <table className="w-full min-w-[800px] text-sm table-fixed">
-            <thead className="sticky top-0 bg-[#FFE600] border-b border-md-outline-variant z-10">
+            <thead className="sticky top-0 bg-md-surface-variant border-b border-md-outline-variant z-10">
               <tr>
                 <Th
                   onClick={() => toggleSort("controlCode")}
@@ -273,9 +273,8 @@ export default function ControlsTable({
                 </tr>
               ) : (
                 sorted.map(c => (
-                  <>
+                  <Fragment key={c.controlId}>
                     <tr
-                      key={c.controlId}
                       onClick={() => {
                         // Only allow expansion for assessed controls
                         if (c.isAssessed) {
@@ -420,7 +419,7 @@ export default function ControlsTable({
                         </Td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))
               )}
             </tbody>
@@ -570,7 +569,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
     : null
 
   return (
-    <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50/30 rounded-lg border border-md-outline-variant overflow-hidden shadow-sm">
+    <div className="bg-md-surface-container rounded-lg border border-md-outline-variant overflow-hidden shadow-sm">
       {/* Evidence Header */}
       <div className="p-4 bg-md-surface/80 backdrop-blur-sm border-b border-md-outline-variant">
         <div className="flex items-start justify-between">
@@ -608,7 +607,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
               <div className="text-xs font-semibold text-md-on-surface-variant uppercase tracking-wide mb-2">
                 Explanation
               </div>
-              <div className="prose prose-sm max-w-none text-md-on-surface">
+              <div className="prose prose-sm max-w-none dark:prose-invert text-md-on-surface">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
@@ -688,7 +687,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRow }) {
                 </div>
               ) : (
                 <div className="bg-md-surface rounded p-3 border border-md-outline-variant overflow-x-auto">
-                  <div className="prose prose-sm max-w-none">
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{

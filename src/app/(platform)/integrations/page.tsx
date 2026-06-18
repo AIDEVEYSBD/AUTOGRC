@@ -585,8 +585,39 @@ export default function IntegrationsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-md-on-surface-variant">Loading integrations...</div>
+      <div className="space-y-8 p-6" aria-busy="true" aria-label="Loading integrations">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex w-full flex-col gap-3">
+            <div className="ey-skeleton h-8 w-72 max-w-full" />
+            <div className="ey-skeleton h-4 w-full max-w-3xl" />
+            <div className="ey-skeleton h-4 w-2/3 max-w-2xl" />
+          </div>
+          <div className="ey-skeleton h-10 w-36 flex-shrink-0" />
+        </div>
+        {/* KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="border border-md-outline-variant bg-md-surface-container p-6 flex flex-col gap-3 min-h-[110px]">
+              <div className="ey-skeleton h-3 w-1/3" />
+              <div className="ey-skeleton h-9 w-20" />
+            </div>
+          ))}
+        </div>
+        {/* Section header + integration cards */}
+        <div className="space-y-4">
+          <div className="ey-skeleton h-6 w-64" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="border border-md-outline-variant bg-md-surface-container p-6 flex items-center gap-4">
+              <div className="ey-skeleton h-10 w-10 flex-none" />
+              <div className="flex flex-1 flex-col gap-2 min-w-0">
+                <div className="ey-skeleton h-4 w-1/3" />
+                <div className="ey-skeleton h-3 w-1/2" />
+              </div>
+              <div className="ey-skeleton h-7 w-20 flex-none" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }

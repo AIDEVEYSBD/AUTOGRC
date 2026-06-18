@@ -26,7 +26,7 @@ export default async function ApplicationsPage() {
       </section>
 
       {/* KPI METRICS */}
-      <section className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 p-6">
+      <section className="w-full grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 p-6">
         <MetricCard 
           label="Total" 
           sublabel="Applications"
@@ -85,26 +85,26 @@ function MetricCard({
   avgScore: number
 }) {
   return (
-    <div className="md3-card p-4 h-[130px] flex flex-col justify-between">
-      <div className="space-y-0.5">
-        <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide leading-tight">
+    <div className="bg-card border border-bd p-4 min-h-[120px] flex flex-col gap-3 min-w-0">
+      <div className="min-w-0">
+        <div className="text-[11px] font-bold text-muted uppercase tracking-wide leading-tight truncate">
           {label}
         </div>
         {sublabel && (
-          <div className="text-xs font-medium text-md-on-surface-variant uppercase tracking-wide leading-tight">
+          <div className="text-[11px] font-bold text-muted uppercase tracking-wide leading-tight truncate">
             {sublabel}
           </div>
         )}
       </div>
-      <div className="mt-auto w-full">
-        <div className="text-3xl font-bold text-md-on-surface mb-2">
+      <div className="mt-auto min-w-0">
+        <div className="text-3xl font-bold text-ink leading-none">
           {count}
         </div>
-        <div className="flex items-center justify-between w-full">
-          <div className="text-[10px] font-medium text-md-on-surface-variant uppercase tracking-wide">
-            Avg Compliance
+        <div className="mt-2 min-w-0">
+          <div className="text-[10px] font-bold text-muted uppercase tracking-wide truncate">
+            Avg compliance
           </div>
-          <div className="text-sm font-semibold text-md-on-surface-variant">
+          <div className="text-sm font-bold text-ink2">
             {avgScore}%
           </div>
         </div>

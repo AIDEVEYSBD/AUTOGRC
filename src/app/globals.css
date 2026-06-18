@@ -4,89 +4,188 @@
 /* ── Class-based dark mode ─────────────────── */
 @custom-variant dark (&:is(.dark, .dark *));
 
-/* ── MD3 Color tokens registered as Tailwind utilities ── */
+/* =========================================================================
+   EY DESIGN SYSTEM
+   Brand identity: confident-black #1A1A24 + EY-yellow #FFE600, squared
+   corners (no radius), flat (no shadow), Arial. Light + dark themes.
+   The existing app themes via md-prefixed vars exposed as Tailwind md-
+   utilities — we keep those names but remap their VALUES to EY, so every
+   existing page re-skins at once. New components use the EY shell vars.
+   ========================================================================= */
+
+/* Color tokens registered as Tailwind utilities */
 @theme inline {
-  --color-md-primary:                 var(--md-primary);
-  --color-md-on-primary:              var(--md-on-primary);
-  --color-md-primary-container:       var(--md-primary-container);
-  --color-md-on-primary-container:    var(--md-on-primary-container);
-  --color-md-surface:                 var(--md-surface);
-  --color-md-surface-variant:         var(--md-surface-variant);
-  --color-md-surface-container:       var(--md-surface-container);
-  --color-md-surface-container-high:  var(--md-surface-container-high);
-  --color-md-on-surface:              var(--md-on-surface);
-  --color-md-on-surface-variant:      var(--md-on-surface-variant);
-  --color-md-outline:                 var(--md-outline);
-  --color-md-outline-variant:         var(--md-outline-variant);
-  --color-md-error:                   var(--md-error);
-  --color-md-error-container:         var(--md-error-container);
-  --color-md-success:                 var(--md-success);
-  --color-md-success-container:       var(--md-success-container);
+  /* Material-compat tokens (re-mapped to EY values below) */
+  --color-md-primary: var(--md-primary);
+  --color-md-on-primary: var(--md-on-primary);
+  --color-md-primary-container: var(--md-primary-container);
+  --color-md-on-primary-container: var(--md-on-primary-container);
+  --color-md-surface: var(--md-surface);
+  --color-md-surface-variant: var(--md-surface-variant);
+  --color-md-surface-container: var(--md-surface-container);
+  --color-md-surface-container-high: var(--md-surface-container-high);
+  --color-md-on-surface: var(--md-on-surface);
+  --color-md-on-surface-variant: var(--md-on-surface-variant);
+  --color-md-outline: var(--md-outline);
+  --color-md-outline-variant: var(--md-outline-variant);
+  --color-md-error: var(--md-error);
+  --color-md-error-container: var(--md-error-container);
+  --color-md-success: var(--md-success);
+  --color-md-success-container: var(--md-success-container);
+
+  /* EY brand + app-shell tokens (use directly in new components) */
+  --color-ey-yellow: var(--ey-yellow);
+  --color-ey-black: var(--ey-black);
+  --color-ey-offblack: var(--ey-offblack);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-bd: var(--bd);
+  --color-hair: var(--hair);
+  --color-track: var(--track);
+  --color-ink: var(--ink);
+  --color-ink2: var(--ink2);
+  --color-muted: var(--muted);
+  --color-st-pass: var(--st-pass);
+  --color-st-fail: var(--st-fail);
+  --color-st-warn: var(--st-warn);
+  --color-st-info: var(--st-info);
 }
 
 /* ── Light mode tokens ─────────────────────── */
 :root {
-  --md-primary:                #2E2E38;
-  --md-on-primary:             #FFFFFF;
-  --md-primary-container:      #FFE600;
-  --md-on-primary-container:   #211B00;
+  /* EY raw brand */
+  --ey-yellow: #FFE600;
+  --ey-black: #1A1A24;
+  --ey-offblack: #2E2E38;
 
-  --md-surface:                #FFFBF0;
-  --md-surface-variant:        #EDE8D5;
-  --md-surface-container:      #F3EED8;
-  --md-surface-container-high: #EDE8CE;
+  /* App-shell semantic (from design themeVars — light) */
+  --surface: #F6F6FA;
+  --card: #FFFFFF;
+  --bd: #C4C4CD;
+  --ink: #1A1A24;
+  --ink2: #2E2E38;
+  --muted: #747480;
+  --hair: #E6E6EB;
+  --track: #EDEDF1;
 
-  --md-on-surface:             #1E1B13;
-  --md-on-surface-variant:     #4D4738;
+  /* Status (EY advanced palette) */
+  --st-pass: #2DB757;
+  --st-fail: #FF4136;
+  --st-warn: #FF810A;
+  --st-info: #188CE5;
 
-  --md-outline:                #7F7667;
-  --md-outline-variant:        #D0C9B6;
+  /* Material-compat — light */
+  --md-primary: #1A1A24;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #FFE600;
+  --md-on-primary-container: #1A1A24;
 
-  --md-error:                  #B3261E;
-  --md-error-container:        #FFDAD6;
-  --md-success:                #146C2E;
-  --md-success-container:      #C8F2CE;
+  --md-surface: #F6F6FA;
+  --md-surface-variant: #EDEDF1;
+  --md-surface-container: #FFFFFF;
+  --md-surface-container-high: #FFFFFF;
+
+  --md-on-surface: #1A1A24;
+  --md-on-surface-variant: #747480;
+
+  --md-outline: #747480;
+  --md-outline-variant: #C4C4CD;
+
+  --md-error: #FF4136;
+  --md-error-container: #FFE0DE;
+  --md-success: #2DB757;
+  --md-success-container: #D6F3DF;
 }
 
 /* ── Dark mode tokens ──────────────────────── */
 .dark {
-  --md-primary:                #FFE600;
-  --md-on-primary:             #3A2E00;
-  --md-primary-container:      #544500;
-  --md-on-primary-container:   #FFE163;
+  --ey-yellow: #FFE600;
+  --ey-black: #1A1A24;
+  --ey-offblack: #2E2E38;
 
-  --md-surface:                #16130A;
-  --md-surface-variant:        #37322A;
-  --md-surface-container:      #1E1B12;
-  --md-surface-container-high: #28251B;
+  /* App-shell semantic (from design themeVars — dark) */
+  --surface: #1A1A24;
+  --card: #23232E;
+  --bd: #34343F;
+  --ink: #FFFFFF;
+  --ink2: #C4C4CD;
+  --muted: #9A9AA6;
+  --hair: #34343F;
+  --track: #2E2E38;
 
-  --md-on-surface:             #E8E2CF;
-  --md-on-surface-variant:     #CBC5B0;
+  --st-pass: #57E188;
+  --st-fail: #FF6B63;
+  --st-warn: #FF9831;
+  --st-info: #4EBEEB;
 
-  --md-outline:                #978D7E;
-  --md-outline-variant:        #4D4738;
+  /* Material-compat — dark */
+  --md-primary: #FFE600;
+  --md-on-primary: #1A1A24;
+  --md-primary-container: #FFE600;
+  --md-on-primary-container: #1A1A24;
 
-  --md-error:                  #F2B8B5;
-  --md-error-container:        #8C1D18;
-  --md-success:                #6FDB8B;
-  --md-success-container:      #005223;
+  --md-surface: #1A1A24;
+  --md-surface-variant: #2E2E38;
+  --md-surface-container: #23232E;
+  --md-surface-container-high: #2E2E38;
+
+  --md-on-surface: #FFFFFF;
+  --md-on-surface-variant: #9A9AA6;
+
+  --md-outline: #4A4A57;
+  --md-outline-variant: #34343F;
+
+  --md-error: #FF6B63;
+  --md-error-container: #4A1512;
+  --md-success: #57E188;
+  --md-success-container: #0F3D22;
 }
 
 /* ── Base Reset ────────────────────────────── */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background-color: var(--md-surface);
   color: var(--md-on-surface);
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ── EY doctrine: squared corners + flat (no shadow) ──
+   Applied globally so every existing page inherits the EY look. EY uses
+   squares everywhere (avatars, pills, dots included) — this is intentional. */
+[class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+[class*="shadow"] {
+  box-shadow: none !important;
+}
+
+/* Loading spinners stay circular despite the squared-corner doctrine */
+.animate-spin {
+  border-radius: 9999px !important;
+}
+
+/* ── Focus: always-visible EY yellow ring ── */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ey-yellow);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--ey-yellow);
+  color: var(--ey-black);
 }
 
 /* ── MD3 Elevation Shadows ─────────────────── */
 .md3-elevation-1 {
-  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 1px 3px 1px rgba(0, 0, 0, .06);
 }
+
 .md3-elevation-2 {
-  box-shadow: 0 1px 2px rgba(0,0,0,.15), 0 2px 6px 2px rgba(0,0,0,.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .15), 0 2px 6px 2px rgba(0, 0, 0, .08);
 }
 
 /* ── MD3 Card ──────────────────────────────── */
@@ -94,7 +193,7 @@ html, body {
   background-color: var(--md-surface-container-high);
   border: 1px solid var(--md-outline-variant);
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 1px 3px 1px rgba(0, 0, 0, .06);
 }
 
 /* ── Chat Modal Markdown ───────────────────── */
@@ -109,7 +208,9 @@ html, body {
   color: #ffffff !important;
 }
 
-.chat-markdown { line-height: 1.6; }
+.chat-markdown {
+  line-height: 1.6;
+}
 
 .chat-markdown h1,
 .chat-markdown h2,
@@ -148,8 +249,15 @@ html, body {
   line-height: 1.55;
 }
 
-.chat-markdown strong { font-weight: 600; color: #000000 !important; }
-.chat-markdown em     { font-style: italic; color: #4b5563 !important; }
+.chat-markdown strong {
+  font-weight: 600;
+  color: #000000 !important;
+}
+
+.chat-markdown em {
+  font-style: italic;
+  color: #4b5563 !important;
+}
 
 .chat-markdown code {
   font-size: 0.8rem;
@@ -208,31 +316,69 @@ html, body {
   background: #f9fafb;
 }
 
-.chat-markdown a { color: #2563eb !important; text-decoration: underline; }
-
-/* ── Typography ────────────────────────────── */
-h1 {
-  font-size: clamp(1.75rem, 4vw, 3rem);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  margin-bottom: 1.5rem;
+.chat-markdown a {
+  color: #2563eb !important;
+  text-decoration: underline;
 }
 
-h2 {
-  font-size: clamp(1.25rem, 2.5vw, 1.875rem);
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  margin-bottom: 1rem;
+/* ── Typography (EY: bold, tight tracking) ──
+   IMPORTANT: keep these in @layer base so Tailwind utility classes
+   (text-*, m-*, leading-*) properly OVERRIDE them. Unlayered element
+   rules beat utilities in Tailwind v4 and broke headers/headings. */
+@layer base {
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  p {
+    line-height: 1.55;
+  }
 }
 
-h3 {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  font-weight: 500;
-  margin-bottom: 0.75rem;
+/* ── Custom scrollbars (EY: thin, squared, theme-aware) ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bd) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--bd);
+  border: 2px solid var(--surface);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
-p {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--md-on-surface-variant);
+/* ── Skeleton loader shimmer ── */
+@keyframes ey-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.ey-skeleton {
+  background-image: linear-gradient(90deg, var(--track) 25%, var(--hair) 37%, var(--track) 63%);
+  background-size: 200% 100%;
+  animation: ey-shimmer 1.4s ease-in-out infinite;
 }

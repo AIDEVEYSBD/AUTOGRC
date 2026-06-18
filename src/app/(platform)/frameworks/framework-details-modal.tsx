@@ -112,9 +112,10 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-7xl max-h-[90vh] bg-md-surface-container rounded-xl shadow-xl flex flex-col">
+      <div className="w-full max-w-7xl max-h-[90vh] bg-md-surface-container border border-md-outline-variant flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-md-outline-variant flex items-center justify-between" style={{ backgroundColor: "var(--md-primary-container)" }}>
+        <div className="relative px-6 py-4 border-b border-md-outline-variant flex items-center justify-between bg-md-surface-container">
+          <div className="absolute left-0 right-0 top-0 h-1" style={{ background: "#FFE600" }} />
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-2xl font-bold text-md-on-surface">
@@ -147,8 +148,8 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
           {/* Sidebar - Domain filter */}
           <aside className="w-64 border-r border-md-outline-variant bg-md-surface-container overflow-y-auto">
             <div
-              className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider text-md-on-surface border-b border-md-outline-variant"
-              style={{ backgroundColor: "var(--md-primary-container)" }}
+              className="h-12 px-4 flex items-center text-xs font-bold uppercase tracking-wider text-md-on-surface-variant border-b border-md-outline-variant"
+              style={{ backgroundColor: "var(--md-surface-variant)" }}
             >
               Control Domains
             </div>
@@ -159,7 +160,7 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
                   "w-full text-left px-3 py-3 rounded transition-colors text-sm font-bold",
                   !selectedDomain
                     ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
-                    : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
+                    : "bg-md-surface-container-high border border-md-outline-variant text-md-on-surface hover:bg-md-surface-variant",
                 ].join(" ")}
               >
                 All Domains
@@ -178,7 +179,7 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
                       "w-full text-left px-3 py-3 rounded transition-colors text-sm font-bold",
                       active
                         ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
-                        : "bg-[#2e2e38] hover:bg-[#3e3e48] text-white",
+                        : "bg-md-surface-container-high border border-md-outline-variant text-md-on-surface hover:bg-md-surface-variant",
                     ].join(" ")}
                   >
                     {domain}
@@ -193,11 +194,11 @@ export function FrameworkDetailsModal({ framework: initialFramework, onClose }: 
 
           {/* Main content - Table format */}
           <div className="flex-1 overflow-y-auto bg-md-surface-container">
-            <div className="border-b border-md-outline-variant" style={{ backgroundColor: "var(--md-primary-container)" }}>
+            <div className="sticky top-0 z-10 border-b border-md-outline-variant" style={{ backgroundColor: "var(--md-surface-variant)" }}>
               <div className="grid grid-cols-[200px_1fr_120px] h-12 items-center px-4">
-                <div className="text-sm font-bold text-md-on-surface">Control ID</div>
-                <div className="text-sm font-bold text-md-on-surface">Control Details</div>
-                <div className="text-sm font-bold text-md-on-surface text-right">Actions</div>
+                <div className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Control ID</div>
+                <div className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Control Details</div>
+                <div className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant text-right">Actions</div>
               </div>
             </div>
 
