@@ -35,22 +35,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const accessClaims = safeDecodeClaims(account.access_token as string | undefined);
         const next = applyProfileToToken(token, claims, account, [claims, idClaims, accessClaims]);
 
-        if (process.env.AUTH_DEBUG === "1") {
-          const at = account.access_token as string | undefined;
-          console.log("[sso] sign-in claims", {
-            hasAccessToken: !!at,
-            accessTokenDots: at ? (at.match(/\./g)?.length ?? 0) : 0, // 2 ⇒ JWT, 0 ⇒ opaque
-            accessTokenLen: at?.length ?? 0,
-            tokenType: (account as Record<string, unknown>).token_type,
-            profileRoles: claims["autox:roles"],
-            profileAppRoles: claims["autox:app_roles"],
-            accessTokenRoles: accessClaims?.["autox:roles"],
-            accessTokenAppRoles: accessClaims?.["autox:app_roles"],
-            accessTokenKeys: accessClaims ? Object.keys(accessClaims) : null,
-            orgs: claims["autox:orgs"],
-            resolvedRole: next.role,
-          });
-        }
         // Provision AFTER authentication, keyed by the stable `sub` — never a gate.
         try {
           if (next.sub) {
