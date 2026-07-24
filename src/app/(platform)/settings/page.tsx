@@ -2,7 +2,7 @@ import "server-only";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
-import { getSession } from "@/lib/auth";
+import { auth } from "@/auth";
 import { getIntegrations } from "@/lib/integrations.queries";
 import { Card, CardTitle, statusColor } from "@/components/ey/ui";
 import UsersPanel from "./users-panel";
@@ -12,9 +12,9 @@ export const runtime = "nodejs";
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
-  const session = await getSession();
+  const session = await auth();
   // Settings is an admin-only surface (user management, integrations).
-  if (session?.role !== "admin") redirect("/overview");
+  if (session?.user?.role !== "admin") redirect("/overview");
 
   let integrations: Awaited<ReturnType<typeof getIntegrations>> = [];
   try { integrations = await getIntegrations(); } catch { integrations = []; }
@@ -55,8 +55,8 @@ export default async function SettingsPage() {
         </div>
       </Card>
 
-      {/* Users & roles (real) */}
-      <UsersPanel canManage />
+      {/* Provisioned users (read-only — identity & access managed in AutoX ID) */}
+      <UsersPanel />
     </div>
   );
 }

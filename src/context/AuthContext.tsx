@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
 
 export interface AppUser {
   id?: string;
@@ -31,15 +30,14 @@ export function AuthProvider({
   initialAuth: boolean;
   initialUser?: AppUser | null;
 }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
+  const [isAuthenticated] = useState(initialAuth);
   const [user] = useState<AppUser | null>(initialUser);
-  const router = useRouter();
 
+  // RP-initiated logout: a top-level navigation so the server can redirect the
+  // browser through the AutoX ID end_session_endpoint (see /api/auth/logout).
   const logout = useCallback(async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    setIsAuthenticated(false);
-    router.push('/login');
-  }, [router]);
+    window.location.href = '/api/auth/logout';
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, logout }}>

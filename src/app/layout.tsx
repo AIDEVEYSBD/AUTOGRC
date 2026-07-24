@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Metadata } from "next";
-import { getSession } from "@/lib/auth";
+import { auth } from "@/auth";
 import { AuthProvider } from "@/context/AuthContext";
 import ChatBubble from "@/components/Chatbot/ChatBubble";
 
@@ -20,10 +20,15 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
-  const isAuthenticated = !!session;
-  const initialUser = session
-    ? { id: session.sub, name: session.name, email: session.email, role: session.role }
+  const session = await auth();
+  const isAuthenticated = !!session?.user;
+  const initialUser = session?.user
+    ? {
+        id: session.user.id ?? "",
+        name: session.user.name ?? "",
+        email: session.user.email ?? "",
+        role: session.user.role ?? "viewer",
+      }
     : null;
 
   return (

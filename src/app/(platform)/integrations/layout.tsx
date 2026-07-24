@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: "Integrations",
@@ -12,8 +12,9 @@ export default async function IntegrationsLayout({
   children: React.ReactNode;
 }) {
   // Integrations management is restricted to admins and compliance leads.
-  const session = await getSession();
-  if (!session || !["admin", "compliance_lead"].includes(session.role)) {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!role || !["admin", "compliance_lead"].includes(role)) {
     redirect("/overview");
   }
   return <>{children}</>;
