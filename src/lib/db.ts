@@ -17,14 +17,20 @@ declare global {
 // Neon low-level driver (edge safe)
 const sql = neon(DATABASE_URL)
 
-// Postgres client with nice ergonomics
+// Postgres client with nice ergonomics.
+// NOTE: Neon scales the compute to zero when idle, so the first query after a
+// cold start can take several seconds. A short connect_timeout (10s) caused
+// intermittent `CONNECT_TIMEOUT` errors — give cold starts generous headroom.
+// We connect through Neon's pooler endpoint (-pooler in DATABASE_URL), so a
+// small pool is safe even on serverless.
 export const db =
   global.__AUTOGRC_DB__ ??
   postgres(DATABASE_URL, {
     ssl: "require",
-    max: 1, // important for serverless
-    idle_timeout: 20,
-    connect_timeout: 10,
+    max: 5,
+    idle_timeout: 30,
+    connect_timeout: 30, // allow time for Neon cold starts
+    max_lifetime: 60 * 30, // recycle connections every 30 min
   })
 
 if (process.env.NODE_ENV !== "production") {

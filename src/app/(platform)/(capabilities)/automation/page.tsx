@@ -592,8 +592,34 @@ export default function AutomationsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-md-on-surface-variant">Loading automations...</div>
+      <div className="space-y-8 p-6" aria-busy="true" aria-label="Loading automations">
+        {/* Header */}
+        <div className="flex flex-col gap-3">
+          <div className="ey-skeleton h-7 w-64" />
+          <div className="ey-skeleton h-4 w-full max-w-2xl" />
+        </div>
+        {/* KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="border border-md-outline-variant bg-md-surface-container p-5 flex flex-col gap-3 min-h-[110px]">
+              <div className="ey-skeleton h-3 w-1/2" />
+              <div className="ey-skeleton h-9 w-2/3" />
+            </div>
+          ))}
+        </div>
+        {/* List */}
+        <div className="space-y-4">
+          <div className="ey-skeleton h-6 w-56" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="border border-md-outline-variant bg-md-surface-container p-6 flex items-center justify-between gap-4">
+              <div className="flex flex-1 flex-col gap-2 min-w-0">
+                <div className="ey-skeleton h-4 w-1/3" />
+                <div className="ey-skeleton h-3 w-2/3" />
+              </div>
+              <div className="ey-skeleton h-8 w-24" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -795,7 +821,11 @@ export default function AutomationsPage() {
                       </div>
 
                       {isLoadingRuns ? (
-                        <div className="text-sm text-md-on-surface-variant py-4">Loading runs...</div>
+                        <div className="py-4 space-y-2">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="ey-skeleton h-4 w-full" />
+                          ))}
+                        </div>
                       ) : runs.length === 0 ? (
                         <div className="text-sm text-md-on-surface-variant py-4">
                           No runs yet. Execute the automation to see results here.

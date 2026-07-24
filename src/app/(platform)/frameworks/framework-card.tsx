@@ -57,9 +57,9 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
     <>
       <div
         onClick={handleCardClick}
-        className={`rounded-xl border bg-md-surface-container p-6 shadow-sm transition-all hover:shadow-md cursor-pointer ${
-          isDeactivated ? "border-md-outline opacity-60" : "border-md-outline-variant"
-        } ${isPending ? "opacity-50" : ""}`}
+        className={`relative border bg-md-surface-container p-6 transition-colors cursor-pointer ${
+          isDeactivated ? "border-md-outline opacity-60" : "border-md-outline-variant hover:border-[#FFE600]"
+        } ${isPending ? "cursor-wait" : ""}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -157,8 +157,11 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
         </div>
 
         {isPending && (
-          <div className="mt-2 text-xs text-center text-md-on-surface-variant">
-            Loading framework details...
+          <div className="absolute right-3 top-3">
+            <svg className="h-4 w-4 animate-spin text-md-on-surface-variant" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+              <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" />
+            </svg>
           </div>
         )}
       </div>

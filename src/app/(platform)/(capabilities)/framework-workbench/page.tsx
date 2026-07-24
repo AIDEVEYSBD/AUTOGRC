@@ -1409,7 +1409,7 @@ export default function FrameworkWorkbenchPage() {
   )
 
   return (
-    <div className="flex flex-col h-full space-y-4 p-5">
+    <div className="flex flex-col lg:h-full gap-4 p-4 sm:p-5 min-w-0">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div>
         <h1 className="text-2xl font-bold text-md-on-surface">Framework Workbench</h1>
@@ -1420,77 +1420,71 @@ export default function FrameworkWorkbenchPage() {
         </p>
       </div>
 
-      {/* ── Filters + KPI Row ──────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm flex-shrink-0">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3 flex-shrink-0">
-            <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Sector</label>
-              <select value={selectedSector} onChange={(e) => setSelectedSector(e.target.value)}
-                className="border border-md-outline-variant rounded-lg px-3 py-1.5 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container min-w-[160px]">
-                <option value="All">All Sectors</option>
-                {ALL_SECTORS.filter((s) => s !== "All Sectors").map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Geography</label>
-              <select value={selectedGeo} onChange={(e) => setSelectedGeo(e.target.value)}
-                className="border border-md-outline-variant rounded-lg px-3 py-1.5 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container min-w-[160px]">
-                <option value="All">All Geographies</option>
-                {ALL_GEOS.map((g) => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </div>
+      {/* ── Filters + KPIs ──────────────────────────────────────────────────── */}
+      <div className="rounded-xl border border-md-outline-variant bg-md-surface-container p-4 shadow-sm flex-shrink-0 flex flex-col gap-4">
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3">
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Sector</label>
+            <select value={selectedSector} onChange={(e) => setSelectedSector(e.target.value)}
+              className="border border-md-outline-variant rounded-lg px-3 py-1.5 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container w-full sm:w-auto sm:min-w-[160px]">
+              <option value="All">All Sectors</option>
+              {ALL_SECTORS.filter((s) => s !== "All Sectors").map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
           </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Geography</label>
+            <select value={selectedGeo} onChange={(e) => setSelectedGeo(e.target.value)}
+              className="border border-md-outline-variant rounded-lg px-3 py-1.5 text-sm bg-md-surface text-md-on-surface focus:outline-none focus:ring-2 focus:ring-md-primary-container w-full sm:w-auto sm:min-w-[160px]">
+              <option value="All">All Geographies</option>
+              {ALL_GEOS.map((g) => <option key={g} value={g}>{g}</option>)}
+            </select>
+          </div>
+        </div>
 
-          <div className="hidden lg:block w-px self-stretch bg-md-outline-variant" />
-
-          {/* KPI cards */}
-          <div className="flex flex-wrap gap-3 flex-1">
-            {[
-              { label: "Regulations", value: filteredRegs.length },
-              { label: "Acts / Articles", value: filteredArticles.length },
-              { label: "Sectors Covered", value: uniqueSectors },
-              { label: "Geographies", value: uniqueGeos },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface px-4 py-3 min-w-[110px]">
-                <span className="text-xs font-medium text-md-on-surface-variant leading-snug">{label}</span>
-                <span className="text-2xl font-bold text-md-on-surface mt-1">{value}</span>
+        {/* KPI stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {[
+            { label: "Regulations", value: filteredRegs.length, badge: null as number | null },
+            { label: "Acts / Articles", value: filteredArticles.length, badge: null as number | null },
+            { label: "Sectors Covered", value: uniqueSectors, badge: null as number | null },
+            { label: "Geographies", value: uniqueGeos, badge: null as number | null },
+            { label: "Enforceable next 1 yr", value: enforceableNextYear, badge: nextYear },
+          ].map(({ label, value, badge }) => (
+            <div key={label} className="flex flex-col justify-between rounded-lg border border-md-outline-variant bg-md-surface px-4 py-3 min-w-0">
+              <span className="text-xs font-medium text-md-on-surface-variant leading-snug">{label}</span>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="text-2xl font-bold text-md-on-surface">{value}</span>
+                {badge != null && (
+                  <span className="text-[11px] font-bold px-1.5 py-0.5"
+                    style={{ backgroundColor: "var(--md-primary-container)", color: "var(--md-on-primary-container)" }}>
+                    {badge}
+                  </span>
+                )}
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
 
-            {/* Summary + Timeline */}
-            <div className="flex flex-col gap-2 rounded-lg border border-md-outline-variant bg-md-surface px-4 py-3 flex-1 min-w-[280px]">
-              <span className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Enforcement Timeline</span>
-              <div className="flex items-start gap-4">
-                <div className="flex flex-col flex-shrink-0">
-                  <span className="text-xs text-md-on-surface-variant leading-snug">Enforceable next 1 yr</span>
-                  <div className="flex items-baseline gap-1.5 mt-1">
-                    <span className="text-2xl font-bold text-md-on-surface">{enforceableNextYear}</span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                      style={{ backgroundColor: "var(--md-primary-container)", color: "var(--md-on-primary-container)" }}>
-                      {nextYear}
-                    </span>
-                  </div>
-                </div>
-                <div className="w-px self-stretch bg-md-outline-variant flex-shrink-0" />
-                <div className="flex-1 min-w-[200px]">
-                  <TimelineChart data={trendData} />
-                </div>
-              </div>
+        {/* Enforcement timeline — full width; scrolls horizontally so it never overflows */}
+        <div className="rounded-lg border border-md-outline-variant bg-md-surface px-4 py-3">
+          <span className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Enforcement timeline</span>
+          <div className="mt-3 overflow-x-auto pb-1">
+            <div className="min-w-[480px]">
+              <TimelineChart data={trendData} />
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Two-panel layout ───────────────────────────────────────────────── */}
-      <div className="flex gap-4 flex-1 min-h-0">
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
         {/* Left panel */}
-        <div className="w-52 flex-shrink-0 rounded-xl border border-md-outline-variant bg-md-surface-container overflow-hidden shadow-sm flex flex-col">
+        <div className="w-full lg:w-52 flex-shrink-0 rounded-xl border border-md-outline-variant bg-md-surface-container overflow-hidden shadow-sm flex flex-col">
           <div className="px-3 py-2.5 border-b border-md-outline-variant flex-shrink-0">
             <h2 className="text-xs font-bold uppercase tracking-wide text-md-on-surface-variant">Regulations</h2>
           </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1 max-h-72 lg:max-h-none">
             {filteredRegs.length === 0 ? (
               <p className="text-xs text-md-on-surface-variant p-3 text-center">No matches.</p>
             ) : (
@@ -1513,7 +1507,7 @@ export default function FrameworkWorkbenchPage() {
         </div>
 
         {/* Right panel */}
-        <div className="flex-1 rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden flex flex-col min-h-0">
+        <div className="flex-1 min-w-0 rounded-xl border border-md-outline-variant bg-md-surface-container shadow-sm overflow-hidden flex flex-col min-h-[60vh] lg:min-h-0">
           {selectedReg ? (
             <>
               {/* Regulation header */}
