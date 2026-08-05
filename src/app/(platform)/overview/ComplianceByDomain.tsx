@@ -222,8 +222,8 @@ export function ComplianceByDomain({
             {/* Left rail: domains */}
             <aside className="border-b md:border-b-0 md:border-r border-md-outline-variant bg-md-surface-container">
               <div
-                className="h-12 px-4 flex items-center text-sm font-bold uppercase tracking-wider border-b border-md-outline-variant"
-                style={{ backgroundColor: "var(--md-primary-container)", color: "var(--md-on-primary-container)" }}
+                className="h-12 px-4 flex items-center text-xs font-bold uppercase tracking-wider border-b border-md-outline-variant"
+                style={{ backgroundColor: "var(--md-surface-variant)", color: "var(--md-on-surface-variant)" }}
               >
                 Security Domains
               </div>
@@ -236,10 +236,10 @@ export function ComplianceByDomain({
                       key={domain.id}
                       onClick={() => handleDomainClick(domain.name)}
                       className={[
-                        "w-full rounded-md p-4 flex items-center justify-between transition-all duration-200 group text-left",
+                        "w-full p-4 flex items-center justify-between transition-all duration-200 group text-left border",
                         isSelected
-                          ? "bg-md-primary-container text-md-on-primary-container shadow-sm"
-                          : "bg-md-primary hover:opacity-80 text-md-on-primary",
+                          ? "bg-md-primary-container text-md-on-primary-container border-md-primary-container"
+                          : "bg-md-surface-container-high text-md-on-surface border-md-outline-variant hover:bg-md-surface-variant",
                       ].join(" ")}
                     >
                       <div className="flex-1">
@@ -247,7 +247,7 @@ export function ComplianceByDomain({
                         <div
                           className={[
                             "text-sm mt-0.5",
-                            isSelected ? "text-md-on-primary-container/70" : "text-md-on-primary/70",
+                            isSelected ? "text-md-on-primary-container/70" : "text-md-on-surface-variant",
                           ].join(" ")}
                         >
                           {domain.controls} controls
@@ -260,7 +260,7 @@ export function ComplianceByDomain({
                           <span
                             className={[
                               "text-xs font-semibold",
-                              isSelected ? "text-md-on-primary-container" : "text-md-on-primary",
+                              isSelected ? "text-md-on-primary-container" : "text-md-on-surface",
                             ].join(" ")}
                           >
                             {domain.avgCompliance}% avg
@@ -273,7 +273,7 @@ export function ComplianceByDomain({
                           "w-5 h-5 transition-all duration-200 flex-shrink-0 ml-2",
                           isSelected
                             ? "text-md-on-primary-container"
-                            : "text-md-on-primary/60 group-hover:text-md-on-primary group-hover:translate-x-1",
+                            : "text-md-on-surface-variant group-hover:text-md-on-surface group-hover:translate-x-1",
                         ].join(" ")}
                         fill="none"
                         stroke="currentColor"
@@ -299,10 +299,10 @@ export function ComplianceByDomain({
                   {/* Sticky header inside same scroll container */}
                   <div
                     className="sticky top-0 z-10 border-b border-md-outline-variant"
-                    style={{ backgroundColor: "var(--md-primary-container)" }}
+                    style={{ backgroundColor: "var(--md-surface-variant)" }}
                   >
                     <div className="grid" style={{ gridTemplateColumns }}>
-                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-primary-container">
+                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-surface">
                         <span>Control</span>
                         <FilterDropdown
                           label="Control ID"
@@ -311,7 +311,7 @@ export function ComplianceByDomain({
                           onClear={() => setControlIdFilter("")}
                         />
                       </div>
-                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-primary-container">
+                      <div className="h-12 px-4 flex items-center gap-2 font-bold text-md-on-surface">
                         <span>Control Statement</span>
                         <FilterDropdown
                           label="Control Statement"
@@ -320,13 +320,13 @@ export function ComplianceByDomain({
                           onClear={() => setStatementFilter("")}
                         />
                       </div>
-                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-primary-container text-center">
+                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-surface text-center">
                         Compliant
                       </div>
-                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-primary-container text-center">
+                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-surface text-center">
                         Non-Compliant
                       </div>
-                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-primary-container text-center">
+                      <div className="h-12 px-4 flex items-center justify-center font-bold text-md-on-surface text-center">
                         Avg Score
                       </div>
                     </div>
@@ -334,13 +334,16 @@ export function ComplianceByDomain({
 
                   {/* Content */}
                   {isLoading ? (
-                    <div className="p-6">
-                      <div className="flex flex-col items-center justify-center bg-md-surface-container rounded-xl p-12 border border-md-outline-variant">
-                        <div className="w-12 h-12 border-4 border-md-primary-container border-t-transparent rounded-full animate-spin mb-4" />
-                        <p className="text-base font-bold text-md-on-surface">
-                          Loading controls...
-                        </p>
-                      </div>
+                    <div>
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="grid border-b border-md-outline-variant" style={{ gridTemplateColumns }}>
+                          {Array.from({ length: 5 }).map((_, j) => (
+                            <div key={j} className="px-4 py-4">
+                              <div className="ey-skeleton h-4" style={{ width: j === 1 ? "90%" : "60%" }} />
+                            </div>
+                          ))}
+                        </div>
+                      ))}
                     </div>
                   ) : visibleControls.length === 0 ? (
                     <div className="p-6">

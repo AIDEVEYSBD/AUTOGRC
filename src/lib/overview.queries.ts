@@ -688,3 +688,130 @@ export async function getApplicabilityMetrics(
     totalControls: Number(metric.totalControls),
   }))
 }
+
+/* =========================
+   Dashboard (EY) — extra real-data queries
+========================= */
+
+export type ControlAutomation = { automated: number; total: number; pct: number }
+export type TestStatusSlice = { label: string; n: number; pct: number; color: string }
+export type ActivityItem = { text: string; meta: string; color: string }
+
+/** Controls automation coverage (controls.is_automated). */
+export async function getControlsAutomation(): Promise<ControlAutomation> {
+  const rows = await db<{ automated: string; total: string }[]>`
+    SELECT
+      COUNT(*) FILTER (WHERE is_automated = true) AS automated,
+      COUNT(*) AS total
+    FROM controls
+  `
+  const automated = Number(rows[0]?.automated ?? 0)
+  const total = Number(rows[0]?.total ?? 0)
+  return { automated, total, pct: total > 0 ? Math.round((automated / total) * 100) : 0 }
+}
+
+/** Total active (non-master) frameworks. */
+export async function getActiveFrameworkCount(): Promise<number> {
+  const rows = await db<{ c: string }[]>`SELECT COUNT(*) AS c FROM frameworks WHERE is_master = false`
+  return Number(rows[0]?.c ?? 0)
+}
+
+/** Control test status distribution from control_assessments.final_status. */
+export async function getControlTestStatus(): Promise<TestStatusSlice[]> {
+  const rows = await db<{ final_status: string; n: string }[]>`
+    SELECT final_status, COUNT(*) AS n FROM control_assessments GROUP BY final_status
+  `
+  const map: Record<string, { label: string; color: string }> = {
+    Compliant: { label: "Passed", color: "#2DB757" },
+    "Partial Gap": { label: "Partial", color: "#FF810A" },
+    "Not Compliant": { label: "Failed", color: "#FF4136" },
+    "Not Applicable": { label: "Not applicable", color: "#747480" },
+  }
+  const total = rows.reduce((s, r) => s + Number(r.n), 0)
+  const order = ["Compliant", "Partial Gap", "Not Compliant", "Not Applicable"]
+  return order
+    .map((key) => {
+      const row = rows.find((r) => r.final_status === key)
+      const n = Number(row?.n ?? 0)
+      const meta = map[key]
+      return { label: meta.label, n, pct: total > 0 ? Math.round((n / total) * 100) : 0, color: meta.color }
+    })
+    .filter((s) => s.n > 0)
+}
+
+function relativeTime(d: Date | null | undefined): string {
+  if (!d) return ""
+  const ms = Date.now() - new Date(d).getTime()
+  const min = Math.round(ms / 60000)
+  if (min < 1) return "just now"
+  if (min < 60) return `${min}m ago`
+  const h = Math.round(min / 60)
+  if (h < 24) return `${h}h ago`
+  const days = Math.round(h / 24)
+  if (days < 30) return `${days}d ago`
+  return new Date(d).toLocaleDateString()
+}
+
+/** Recent activity feed unioned across run/assessment tables (real timestamps). */
+export async function getRecentActivity(limit = 6): Promise<ActivityItem[]> {
+  const items: { ts: Date; text: string; source: string; color: string }[] = []
+
+  const push = (ts: Date | null | undefined, text: string, source: string, color: string) => {
+    if (ts) items.push({ ts: new Date(ts), text, source, color })
+  }
+
+  await Promise.all([
+    db<{ ts: Date; app: string; code: string; status: string }[]>`
+      SELECT ca.assessed_at AS ts, a.name AS app, c.control_code AS code, ca.final_status AS status
+      FROM control_assessments ca
+      JOIN applications a ON a.id = ca.application_id
+      JOIN controls c ON c.id = ca.control_id
+      ORDER BY ca.assessed_at DESC LIMIT 4
+    `.then((rows) =>
+      rows.forEach((r) =>
+        push(r.ts, `Control ${r.code} assessed “${r.status}” on ${r.app}`, "Continuous testing",
+          r.status === "Compliant" ? "#2DB757" : r.status === "Not Compliant" ? "#FF4136" : "#FF810A")
+      )
+    ).catch(() => {}),
+
+    db<{ ts: Date; src: string; tgt: string }[]>`
+      SELECT r.completed_at AS ts, sf.name AS src, tf.name AS tgt
+      FROM framework_map_runs r
+      JOIN frameworks sf ON sf.id = r.source_framework_id
+      JOIN frameworks tf ON tf.id = r.target_framework_id
+      WHERE r.completed_at IS NOT NULL
+      ORDER BY r.completed_at DESC LIMIT 3
+    `.then((rows) =>
+      rows.forEach((r) => push(r.ts, `Mapped ${r.src} to ${r.tgt}`, "Mapping engine", "#188CE5"))
+    ).catch(() => {}),
+
+    db<{ ts: Date; name: string; status: string }[]>`
+      SELECT ar.started_at AS ts, au.name AS name, ar.status AS status
+      FROM automation_runs ar
+      JOIN automations au ON au.id = ar.automation_id
+      ORDER BY ar.started_at DESC LIMIT 3
+    `.then((rows) =>
+      rows.forEach((r) =>
+        push(r.ts, `Automation “${r.name}” ${String(r.status).toLowerCase()}`, "Automation",
+          /fail|error/i.test(r.status) ? "#FF4136" : "#2DB757")
+      )
+    ).catch(() => {}),
+
+    db<{ ts: Date; name: string; status: string }[]>`
+      SELECT ir.started_at AS ts, i.display_name AS name, ir.status AS status
+      FROM integration_runs ir
+      JOIN integrations i ON i.id = ir.integration_id
+      ORDER BY ir.started_at DESC LIMIT 3
+    `.then((rows) =>
+      rows.forEach((r) =>
+        push(r.ts, `${r.name} sync ${String(r.status).toLowerCase()}`, "Integration",
+          /fail|error|partial/i.test(r.status) ? "#FF810A" : "#2DB757")
+      )
+    ).catch(() => {}),
+  ])
+
+  return items
+    .sort((a, b) => b.ts.getTime() - a.ts.getTime())
+    .slice(0, limit)
+    .map((i) => ({ text: i.text, meta: `${i.source} · ${relativeTime(i.ts)}`, color: i.color }))
+}

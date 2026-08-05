@@ -9,265 +9,155 @@ import {
   getApplicationsMatrix,
   getSecurityDomains,
   getControlsByDomain,
+  getControlsAutomation,
+  getControlTestStatus,
+  getRecentActivity,
+  getActiveFrameworkCount,
 } from "@/lib/overview.queries"
 import { ComplianceByDomain } from "./ComplianceByDomain"
 import { ApplicationsTable } from "./ApplicationsTable"
 import { fetchControlsByDomain } from "./actions"
+import { Card, CardTitle, Bar } from "@/components/ey/ui"
+
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Overview",
-};
-/* =========================
-   Helpers
-========================= */
-
-function ringColor(p: number) {
-  if (p >= 70) return "#22c55e"
-  if (p >= 40) return "#f59e0b"
-  return "#ef4444"
-}
-
-/* =========================
-   TRUE Donut (SVG)
-========================= */
-
-function Donut({
-  percent,
-  size = 88,
-  stroke = 10,
-}: {
-  percent: number
-  size?: number
-  stroke?: number
-}) {
-  const radius = (size - stroke) / 2
-  const circumference = 2 * Math.PI * radius
-  const color = ringColor(percent)
-  
-  // Calculate the arc path
-  const center = size / 2
-  const startAngle = -90 // Start at top
-  const endAngle = startAngle + (percent / 100) * 360
-  
-  const startRad = (startAngle * Math.PI) / 180
-  const endRad = (endAngle * Math.PI) / 180
-  
-  const x1 = center + radius * Math.cos(startRad)
-  const y1 = center + radius * Math.sin(startRad)
-  const x2 = center + radius * Math.cos(endRad)
-  const y2 = center + radius * Math.sin(endRad)
-  
-  const largeArc = percent > 50 ? 1 : 0
-
-  return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg width={size} height={size} style={{ transform: 'rotate(0deg)' }}>
-        {/* Background circle */}
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="transparent"
-          stroke="var(--md-outline-variant)"
-          strokeWidth={stroke}
-        />
-        
-        {/* Progress arc */}
-        {percent > 0 && (
-          <path
-            d={`M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`}
-            fill="transparent"
-            stroke={color}
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            style={{
-              animation: 'fadeInArc 1s ease-out forwards',
-              opacity: 0,
-            }}
-          />
-        )}
-      </svg>
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes fadeInArc {
-            from {
-              opacity: 0;
-            }
-            to {
-              opacity: 1;
-            }
-          }
-          @keyframes fadeInText {
-            from {
-              opacity: 0;
-            }
-            to {
-              opacity: 1;
-            }
-          }
-        `
-      }} />
-
-      <span
-        className="absolute text-lg font-bold text-md-on-surface"
-        style={{
-          animation: 'fadeInText 0.5s ease-out 0.8s forwards',
-          opacity: 0,
-        }}
-      >
-        {percent}%
-      </span>
-    </div>
-  )
-}
-
-/* =========================
-   Page
-========================= */
+import { Metadata } from "next"
+export const metadata: Metadata = { title: "Overview" }
 
 export default async function OverviewPage() {
   const masterFrameworkId = await getMasterFrameworkId()
-  if (!masterFrameworkId)
-    return <EmptyState msg="No master framework configured." />
+  if (!masterFrameworkId) return <EmptyState msg="No master framework configured." />
 
-  const [kpis, rings, matrix, domains, masterFrameworkName] = await Promise.all([
-    getOverviewKPIs(masterFrameworkId),
-    getFrameworkRings(masterFrameworkId),
-    getApplicationsMatrix(masterFrameworkId),
-    getSecurityDomains(masterFrameworkId),
-    getMasterFrameworkName(masterFrameworkId),
-  ])
+  const [kpis, rings, matrix, domains, masterFrameworkName, automation, testStatus, activity, fwCount] =
+    await Promise.all([
+      getOverviewKPIs(masterFrameworkId),
+      getFrameworkRings(masterFrameworkId),
+      getApplicationsMatrix(masterFrameworkId),
+      getSecurityDomains(masterFrameworkId),
+      getMasterFrameworkName(masterFrameworkId),
+      getControlsAutomation(),
+      getControlTestStatus(),
+      getRecentActivity(6),
+      getActiveFrameworkCount(),
+    ])
 
-  // Calculate average failing controls per application
-  const avgFailingControlsPerApp = kpis.totalApplications > 0 
-    ? Math.round(kpis.failingMasterControls / kpis.totalApplications) 
-    : 0
-
-  // Get initial domain and controls
   const initialDomain = domains[0]?.name || null
-  const initialControls = initialDomain 
-    ? await getControlsByDomain(masterFrameworkId, initialDomain)
-    : []
+  const initialControls = initialDomain ? await getControlsByDomain(masterFrameworkId, initialDomain) : []
 
-  // Create callback for domain changes
   const handleDomainChange = async (domainName: string) => {
     "use server"
     return fetchControlsByDomain(masterFrameworkId, domainName)
   }
 
   return (
-    <div className="space-y-8 p-6">
-      {/* Header */}
-      <div className="max-w-4xl">
-        <h1 className="text-3xl font-bold text-md-on-surface">
-          Cybersecurity Compliance Dashboard
-        </h1>
-        <p className="mt-2 text-md-on-surface-variant">
-          Following section gives an overview of current state of organizations compliance vis-a-vis internal controls framework
-        </p>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-        <KPICard title="Applications Tested">
-          <div className="text-3xl font-bold text-md-on-surface">
-            {kpis.applicationsCovered}/{kpis.totalApplications}
+    <div className="flex flex-col gap-6">
+      {/* KPI row */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="relative flex min-h-[160px] flex-col gap-2 p-6">
+          <div className="absolute left-0 right-0 top-0 h-1" style={{ background: "#FFE600" }} />
+          <div className="text-[12px] font-bold text-muted">Compliance posture</div>
+          <div className="my-1 self-start px-2 text-[44px] font-bold leading-none sm:text-[52px]" style={{ background: "#FFE600", color: "#1A1A24", letterSpacing: "-0.035em" }}>
+            {kpis.averageComplianceScore}%
           </div>
-        </KPICard>
+          <div className="text-[13px] text-ink2">Across {fwCount} active frameworks</div>
+          <div className="mt-auto pt-2 text-[11px] text-muted">Master framework · {masterFrameworkName}</div>
+        </Card>
 
-        <KPICard title="Average Compliance Score">
-          <Donut percent={kpis.averageComplianceScore} />
-        </KPICard>
+        <Card className="flex min-h-[160px] flex-col gap-2 p-6">
+          <div className="text-[12px] font-bold text-muted">Controls automated</div>
+          <div className="text-[44px] font-bold leading-none text-ink sm:text-[52px]" style={{ letterSpacing: "-0.035em" }}>
+            {automation.automated.toLocaleString()}
+          </div>
+          <div className="text-[13px] text-ink2">of {automation.total.toLocaleString()} total controls</div>
+          <div className="mt-auto pt-2 text-[11px] text-muted">{automation.pct}% automation coverage</div>
+        </Card>
 
-        <KPICard title="Total Number of Failing Controls">
-          <div className="text-3xl font-bold text-md-on-surface">
+        <Card className="flex min-h-[160px] flex-col gap-2 p-6">
+          <div className="text-[12px] font-bold text-muted">Applications assessed</div>
+          <div className="text-[44px] font-bold leading-none text-ink sm:text-[52px]" style={{ letterSpacing: "-0.035em" }}>
+            {kpis.applicationsCovered}<span className="text-[24px] text-muted">/{kpis.totalApplications}</span>
+          </div>
+          <div className="text-[13px] text-ink2">applications with assessments</div>
+          <div className="mt-auto pt-2 text-[11px] text-muted">{kpis.masterCoveragePercent}% master control coverage</div>
+        </Card>
+
+        <Card className="flex min-h-[160px] flex-col gap-2 p-6">
+          <div className="text-[12px] font-bold text-muted">Failing controls</div>
+          <div className="text-[44px] font-bold leading-none text-ink sm:text-[52px]" style={{ letterSpacing: "-0.035em" }}>
             {kpis.failingMasterControls}
           </div>
-        </KPICard>
-
-        <KPICard title="Critical Apps at Risk">
-          <div className="text-3xl font-bold text-red-600">
-            {kpis.criticalApplicationsAtRisk}
-          </div>
-        </KPICard>
+          <div className="text-[13px] text-ink2">master controls scoring ≤ 50</div>
+          <div className="mt-auto pt-2 text-[11px] text-muted">{kpis.criticalApplicationsAtRisk} critical apps at risk</div>
+        </Card>
       </div>
 
-      {/* Framework Overlap */}
-      <GlassCard>
-        <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-          <div className="flex-1">
-            <Link href="/frameworks">
-              <h2 className="text-xl font-bold text-md-on-surface hover:underline cursor-pointer">
-                Internal Controls Framework
-              </h2>
-            </Link>
-
-            <p className="mt-1 text-sm text-md-on-surface-variant">
-              Following section give an overview of internal controls framework of the organization vis-a-vis industry leading frameworks like NIST, CIS, ISO, PCI DSS, etc.
-            </p>
-          </div>
-          
-          {/* Master Framework Card */}
-          <div className="rounded-xl border border-md-primary-container bg-md-surface-container p-6 shadow-sm transition-all hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-lg text-md-on-surface">
-                    {masterFrameworkName}
-                  </h3>
-                  
-                </div>
-                <p className="text-sm text-md-on-surface-variant mt-1">
-                  Current Internal Controls
-                  <br />
-                  Framework
-                </p>
+      {/* Framework coverage + test status */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="p-6 lg:col-span-2">
+          <CardTitle title="Compliance by framework" sub="Weighted coverage of mapped controls · Source: AutoGRC mapping engine" />
+          <div className="flex flex-col gap-3.5">
+            {rings.length === 0 && <div className="text-[13px] text-muted">No framework mappings yet.</div>}
+            {rings.map((f) => (
+              <div key={f.id} className="flex items-center gap-3.5">
+                <span className="w-28 flex-none truncate text-[12px] font-bold text-ink">{f.name}</span>
+                <Bar pct={f.percent} color="#1777CF" />
+                <span className="w-10 flex-none text-right text-[13px] font-bold text-ink">{f.percent}%</span>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
+        </Card>
 
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
-          {rings.map(fw => (
-            <div key={fw.id} className="flex flex-col items-center text-center">
-              <Donut percent={fw.percent} />
-              <p className="mt-3 text-sm font-semibold text-md-on-surface">
-                {fw.name}
-              </p>
-              <p className="mt-1 text-xs text-md-on-surface-variant">
-                {fw.fullOverlap} full · {fw.partialOverlap} partial
-              </p>
-              <p className="text-xs text-md-on-surface-variant opacity-60">
-                {fw.total} total
-              </p>
+        <Card className="p-6">
+          <CardTitle title="Control test status" sub={`${kpis.totalApplications} apps · latest assessments`} />
+          <div className="mb-4 flex h-4 w-full overflow-hidden">
+            {testStatus.map((t) => (
+              <div key={t.label} style={{ width: `${t.pct}%`, background: t.color }} />
+            ))}
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {testStatus.map((t) => (
+              <div key={t.label} className="flex items-center gap-2.5">
+                <span className="h-[11px] w-[11px] flex-none" style={{ background: t.color }} />
+                <span className="flex-1 text-[13px] text-ink2">{t.label}</span>
+                <span className="text-[13px] font-bold text-ink">{t.n.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Recent activity (real) */}
+      <Card className="flex flex-col p-6">
+        <CardTitle title="Recent activity" />
+        <div className="flex flex-col">
+          {activity.length === 0 && <div className="text-[13px] text-muted">No recent activity recorded.</div>}
+          {activity.map((a, i) => (
+            <div key={i} className="flex gap-3.5 border-t border-hair py-3 first:border-t-0">
+              <span className="mt-1.5 h-2.5 w-2.5 flex-none" style={{ background: a.color }} />
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-[13px] leading-snug text-ink">{a.text}</span>
+                <span className="text-[11px] text-muted">{a.meta}</span>
+              </div>
             </div>
           ))}
         </div>
-      </GlassCard>
+      </Card>
 
-      {/* Applications Compliance */}
-      <GlassCard>
+      {/* Preserved: Applications compliance matrix (real) */}
+      <Card className="p-6">
         <div className="mb-4">
           <Link href="/applications">
-            <h2 className="text-xl font-bold text-md-on-surface hover:underline cursor-pointer">
-              Applications Compliance Score
+            <h2 className="m-0 text-[16px] font-bold text-ink hover:underline" style={{ letterSpacing: "-0.02em" }}>
+              Applications compliance score
             </h2>
           </Link>
-
-          <p className="mt-1 text-sm text-md-on-surface-variant">
-            Following section gives an overview of compliance score of all applications vis-a-vis frameworks activated on the platform
-          </p>
+          <p className="mt-1 text-[12px] text-muted">Compliance of every application against frameworks activated on the platform</p>
         </div>
-
         <ApplicationsTable matrix={matrix} />
-      </GlassCard>
+      </Card>
 
-      {/* Compliance by Domain */}
+      {/* Preserved: Compliance by domain drill-down (real) */}
       <ComplianceByDomain
         domains={domains}
         initialDomain={initialDomain}
@@ -278,42 +168,11 @@ export default async function OverviewPage() {
   )
 }
 
-/* =========================
-   Shared Components
-========================= */
-
-function KPICard({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="md3-card p-5 flex flex-col items-center justify-center text-center min-h-[140px] hover:shadow-md transition-shadow">
-      <p className="mb-3 text-sm font-medium text-md-on-surface-variant uppercase tracking-wide">
-        {title}
-      </p>
-      <div className="flex-1 flex items-center justify-center">
-        {children}
-      </div>
-    </div>
-  )
-}
-
-function GlassCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="md3-card p-6">
-      {children}
-    </div>
-  )
-}
-
 function EmptyState({ msg }: { msg: string }) {
   return (
-    <div className="md3-card p-8 m-6">
-      <h1 className="text-2xl font-bold text-md-on-surface">Overview</h1>
-      <p className="mt-3 text-md-on-surface-variant">{msg}</p>
-    </div>
+    <Card className="m-2 p-8">
+      <h1 className="m-0 text-2xl font-bold text-ink">Overview</h1>
+      <p className="mt-3 text-muted">{msg}</p>
+    </Card>
   )
 }
